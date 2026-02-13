@@ -2,11 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Niyalo · Owner Suite</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    /* ----- GLOBAL RESET ----- */
     * {
       margin: 0;
       padding: 0;
@@ -16,7 +17,7 @@
       background: #12100e;
       background-image: radial-gradient(circle at 15% 30%, #2a2420 0%, #12100e 95%);
       font-family: 'Plus Jakarta Sans', sans-serif;
-      padding: 2rem;
+      padding: 1.5rem;
       display: flex;
       justify-content: center;
     }
@@ -29,114 +30,113 @@
     .owner-header {
       background: rgba(28, 24, 22, 0.95);
       backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       border: 1px solid rgba(196, 154, 108, 0.3);
-      border-radius: 100px 100px 30px 30px;
-      padding: 1.2rem 2.5rem;
-      margin-bottom: 2rem;
+      border-radius: 60px 60px 30px 30px;
+      padding: 1rem 1.8rem;
+      margin-bottom: 1.8rem;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
       border-bottom: 5px solid #c49a6c;
-      box-shadow: 0 20px 40px -10px black;
+      box-shadow: 0 20px 35px -10px black;
     }
     .logo-area {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 12px;
     }
     .logo-icon {
       background: #c49a6c;
-      width: 54px;
-      height: 54px;
-      border-radius: 18px;
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.8rem;
+      font-size: 1.6rem;
       color: #12100e;
-      box-shadow: 0 8px 15px rgba(196, 154, 108, 0.4);
     }
     .logo-text h1 {
       font-family: 'Playfair Display', serif;
-      font-size: 2rem;
+      font-size: 1.6rem;
       font-weight: 700;
       color: #fcede5;
-      letter-spacing: -0.5px;
     }
     .logo-text span {
-      font-size: 0.75rem;
+      font-size: 0.65rem;
       color: #c9ad93;
-      letter-spacing: 3px;
+      letter-spacing: 2px;
       text-transform: uppercase;
     }
     
-    /* ----- EDIT MODE TOGGLE ----- */
+    /* ----- EDIT CONTROLS ----- */
     .edit-controls {
       display: flex;
-      gap: 1rem;
+      gap: 0.8rem;
       align-items: center;
+      flex-wrap: wrap;
     }
     .edit-mode-btn {
       background: #2d5a4b;
       color: white;
       border: 1px solid #6b9b87;
-      padding: 0.8rem 2.2rem;
+      padding: 0.6rem 1.5rem;
       border-radius: 60px;
-      font-size: 1rem;
+      font-size: 0.9rem;
       font-weight: 700;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 8px;
       cursor: pointer;
       transition: all 0.2s;
     }
     .edit-mode-btn.active {
       background: #c49a6c;
       border-color: #e0b692;
-      box-shadow: 0 0 15px #c49a6c;
+      box-shadow: 0 0 15px rgba(196, 154, 108, 0.5);
     }
     .save-btn {
       background: #27ae60;
       color: white;
       border: none;
-      padding: 0.8rem 2.5rem;
+      padding: 0.6rem 1.8rem;
       border-radius: 60px;
-      font-size: 1rem;
+      font-size: 0.9rem;
       font-weight: 700;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 8px;
       cursor: pointer;
       transition: 0.2s;
-      box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
     }
     .save-btn:hover {
       background: #2ecc71;
-      transform: scale(1.05);
+      transform: scale(1.03);
     }
     .guest-link {
       background: #5f4a3d;
       color: white;
-      padding: 0.8rem 2rem;
+      padding: 0.6rem 1.5rem;
       border-radius: 60px;
       text-decoration: none;
+      font-size: 0.9rem;
       font-weight: 600;
       display: flex;
       align-items: center;
-      gap: 8px;
-      border: 1px solid #a8846a;
+      gap: 6px;
     }
     
-    /* ----- EDITABLE STYLES - ONLY WHEN EDIT MODE ACTIVE ----- */
+    /* ----- EDITABLE STYLES ----- */
     [contenteditable="true"] {
       outline: none;
       border-bottom: 2px dashed #b18067;
       background: rgba(255, 235, 220, 0.3);
       cursor: text;
-      min-width: 1.8rem;
+      min-width: 1.5rem;
       display: inline-block;
-      padding: 0 6px;
+      padding: 0 4px;
       border-radius: 6px 6px 2px 2px;
       transition: all 0.15s;
       color: #2d241f;
@@ -148,10 +148,10 @@
     [contenteditable="true"]:focus {
       background: #fff8e7;
       border-bottom: 4px solid #7e4f3a;
-      box-shadow: 0 6px 12px rgba(126, 79, 58, 0.15);
+      box-shadow: 0 4px 8px rgba(126, 79, 58, 0.1);
     }
     
-    /* ----- LOCKED MODE - COMPLETELY UNCLICKABLE, NO HOVER, NO CURSOR ----- */
+    /* ----- LOCKED MODE - COMPLETELY UNCLICKABLE ----- */
     .editing-disabled [contenteditable="true"],
     .editing-disabled .category-title span,
     .editing-disabled .item-name span,
@@ -171,7 +171,6 @@
       pointer-events: none !important;
       user-select: none !important;
       -webkit-user-select: none !important;
-      color: #2d241f !important;
     }
     
     .editing-disabled .delete-btn,
@@ -186,89 +185,92 @@
       display: none !important;
     }
     
-    /* No hover effects when disabled */
-    .editing-disabled .menu-row:hover {
-      background: transparent !important;
-    }
-    
-    .editing-disabled .category-card:hover {
-      border-color: #efdbd1 !important;
-      box-shadow: 0 15px 30px -15px rgba(79, 53, 41, 0.12) !important;
-    }
-    
     /* ----- MAIN MENU CARD ----- */
     .menu-master {
       background: #fcf7f2;
-      border-radius: 64px 64px 48px 48px;
-      padding: 2.8rem;
-      box-shadow: 0 40px 60px -20px black;
+      border-radius: 48px 48px 36px 36px;
+      padding: 1.8rem;
+      box-shadow: 0 30px 50px -20px black;
       border: 1px solid rgba(229, 179, 144, 0.5);
-      margin-bottom: 2rem;
+      margin-bottom: 1.8rem;
     }
     
-    /* ----- HOTEL HEADER ----- */
+    /* ----- HOTEL PROFILE ----- */
     .hotel-profile {
       display: flex;
       flex-wrap: wrap;
+      gap: 1rem;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 2.5rem;
+      margin-bottom: 2rem;
       border-bottom: 3px dashed #d4b19b;
-      padding-bottom: 1.8rem;
+      padding-bottom: 1.5rem;
     }
     .hotel-title {
       font-family: 'Playfair Display', serif;
-      font-size: 2.8rem;
+      font-size: 2.2rem;
       font-weight: 700;
       color: #2b1e19;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
     .hotel-title i {
       color: #a57159;
+      font-size: 2rem;
     }
     .contact-bubble {
       background: #fff1e9;
-      padding: 0.8rem 2rem;
-      border-radius: 80px;
+      padding: 0.7rem 1.5rem;
+      border-radius: 60px;
       display: flex;
       flex-wrap: wrap;
-      gap: 2rem;
+      gap: 1.2rem;
     }
     
     /* ----- CATEGORY CARDS ----- */
     .category-card {
       background: white;
-      border-radius: 44px;
-      padding: 2rem;
-      margin-bottom: 2.2rem;
+      border-radius: 36px;
+      padding: 1.5rem;
+      margin-bottom: 1.8rem;
       border: 1px solid #efdbd1;
-      box-shadow: 0 15px 30px -15px rgba(79, 53, 41, 0.1);
-      transition: all 0.2s;
     }
     .category-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       border-bottom: 2px dotted #eacbbe;
-      padding-bottom: 1rem;
-      margin-bottom: 1.2rem;
+      padding-bottom: 0.8rem;
+      margin-bottom: 1rem;
     }
     .category-title {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
     .category-title i {
-      font-size: 2rem;
+      font-size: 1.8rem;
       color: #aa7862;
     }
     .category-title h3 {
       font-family: 'Playfair Display', serif;
-      font-size: 1.8rem;
+      font-size: 1.6rem;
       font-weight: 600;
       color: #3d2c24;
+    }
+    .delete-cat-btn {
+      background: #c0392b;
+      color: white;
+      border: none;
+      border-radius: 40px;
+      padding: 0.3rem 1.2rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
     }
     
     /* ----- MENU ROWS ----- */
@@ -276,58 +278,47 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.8rem 0;
+      padding: 0.7rem 0;
       border-bottom: 1px dashed #efd9d0;
-      transition: background 0.15s;
     }
     .item-name {
       font-weight: 700;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       color: #2c1e19;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
     }
     .item-desc {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       color: #6b5246;
-      margin-top: 2px;
     }
     .price-tag {
       font-weight: 800;
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       background: #ffefe7;
       padding: 0.2rem 1.2rem;
       border-radius: 60px;
-      border: 1px solid #f3d9ce;
       color: #5c3d33;
     }
     .price-tag span:before {
       content: "रू";
       margin-right: 4px;
     }
-    
-    /* ----- BUTTONS ----- */
-    .delete-btn, .delete-cat-btn {
+    .delete-btn {
       background: #c0392b;
       color: white;
       border: none;
       border-radius: 50%;
-      width: 32px;
-      height: 32px;
+      width: 30px;
+      height: 30px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      margin-left: 10px;
-      transition: 0.2s;
-    }
-    .delete-cat-btn {
-      border-radius: 40px;
-      width: auto;
-      padding: 0.3rem 1.2rem;
-      gap: 6px;
+      margin-left: 8px;
+      opacity: 0.8;
     }
     .add-item-btn, .add-category-btn, .add-badge-btn, .add-footer-btn {
       background: #2c5f4b;
@@ -335,42 +326,39 @@
       border: none;
       border-radius: 60px;
       padding: 0.5rem 1.5rem;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: 600;
       display: inline-flex;
       align-items: center;
       gap: 8px;
       cursor: pointer;
       margin-top: 0.8rem;
-      transition: 0.2s;
     }
     .add-category-btn {
       background: #8e6b4f;
-      padding: 0.8rem 2rem;
-      font-size: 1rem;
     }
     .add-footer-btn {
       background: #8f6e5a;
     }
     
-    /* ----- FOOTER ----- */
+    /* ----- FOOTER EDITOR ----- */
     .footer-editor {
       background: #fdf1ea;
-      border-radius: 80px;
-      padding: 2rem;
-      margin-top: 2rem;
+      border-radius: 60px;
+      padding: 1.5rem;
+      margin-top: 1.8rem;
     }
     .footer-badge-container {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 1.5rem;
+      gap: 1rem;
       margin-bottom: 1rem;
     }
     .footer-badge {
       background: #e7d2c5;
       border-radius: 60px;
-      padding: 0.4rem 1.2rem;
+      padding: 0.3rem 1.2rem;
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -380,57 +368,54 @@
     .sync-status {
       display: flex;
       justify-content: flex-end;
-      margin-top: 1rem;
     }
     .sync-pulse {
       background: #2d5a4b;
       color: white;
-      padding: 0.7rem 2rem;
+      padding: 0.6rem 1.8rem;
       border-radius: 60px;
       display: inline-flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
+      font-size: 0.9rem;
     }
     
-    /* ----- NO SELECT, NO HOVER WHEN LOCKED ----- */
-    .editing-disabled * {
-      user-select: none !important;
-      -webkit-user-select: none !important;
+    @media (max-width: 700px) {
+      .owner-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+      .edit-controls { width: 100%; justify-content: space-between; }
+      .hotel-title { font-size: 1.8rem; }
     }
   </style>
 </head>
 <body>
   <div class="owner-container">
-    <!-- ========== OWNER HEADER ========== -->
+    <!-- HEADER -->
     <div class="owner-header">
       <div class="logo-area">
         <div class="logo-icon">
           <i class="fas fa-crown"></i>
         </div>
         <div class="logo-text">
-          <h1>Niyalo · Owner Suite</h1>
+          <h1>Niyalo · Owner</h1>
           <span><i class="fas fa-shield-alt"></i> RESTAURANT CONTROL</span>
         </div>
       </div>
       <div class="edit-controls">
-        <!-- EDIT MODE TOGGLE BUTTON -->
         <button id="editModeBtn" class="edit-mode-btn active">
-          <i class="fas fa-lock-open"></i> EDIT MODE ON
+          <i class="fas fa-lock-open"></i> EDIT ON
         </button>
-        <!-- SAVE BUTTON -->
         <button id="saveBtn" class="save-btn">
-          <i class="fas fa-cloud-upload-alt"></i> SAVE & PUBLISH
+          <i class="fas fa-cloud-upload-alt"></i> SAVE
         </button>
-        <!-- GUEST PREVIEW LINK -->
         <a href="index.html" target="_blank" class="guest-link">
-          <i class="fas fa-eye"></i> GUEST VIEW
+          <i class="fas fa-eye"></i> VIEW
         </a>
       </div>
     </div>
 
-    <!-- ========== MAIN EDITABLE MENU ========== -->
+    <!-- MAIN MENU -->
     <div class="menu-master" id="masterMenu">
-      <!-- HOTEL INFO (EDITABLE) -->
+      <!-- HOTEL INFO -->
       <div class="hotel-profile">
         <div>
           <div class="hotel-title">
@@ -438,48 +423,47 @@
             <span contenteditable="true" id="hotelName" spellcheck="false">Niyalo Cafe</span>
             <i class="fas fa-mug-hot"></i>
           </div>
-          <div style="display: flex; gap: 12px; color: #5f4a3d; margin-top: 6px; margin-left: 0.5rem;">
+          <div style="display:flex;gap:8px;color:#5f4a3d;margin-top:6px;">
             <i class="fas fa-map-pin"></i>
             <span contenteditable="true" id="hotelLocation" spellcheck="false">Lakeside, Pokhara</span>
-            <span style="margin:0 6px;">•</span>
+            <span>•</span>
             <i class="fas fa-seedling"></i>
             <span contenteditable="true" id="hotelTagline" spellcheck="false">homemade · local love</span>
           </div>
         </div>
         <div class="contact-bubble">
-          <span><i class="fas fa-clock"></i> <span contenteditable="true" id="hours" spellcheck="false">7:00 – 22:00 daily</span></span>
+          <span><i class="fas fa-clock"></i> <span contenteditable="true" id="hours" spellcheck="false">7:00–22:00 daily</span></span>
           <span><i class="fas fa-phone-alt"></i> <span contenteditable="true" id="phone" spellcheck="false">+977 981-234567</span></span>
-          <span><i class="fas fa-location-dot"></i> <span contenteditable="true" id="address" spellcheck="false">Lakeside Rd, Pokhara</span></span>
         </div>
       </div>
 
-      <!-- CATEGORIES CONTAINER (DYNAMIC) -->
+      <!-- CATEGORIES -->
       <div id="categoriesContainer"></div>
 
-      <!-- ADD NEW CATEGORY BUTTON -->
-      <div style="text-align: center;">
+      <!-- ADD CATEGORY -->
+      <div style="text-align:center;">
         <button class="add-category-btn" id="addCategoryBtn">
           <i class="fas fa-plus-circle"></i> ADD NEW CATEGORY
         </button>
       </div>
 
-      <!-- FOOTER EDITOR SECTION -->
+      <!-- FOOTER -->
       <div class="footer-editor">
-        <div style="text-align: center; margin-bottom: 1.2rem;">
-          <span style="background: #ab8c7a; color: white; padding: 0.3rem 2rem; border-radius: 60px; font-weight: 600;">
+        <div style="text-align:center;margin-bottom:1rem;">
+          <span style="background:#ab8c7a;color:white;padding:0.3rem 1.5rem;border-radius:60px;font-weight:600;">
             <i class="fas fa-heart"></i> FOOTER BADGES
           </span>
         </div>
         <div class="footer-badge-container" id="footerBadgesContainer"></div>
-        <div style="text-align: center; margin-top: 1rem;">
+        <div style="text-align:center;margin-top:0.8rem;">
           <button class="add-footer-btn" id="addFooterBtn">
-            <i class="fas fa-plus"></i> ADD FOOTER BADGE
+            <i class="fas fa-plus"></i> ADD BADGE
           </button>
         </div>
-        <div style="text-align: center; margin-top: 1.8rem;">
-          <i class="fas fa-heart" style="color: #c2714b;"></i>
-          <span contenteditable="true" id="heartNote" spellcheck="false" style="font-size: 1.1rem;">order at counter · everything made to share</span>
-          <i class="fas fa-heart" style="color: #c2714b;"></i>
+        <div style="text-align:center;margin-top:1.5rem;">
+          <i class="fas fa-heart" style="color:#c2714b;"></i>
+          <span contenteditable="true" id="heartNote" spellcheck="false" style="font-size:1rem;">order at counter · everything made to share</span>
+          <i class="fas fa-heart" style="color:#c2714b;"></i>
         </div>
       </div>
     </div>
@@ -487,15 +471,14 @@
     <!-- SYNC STATUS -->
     <div class="sync-status">
       <div class="sync-pulse" id="syncStatus">
-        <i class="fas fa-check-circle"></i> READY · EDIT MODE ACTIVE
+        <i class="fas fa-check-circle"></i> READY
       </div>
     </div>
   </div>
 
   <script>
     // ===========================================
-    // NIYALO · OWNER PANEL - COMPLETELY LOCKED WHEN EDIT MODE OFF
-    // NO CLICKING, NO SELECTING, NO HOVER, NOTHING
+    // NIYALO · OWNER SUITE - COMPLETE MOBILE FIX
     // ===========================================
     
     // ---------- MASTER MENU DATA ----------
@@ -504,7 +487,7 @@
         name: "Niyalo Cafe",
         location: "Lakeside, Pokhara",
         tagline: "homemade · local love",
-        hours: "7:00 – 22:00 daily",
+        hours: "7:00–22:00 daily",
         phone: "+977 981-234567",
         address: "Lakeside Rd, Pokhara",
         heartNote: "order at counter · everything made to share"
@@ -515,78 +498,47 @@
         { id: "footer3", text: "free high-speed wifi" }
       ],
       categories: [
-        {
-          id: "cat1",
-          title: "all-day breakfast",
-          icon: "sunrise",
-          items: [
-            { id: "item1_1", name: "Niyalo Shakshuka", desc: "poached eggs · spiced tomato · feta", price: "590", badge: null },
-            { id: "item1_2", name: "Cardamom French Toast", desc: "brioche · orange · maple", price: "520", badge: null },
-            { id: "item1_3", name: "Avocado Garden Toast", desc: "sourdough · za'atar · radish", price: "580", badge: "vegan" },
-            { id: "item1_4", name: "House Granola Pot", desc: "yoghurt · berries · honey", price: "420", badge: null }
-          ]
-        },
-        {
-          id: "cat2",
-          title: "small plates",
-          icon: "utensils",
-          items: [
-            { id: "item2_1", name: "Burnt Eggplant Dip", desc: "smoked paprika · flatbread", price: "450", badge: null },
-            { id: "item2_2", name: "Chili Garlic Prawns", desc: "lemon · parsley · sourdough", price: "690", badge: null },
-            { id: "item2_3", name: "Wild Mushroom Toast", desc: "thyme · truffle oil · pecorino", price: "620", badge: "signature" },
-            { id: "item2_4", name: "Harissa Cauliflower", desc: "tahini · pomegranate · almonds", price: "510", badge: null }
-          ]
-        },
-        {
-          id: "cat3",
-          title: "bowls & greens",
-          icon: "leaf",
-          items: [
-            { id: "item3_1", name: "Niyalo Harvest Bowl", desc: "quinoa · sweet potato · kale · miso", price: "650", badge: null },
-            { id: "item3_2", name: "Sesame Salmon", desc: "soba · edamame · pickled ginger", price: "820", badge: null },
-            { id: "item3_3", name: "Turmeric Coconut Lentils", desc: "brown rice · crispy shallots", price: "550", badge: "vegan" }
-          ]
-        },
-        {
-          id: "cat4",
-          title: "slow sips",
-          icon: "mug-saucer",
-          items: [
-            { id: "item4_1", name: "House Espresso Blend", desc: "single origin · honey process", price: "210", badge: null },
-            { id: "item4_2", name: "Cardamom Rose Latte", desc: "oat milk · dried rose petals", price: "290", badge: "best seller" },
-            { id: "item4_3", name: "Iced Turmeric Tonic", desc: "ginger · lemon · agave", price: "250", badge: null },
-            { id: "item4_4", name: "Salted Honey Affogato", desc: "gelato · espresso · maldon", price: "360", badge: null }
-          ]
-        },
-        {
-          id: "cat5",
-          title: "sweet corner",
-          icon: "cake",
-          items: [
-            { id: "item5_1", name: "Miso Chocolate Chip Cookie", desc: "brown butter · sea salt", price: "180", badge: null },
-            { id: "item5_2", name: "Pistachio & Orange Cake", desc: "labneh frosting · rose", price: "320", badge: null },
-            { id: "item5_3", name: "Vegan Berry Crumble", desc: "oat topping · coconut cream", price: "340", badge: null },
-            { id: "item5_4", name: "Chai-Spiced Bun", desc: "cream cheese drizzle", price: "220", badge: null }
-          ]
-        },
-        {
-          id: "cat6",
-          title: "cold + curated",
-          icon: "wine-bottle",
-          items: [
-            { id: "item6_1", name: "Kombucha (rotating)", desc: "ginger · lemongrass · local", price: "250", badge: null },
-            { id: "item6_2", name: "Orange & Carrot", desc: "cold pressed · turmeric", price: "290", badge: null },
-            { id: "item6_3", name: "Michelada", desc: "lime · tajin · agave", price: "390", badge: null },
-            { id: "item6_4", name: "Hibiscus Spritz", desc: "sparkling · mint · lime", price: "350", badge: null }
-          ]
-        }
+        { id: "cat1", title: "all-day breakfast", icon: "sunrise", items: [
+          { id: "item1_1", name: "Niyalo Shakshuka", desc: "poached eggs · spiced tomato · feta", price: "590", badge: null },
+          { id: "item1_2", name: "Cardamom French Toast", desc: "brioche · orange · maple", price: "520", badge: null },
+          { id: "item1_3", name: "Avocado Garden Toast", desc: "sourdough · za'atar · radish", price: "580", badge: "vegan" },
+          { id: "item1_4", name: "House Granola Pot", desc: "yoghurt · berries · honey", price: "420", badge: null }
+        ]},
+        { id: "cat2", title: "small plates", icon: "utensils", items: [
+          { id: "item2_1", name: "Burnt Eggplant Dip", desc: "smoked paprika · flatbread", price: "450", badge: null },
+          { id: "item2_2", name: "Chili Garlic Prawns", desc: "lemon · parsley · sourdough", price: "690", badge: null },
+          { id: "item2_3", name: "Wild Mushroom Toast", desc: "thyme · truffle oil · pecorino", price: "620", badge: "signature" },
+          { id: "item2_4", name: "Harissa Cauliflower", desc: "tahini · pomegranate · almonds", price: "510", badge: null }
+        ]},
+        { id: "cat3", title: "bowls & greens", icon: "leaf", items: [
+          { id: "item3_1", name: "Niyalo Harvest Bowl", desc: "quinoa · sweet potato · kale · miso", price: "650", badge: null },
+          { id: "item3_2", name: "Sesame Salmon", desc: "soba · edamame · pickled ginger", price: "820", badge: null },
+          { id: "item3_3", name: "Turmeric Coconut Lentils", desc: "brown rice · crispy shallots", price: "550", badge: "vegan" }
+        ]},
+        { id: "cat4", title: "slow sips", icon: "mug-saucer", items: [
+          { id: "item4_1", name: "House Espresso Blend", desc: "single origin · honey process", price: "210", badge: null },
+          { id: "item4_2", name: "Cardamom Rose Latte", desc: "oat milk · dried rose petals", price: "290", badge: "best seller" },
+          { id: "item4_3", name: "Iced Turmeric Tonic", desc: "ginger · lemon · agave", price: "250", badge: null },
+          { id: "item4_4", name: "Salted Honey Affogato", desc: "gelato · espresso · maldon", price: "360", badge: null }
+        ]},
+        { id: "cat5", title: "sweet corner", icon: "cake", items: [
+          { id: "item5_1", name: "Miso Chocolate Chip Cookie", desc: "brown butter · sea salt", price: "180", badge: null },
+          { id: "item5_2", name: "Pistachio & Orange Cake", desc: "labneh frosting · rose", price: "320", badge: null },
+          { id: "item5_3", name: "Vegan Berry Crumble", desc: "oat topping · coconut cream", price: "340", badge: null },
+          { id: "item5_4", name: "Chai-Spiced Bun", desc: "cream cheese drizzle", price: "220", badge: null }
+        ]},
+        { id: "cat6", title: "cold + curated", icon: "wine-bottle", items: [
+          { id: "item6_1", name: "Kombucha (rotating)", desc: "ginger · lemongrass · local", price: "250", badge: null },
+          { id: "item6_2", name: "Orange & Carrot", desc: "cold pressed · turmeric", price: "290", badge: null },
+          { id: "item6_3", name: "Michelada", desc: "lime · tajin · agave", price: "390", badge: null },
+          { id: "item6_4", name: "Hibiscus Spritz", desc: "sparkling · mint · lime", price: "350", badge: null }
+        ]}
       ]
     };
 
-    // ---------- GLOBAL EDIT MODE STATE ----------
-    let isEditMode = true; // Start with edit mode ON by default
+    let isEditMode = true;
     
-    // ---------- GENERATE UNIQUE ID ----------
+    // ---------- GENERATE ID ----------
     function generateId(prefix) {
       return prefix + '_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
     }
@@ -594,23 +546,22 @@
     // ---------- TOGGLE EDIT MODE ----------
     function toggleEditMode() {
       isEditMode = !isEditMode;
-      const editBtn = document.getElementById('editModeBtn');
-      const masterMenu = document.getElementById('masterMenu');
-      
+      const btn = document.getElementById('editModeBtn');
+      const master = document.getElementById('masterMenu');
       if (isEditMode) {
-        editBtn.innerHTML = '<i class="fas fa-lock-open"></i> EDIT MODE ON';
-        editBtn.classList.add('active');
-        masterMenu.classList.remove('editing-disabled');
+        btn.innerHTML = '<i class="fas fa-lock-open"></i> EDIT ON';
+        btn.classList.add('active');
+        master.classList.remove('editing-disabled');
       } else {
-        editBtn.innerHTML = '<i class="fas fa-lock"></i> EDIT MODE OFF';
-        editBtn.classList.remove('active');
-        masterMenu.classList.add('editing-disabled');
+        btn.innerHTML = '<i class="fas fa-lock"></i> EDIT OFF';
+        btn.classList.remove('active');
+        master.classList.add('editing-disabled');
       }
     }
 
-    // ---------- SAVE TO LOCALSTORAGE (PUBLISH TO GUEST) ----------
-    function saveToLocalStorage(showNotification = true) {
-      // Update hotel data from DOM
+    // ---------- SAVE & PUBLISH (WITH MOBILE FIX) ----------
+    function saveToLocalStorage(showAlert = true) {
+      // Update hotel data
       menuData.hotel.name = document.getElementById('hotelName')?.innerText || menuData.hotel.name;
       menuData.hotel.location = document.getElementById('hotelLocation')?.innerText || menuData.hotel.location;
       menuData.hotel.tagline = document.getElementById('hotelTagline')?.innerText || menuData.hotel.tagline;
@@ -619,54 +570,59 @@
       menuData.hotel.address = document.getElementById('address')?.innerText || menuData.hotel.address;
       menuData.hotel.heartNote = document.getElementById('heartNote')?.innerText || menuData.hotel.heartNote;
       
-      // Update footer from DOM
-      menuData.footer.forEach((item, index) => {
-        const el = document.getElementById(item.id);
-        if (el) item.text = el.innerText;
+      // Update footer
+      menuData.footer.forEach(f => {
+        const el = document.getElementById(f.id);
+        if (el) f.text = el.innerText;
       });
       
-      // Update items from DOM
+      // Update items
       menuData.categories.forEach(cat => {
         cat.items.forEach(item => {
-          const nameEl = document.getElementById(item.id);
-          if (nameEl) item.name = nameEl.innerText;
-          const descEl = document.getElementById(item.id + 'Desc');
-          if (descEl) item.desc = descEl.innerText;
-          const priceEl = document.getElementById(item.id + 'Price');
-          if (priceEl) item.price = priceEl.innerText;
-          const badgeEl = document.getElementById(item.id + 'Badge');
-          if (badgeEl && item.badge) item.badge = badgeEl.innerText;
+          const n = document.getElementById(item.id);
+          if (n) item.name = n.innerText;
+          const d = document.getElementById(item.id + 'Desc');
+          if (d) item.desc = d.innerText;
+          const p = document.getElementById(item.id + 'Price');
+          if (p) item.price = p.innerText;
+          const b = document.getElementById(item.id + 'Badge');
+          if (b && item.badge) item.badge = b.innerText;
         });
-        const titleEl = document.getElementById(cat.id + 'Title');
-        if (titleEl) cat.title = titleEl.innerText;
+        const t = document.getElementById(cat.id + 'Title');
+        if (t) cat.title = t.innerText;
       });
       
-      // Save to localStorage
+      // ========== 🚀 MOBILE SYNC FIX ==========
+      // Save to localStorage (first time)
       localStorage.setItem('niyalo_live_menu', JSON.stringify(menuData));
       
-      // Update sync status
-      const statusEl = document.getElementById('syncStatus');
-      if (statusEl) {
-        statusEl.innerHTML = '<i class="fas fa-check-circle"></i> SAVED · GUEST UPDATED ' + new Date().toLocaleTimeString();
-        statusEl.style.background = '#27ae60';
-        
-        // Reset after 3 seconds
+      // Force second write for mobile
+      setTimeout(() => {
+        localStorage.setItem('niyalo_live_menu', JSON.stringify(menuData));
+      }, 50);
+      
+      // Create timestamp to trigger mobile storage event
+      localStorage.setItem('niyalo_last_update', Date.now().toString());
+      
+      // Also save to sessionStorage as backup (mobile trick)
+      sessionStorage.setItem('niyalo_backup', JSON.stringify(menuData));
+      // ========== MOBILE FIX END ==========
+      
+      // Update status
+      const status = document.getElementById('syncStatus');
+      if (status) {
+        status.innerHTML = '<i class="fas fa-check-circle"></i> SAVED ' + new Date().toLocaleTimeString();
+        status.style.background = '#27ae60';
         setTimeout(() => {
-          if (statusEl) {
-            statusEl.style.background = '#2d5a4b';
-            statusEl.innerHTML = '<i class="fas fa-check-circle"></i> READY · ALL CHANGES SAVED';
-          }
+          status.style.background = '#2d5a4b';
+          status.innerHTML = '<i class="fas fa-check-circle"></i> READY';
         }, 3000);
       }
       
-      if (showNotification) {
-        alert('✅ Menu published! Guest page now shows your changes.');
-      }
-      
-      console.log('✅ Saved to localStorage at', new Date().toLocaleTimeString());
+      if (showAlert) alert('✅ Menu published! Guest sees changes now.');
     }
 
-    // ---------- RENDER OWNER MENU ----------
+    // ---------- RENDER MENU ----------
     function renderOwnerMenu() {
       const container = document.getElementById('categoriesContainer');
       container.innerHTML = '';
@@ -681,7 +637,7 @@
         header.innerHTML = `
           <div class="category-title">
             <i class="fas fa-${cat.icon}"></i>
-            <h3><span contenteditable="true" id="${cat.id}Title" spellcheck="false">${cat.title}</span></h3>
+            <h3><span contenteditable="true" id="${cat.id}Title">${cat.title}</span></h3>
           </div>
           <button class="delete-cat-btn" onclick="deleteCategory('${cat.id}')">
             <i class="fas fa-trash-alt"></i> DELETE
@@ -694,77 +650,61 @@
           const row = document.createElement('div');
           row.className = 'menu-row';
           
-          const leftDiv = document.createElement('div');
-          leftDiv.style.flex = '1';
+          const left = document.createElement('div');
+          left.style.flex = '1';
           
           const nameDiv = document.createElement('div');
           nameDiv.className = 'item-name';
-          nameDiv.innerHTML = `<span contenteditable="true" id="${item.id}" spellcheck="false">${item.name}</span>`;
+          nameDiv.innerHTML = `<span contenteditable="true" id="${item.id}">${item.name}</span>`;
           
-          // Badge handling
           if (item.badge) {
-            const badgeSpan = document.createElement('span');
-            badgeSpan.style.background = '#e7d2c5';
-            badgeSpan.style.borderRadius = '60px';
-            badgeSpan.style.padding = '0.2rem 1rem';
-            badgeSpan.style.marginLeft = '10px';
-            badgeSpan.style.fontSize = '0.7rem';
-            badgeSpan.style.fontWeight = '700';
-            badgeSpan.innerHTML = `
-              <span contenteditable="true" id="${item.id}Badge" spellcheck="false">${item.badge}</span>
-              <button class="delete-btn" style="width:24px; height:24px; margin-left:6px;" onclick="deleteBadge('${item.id}')">
+            const badge = document.createElement('span');
+            badge.style.cssText = 'background:#e7d2c5;border-radius:60px;padding:0.2rem 1rem;margin-left:8px;font-size:0.7rem;font-weight:700;';
+            badge.innerHTML = `
+              <span contenteditable="true" id="${item.id}Badge">${item.badge}</span>
+              <button class="delete-btn" style="width:24px;height:24px;margin-left:6px;" onclick="deleteBadge('${item.id}')">
                 <i class="fas fa-times"></i>
               </button>
             `;
-            nameDiv.appendChild(badgeSpan);
+            nameDiv.appendChild(badge);
           } else {
-            const addBadge = document.createElement('button');
-            addBadge.className = 'add-badge-btn';
-            addBadge.style.background = '#9f7e6b';
-            addBadge.style.color = 'white';
-            addBadge.style.border = 'none';
-            addBadge.style.borderRadius = '40px';
-            addBadge.style.padding = '0.2rem 1rem';
-            addBadge.style.marginLeft = '10px';
-            addBadge.style.fontSize = '0.7rem';
-            addBadge.innerHTML = '<i class="fas fa-tag"></i> ADD BADGE';
-            addBadge.onclick = (e) => {
-              e.stopPropagation();
-              addBadgeToItem(item.id);
-            };
-            nameDiv.appendChild(addBadge);
+            const addBtn = document.createElement('button');
+            addBtn.className = 'add-badge-btn';
+            addBtn.style.cssText = 'background:#9f7e6b;color:white;border:none;border-radius:40px;padding:0.2rem 1rem;margin-left:8px;font-size:0.7rem;';
+            addBtn.innerHTML = '<i class="fas fa-tag"></i> ADD BADGE';
+            addBtn.onclick = (e) => { e.stopPropagation(); addBadgeToItem(item.id); };
+            nameDiv.appendChild(addBtn);
           }
           
           const descDiv = document.createElement('div');
           descDiv.className = 'item-desc';
-          descDiv.innerHTML = `<span contenteditable="true" id="${item.id}Desc" spellcheck="false">${item.desc}</span>`;
+          descDiv.innerHTML = `<span contenteditable="true" id="${item.id}Desc">${item.desc}</span>`;
           
-          leftDiv.appendChild(nameDiv);
-          leftDiv.appendChild(descDiv);
+          left.appendChild(nameDiv);
+          left.appendChild(descDiv);
           
-          const rightDiv = document.createElement('div');
-          rightDiv.style.display = 'flex';
-          rightDiv.style.alignItems = 'center';
-          rightDiv.style.gap = '12px';
+          const right = document.createElement('div');
+          right.style.display = 'flex';
+          right.style.alignItems = 'center';
+          right.style.gap = '8px';
           
-          const priceSpan = document.createElement('span');
-          priceSpan.className = 'price-tag';
-          priceSpan.innerHTML = `<span contenteditable="true" id="${item.id}Price" spellcheck="false">${item.price}</span>`;
+          const price = document.createElement('span');
+          price.className = 'price-tag';
+          price.innerHTML = `<span contenteditable="true" id="${item.id}Price">${item.price}</span>`;
           
-          const deleteBtn = document.createElement('button');
-          deleteBtn.className = 'delete-btn';
-          deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
-          deleteBtn.onclick = () => deleteMenuItem(cat.id, item.id);
+          const del = document.createElement('button');
+          del.className = 'delete-btn';
+          del.innerHTML = '<i class="fas fa-trash"></i>';
+          del.onclick = () => deleteMenuItem(cat.id, item.id);
           
-          rightDiv.appendChild(priceSpan);
-          rightDiv.appendChild(deleteBtn);
+          right.appendChild(price);
+          right.appendChild(del);
           
-          row.appendChild(leftDiv);
-          row.appendChild(rightDiv);
+          row.appendChild(left);
+          row.appendChild(right);
           card.appendChild(row);
         });
         
-        // Add item button
         const addBtn = document.createElement('button');
         addBtn.className = 'add-item-btn';
         addBtn.innerHTML = '<i class="fas fa-plus-circle"></i> ADD NEW ITEM';
@@ -774,30 +714,23 @@
         container.appendChild(card);
       });
       
-      // Render footer
-      renderFooterBadges();
+      renderFooter();
       
-      // Apply current edit mode state
-      const masterMenu = document.getElementById('masterMenu');
       if (!isEditMode) {
-        masterMenu.classList.add('editing-disabled');
-      } else {
-        masterMenu.classList.remove('editing-disabled');
+        document.getElementById('masterMenu').classList.add('editing-disabled');
       }
     }
 
-    // ---------- RENDER FOOTER BADGES ----------
-    function renderFooterBadges() {
+    function renderFooter() {
       const container = document.getElementById('footerBadgesContainer');
       container.innerHTML = '';
-      
-      menuData.footer.forEach(item => {
+      menuData.footer.forEach(f => {
         const badge = document.createElement('span');
         badge.className = 'footer-badge';
         badge.innerHTML = `
           <i class="fas fa-heart" style="color:#a5664a;"></i>
-          <span contenteditable="true" id="${item.id}" spellcheck="false">${item.text}</span>
-          <button class="delete-btn" style="width:24px; height:24px;" onclick="deleteFooterItem('${item.id}')">
+          <span contenteditable="true" id="${f.id}">${f.text}</span>
+          <button class="delete-btn" style="width:24px;height:24px;" onclick="deleteFooterItem('${f.id}')">
             <i class="fas fa-times"></i>
           </button>
         `;
@@ -805,143 +738,69 @@
       });
     }
 
-    // ---------- CRUD OPERATIONS ----------
-    window.deleteCategory = function(catId) {
-      if (!isEditMode) {
-        alert('⚠️ Please turn ON Edit Mode to make changes.');
-        return;
-      }
-      if (confirm('Delete this entire category?')) {
-        menuData.categories = menuData.categories.filter(c => c.id !== catId);
+    // ---------- CRUD ----------
+    window.deleteCategory = function(id) {
+      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      if (confirm('Delete category?')) {
+        menuData.categories = menuData.categories.filter(c => c.id !== id);
         renderOwnerMenu();
       }
     };
-    
     window.deleteMenuItem = function(catId, itemId) {
-      if (!isEditMode) {
-        alert('⚠️ Please turn ON Edit Mode to make changes.');
-        return;
-      }
-      if (confirm('Delete this item?')) {
-        const cat = menuData.categories.find(c => c.id === catId);
-        if (cat) {
-          cat.items = cat.items.filter(i => i.id !== itemId);
-          renderOwnerMenu();
-        }
-      }
-    };
-    
-    window.deleteBadge = function(itemId) {
-      if (!isEditMode) {
-        alert('⚠️ Please turn ON Edit Mode to make changes.');
-        return;
-      }
-      menuData.categories.forEach(cat => {
-        cat.items.forEach(item => {
-          if (item.id === itemId) item.badge = null;
-        });
-      });
-      renderOwnerMenu();
-    };
-    
-    window.deleteFooterItem = function(footerId) {
-      if (!isEditMode) {
-        alert('⚠️ Please turn ON Edit Mode to make changes.');
-        return;
-      }
-      menuData.footer = menuData.footer.filter(f => f.id !== footerId);
-      renderOwnerMenu();
-    };
-    
-    window.addNewCategory = function() {
-      if (!isEditMode) {
-        alert('⚠️ Please turn ON Edit Mode to make changes.');
-        return;
-      }
-      const newId = 'cat' + Date.now();
-      menuData.categories.push({
-        id: newId,
-        title: 'New Category',
-        icon: 'utensils',
-        items: [{ id: generateId(newId + '_item'), name: 'New Dish', desc: 'description here', price: '199', badge: null }]
-      });
-      renderOwnerMenu();
-    };
-    
-    window.addNewItem = function(catId) {
-      if (!isEditMode) {
-        alert('⚠️ Please turn ON Edit Mode to make changes.');
-        return;
-      }
+      if (!isEditMode) return alert('Turn ON Edit Mode first');
       const cat = menuData.categories.find(c => c.id === catId);
       if (cat) {
-        cat.items.push({
-          id: generateId(catId + '_item'),
-          name: 'New Item',
-          desc: 'item description',
-          price: '199',
-          badge: null
-        });
+        cat.items = cat.items.filter(i => i.id !== itemId);
         renderOwnerMenu();
       }
     };
-    
+    window.deleteBadge = function(itemId) {
+      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      menuData.categories.forEach(c => c.items.forEach(i => { if (i.id === itemId) i.badge = null; }));
+      renderOwnerMenu();
+    };
+    window.deleteFooterItem = function(id) {
+      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      menuData.footer = menuData.footer.filter(f => f.id !== id);
+      renderOwnerMenu();
+    };
+    window.addNewCategory = function() {
+      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      const id = 'cat' + Date.now();
+      menuData.categories.push({ id, title: 'New Category', icon: 'utensils', items: [{ id: generateId(id+'_item'), name: 'New Dish', desc: 'description', price: '199', badge: null }] });
+      renderOwnerMenu();
+    };
+    window.addNewItem = function(catId) {
+      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      const cat = menuData.categories.find(c => c.id === catId);
+      if (cat) cat.items.push({ id: generateId(catId+'_item'), name: 'New Item', desc: 'description', price: '199', badge: null });
+      renderOwnerMenu();
+    };
     window.addBadgeToItem = function(itemId) {
-      if (!isEditMode) {
-        alert('⚠️ Please turn ON Edit Mode to make changes.');
-        return;
-      }
-      const text = prompt('Enter badge text (e.g., vegan, spicy, signature):');
+      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      const text = prompt('Badge text:');
       if (text && text.trim()) {
-        menuData.categories.forEach(cat => {
-          cat.items.forEach(item => {
-            if (item.id === itemId) item.badge = text.trim();
-          });
-        });
+        menuData.categories.forEach(c => c.items.forEach(i => { if (i.id === itemId) i.badge = text.trim(); }));
         renderOwnerMenu();
       }
     };
-    
     window.addFooterItem = function() {
-      if (!isEditMode) {
-        alert('⚠️ Please turn ON Edit Mode to make changes.');
-        return;
-      }
-      menuData.footer.push({ id: 'footer' + Date.now(), text: 'new feature' });
+      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      menuData.footer.push({ id: 'footer'+Date.now(), text: 'new feature' });
       renderOwnerMenu();
     };
 
-    // ---------- INITIALIZE ----------
+    // ---------- INIT ----------
     window.onload = function() {
-      // Initial render
       renderOwnerMenu();
       
-      // Set up Edit Mode button
-      const editBtn = document.getElementById('editModeBtn');
-      editBtn.addEventListener('click', toggleEditMode);
-      
-      // Set up Save button
-      const saveBtn = document.getElementById('saveBtn');
-      saveBtn.addEventListener('click', function() {
-        saveToLocalStorage(true);
-      });
-      
-      // Set up Add Category button
+      document.getElementById('editModeBtn').addEventListener('click', toggleEditMode);
+      document.getElementById('saveBtn').addEventListener('click', () => saveToLocalStorage(true));
       document.getElementById('addCategoryBtn').addEventListener('click', addNewCategory);
-      
-      // Set up Add Footer button
       document.getElementById('addFooterBtn').addEventListener('click', addFooterItem);
       
-      // Initial save to localStorage (so guest has data)
-      setTimeout(() => {
-        saveToLocalStorage(false);
-      }, 500);
-      
-      // Update status
-      const statusEl = document.getElementById('syncStatus');
-      if (statusEl) {
-        statusEl.innerHTML = '<i class="fas fa-check-circle"></i> READY · EDIT MODE ACTIVE';
-      }
+      // Initial save
+      setTimeout(() => saveToLocalStorage(false), 500);
     };
   </script>
 </body>
