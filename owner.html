@@ -7,7 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    /* ----- GLOBAL RESET ----- */
+    /* ----- SAME BEAUTIFUL STYLES - NO CHANGES NEEDED ----- */
     * {
       margin: 0;
       padding: 0;
@@ -437,7 +437,7 @@
         </div>
       </div>
 
-      <!-- CATEGORIES -->
+      <!-- CATEGORIES CONTAINER -->
       <div id="categoriesContainer"></div>
 
       <!-- ADD CATEGORY -->
@@ -478,11 +478,12 @@
 
   <script>
     // ===========================================
-    // NIYALO · OWNER SUITE - COMPLETE MOBILE FIX
+    // NIYALO · OWNER SUITE - PERSISTENT STORAGE
+    // NEVER RESETS! SAVES EVERY CHANGE FOREVER
     // ===========================================
     
-    // ---------- MASTER MENU DATA ----------
-    let menuData = {
+    // ---------- DEFAULT MENU (ONLY USED FIRST TIME) ----------
+    const DEFAULT_MENU = {
       hotel: {
         name: "Niyalo Cafe",
         location: "Lakeside, Pokhara",
@@ -536,6 +537,31 @@
       ]
     };
 
+    // ========== 🚀 CRITICAL FIX: LOAD SAVED DATA FIRST ==========
+    // This is the fix - load from localStorage IMMEDIATELY
+    let menuData;
+    
+    function loadSavedData() {
+      const saved = localStorage.getItem('niyalo_live_menu');
+      if (saved) {
+        try {
+          menuData = JSON.parse(saved);
+          console.log('✅ Loaded saved menu data');
+        } catch(e) {
+          console.log('Error loading saved data, using default');
+          menuData = JSON.parse(JSON.stringify(DEFAULT_MENU));
+        }
+      } else {
+        console.log('No saved data, using default');
+        menuData = JSON.parse(JSON.stringify(DEFAULT_MENU));
+      }
+    }
+    
+    // LOAD IMMEDIATELY!
+    loadSavedData();
+    
+    // ========== END FIX ==========
+
     let isEditMode = true;
     
     // ---------- GENERATE ID ----------
@@ -559,7 +585,7 @@
       }
     }
 
-    // ---------- SAVE & PUBLISH (WITH MOBILE FIX) ----------
+    // ---------- SAVE & PUBLISH (WITH PERSISTENCE) ----------
     function saveToLocalStorage(showAlert = true) {
       // Update hotel data
       menuData.hotel.name = document.getElementById('hotelName')?.innerText || menuData.hotel.name;
@@ -592,11 +618,11 @@
         if (t) cat.title = t.innerText;
       });
       
-      // ========== 🚀 MOBILE SYNC FIX ==========
-      // Save to localStorage (first time)
+      // ========== 🚀 PERSISTENCE FIX ==========
+      // Save to localStorage (THIS IS WHAT KEEPS DATA FOREVER!)
       localStorage.setItem('niyalo_live_menu', JSON.stringify(menuData));
       
-      // Force second write for mobile
+      // Force second write for safety
       setTimeout(() => {
         localStorage.setItem('niyalo_live_menu', JSON.stringify(menuData));
       }, 50);
@@ -604,9 +630,9 @@
       // Create timestamp to trigger mobile storage event
       localStorage.setItem('niyalo_last_update', Date.now().toString());
       
-      // Also save to sessionStorage as backup (mobile trick)
+      // Also save to sessionStorage as backup
       sessionStorage.setItem('niyalo_backup', JSON.stringify(menuData));
-      // ========== MOBILE FIX END ==========
+      // ========== PERSISTENCE FIX END ==========
       
       // Update status
       const status = document.getElementById('syncStatus');
@@ -619,10 +645,10 @@
         }, 3000);
       }
       
-      if (showAlert) alert('✅ Menu published! Guest sees changes now.');
+      if (showAlert) alert('✅ Menu saved! Changes are permanent.');
     }
 
-    // ---------- RENDER MENU ----------
+    // ---------- RENDER MENU (USES LOADED menuData) ----------
     function renderOwnerMenu() {
       const container = document.getElementById('categoriesContainer');
       container.innerHTML = '';
@@ -738,69 +764,117 @@
       });
     }
 
-    // ---------- CRUD ----------
+    // ---------- CRUD OPERATIONS (WITH AUTO-SAVE) ----------
     window.deleteCategory = function(id) {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
-      if (confirm('Delete category?')) {
+      if (confirm('Delete this category?')) {
         menuData.categories = menuData.categories.filter(c => c.id !== id);
         renderOwnerMenu();
+        saveToLocalStorage(false);
       }
     };
+    
     window.deleteMenuItem = function(catId, itemId) {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       const cat = menuData.categories.find(c => c.id === catId);
       if (cat) {
         cat.items = cat.items.filter(i => i.id !== itemId);
         renderOwnerMenu();
+        saveToLocalStorage(false);
       }
     };
+    
     window.deleteBadge = function(itemId) {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       menuData.categories.forEach(c => c.items.forEach(i => { if (i.id === itemId) i.badge = null; }));
       renderOwnerMenu();
+      saveToLocalStorage(false);
     };
+    
     window.deleteFooterItem = function(id) {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       menuData.footer = menuData.footer.filter(f => f.id !== id);
       renderOwnerMenu();
+      saveToLocalStorage(false);
     };
+    
     window.addNewCategory = function() {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       const id = 'cat' + Date.now();
-      menuData.categories.push({ id, title: 'New Category', icon: 'utensils', items: [{ id: generateId(id+'_item'), name: 'New Dish', desc: 'description', price: '199', badge: null }] });
+      menuData.categories.push({ 
+        id, 
+        title: 'New Category', 
+        icon: 'utensils', 
+        items: [{ 
+          id: generateId(id+'_item'), 
+          name: 'New Dish', 
+          desc: 'description here', 
+          price: '199', 
+          badge: null 
+        }] 
+      });
       renderOwnerMenu();
+      saveToLocalStorage(false);
     };
+    
     window.addNewItem = function(catId) {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       const cat = menuData.categories.find(c => c.id === catId);
-      if (cat) cat.items.push({ id: generateId(catId+'_item'), name: 'New Item', desc: 'description', price: '199', badge: null });
-      renderOwnerMenu();
-    };
-    window.addBadgeToItem = function(itemId) {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
-      const text = prompt('Badge text:');
-      if (text && text.trim()) {
-        menuData.categories.forEach(c => c.items.forEach(i => { if (i.id === itemId) i.badge = text.trim(); }));
+      if (cat) {
+        cat.items.push({ 
+          id: generateId(catId+'_item'), 
+          name: 'New Item', 
+          desc: 'item description', 
+          price: '199', 
+          badge: null 
+        });
         renderOwnerMenu();
+        saveToLocalStorage(false);
       }
     };
+    
+    window.addBadgeToItem = function(itemId) {
+      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      const text = prompt('Enter badge text (e.g., vegan, spicy, signature):');
+      if (text && text.trim()) {
+        menuData.categories.forEach(c => c.items.forEach(i => { 
+          if (i.id === itemId) i.badge = text.trim(); 
+        }));
+        renderOwnerMenu();
+        saveToLocalStorage(false);
+      }
+    };
+    
     window.addFooterItem = function() {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       menuData.footer.push({ id: 'footer'+Date.now(), text: 'new feature' });
       renderOwnerMenu();
+      saveToLocalStorage(false);
     };
 
-    // ---------- INIT ----------
+    // ---------- INITIALIZE ----------
     window.onload = function() {
+      // Render with LOADED data (not default!)
       renderOwnerMenu();
       
+      // Set up event listeners
       document.getElementById('editModeBtn').addEventListener('click', toggleEditMode);
       document.getElementById('saveBtn').addEventListener('click', () => saveToLocalStorage(true));
       document.getElementById('addCategoryBtn').addEventListener('click', addNewCategory);
       document.getElementById('addFooterBtn').addEventListener('click', addFooterItem);
       
-      // Initial save
-      setTimeout(() => saveToLocalStorage(false), 500);
+      // Auto-save every 30 seconds as backup
+      setInterval(() => {
+        saveToLocalStorage(false);
+      }, 30000);
+      
+      // Update status
+      const status = document.getElementById('syncStatus');
+      if (status) {
+        status.innerHTML = '<i class="fas fa-check-circle"></i> READY · DATA SAVED';
+      }
+      
+      console.log('🚀 Owner panel loaded with persistent storage');
     };
   </script>
 </body>
