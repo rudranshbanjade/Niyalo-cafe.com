@@ -2,11 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
   <title>Niyalo Cafe · Digital Menu</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    /* ----- GLOBAL RESET ----- */
     * {
       margin: 0;
       padding: 0;
@@ -14,28 +15,30 @@
     }
     body {
       background: #fcf3ec;
+      background-image: radial-gradient(circle at 10% 20%, #fff3ea 0%, #faede5 100%);
       font-family: 'Plus Jakarta Sans', sans-serif;
-      padding: 1.2rem;
+      padding: 1rem;
       display: flex;
       justify-content: center;
+      min-height: 100vh;
     }
     .container {
       max-width: 1300px;
       width: 100%;
     }
     
-    /* ----- MOBILE-FRIENDLY HEADER ----- */
+    /* ----- PREMIUM HEADER (MOBILE FIRST) ----- */
     .header {
       background: #dac1b3;
       background: linear-gradient(145deg, #ddc5b8, #cfb2a2);
       border-radius: 40px 40px 20px 20px;
       padding: 0.8rem 1.2rem;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.2rem;
       display: flex;
-      flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
       border-bottom: 4px solid #b18067;
+      box-shadow: 0 10px 20px -8px rgba(79, 53, 41, 0.2);
     }
     .qr-badge {
       background: #765b4e;
@@ -43,26 +46,31 @@
       padding: 0.4rem 1.2rem;
       border-radius: 40px;
       font-weight: 700;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       display: flex;
       align-items: center;
       gap: 6px;
+      letter-spacing: 1px;
+      border: 1px solid #b08d7a;
     }
     .live-badge {
       background: #2d5a4b;
       color: white;
       padding: 0.4rem 1.2rem;
       border-radius: 40px;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
+      font-weight: 600;
       display: flex;
       align-items: center;
       gap: 6px;
+      border: 1px solid #6b9b87;
     }
     .pulse {
       width: 8px;
       height: 8px;
       background: #b3f0d0;
       border-radius: 50%;
+      box-shadow: 0 0 10px #6fdcb4;
       animation: pulse 1.5s infinite;
     }
     @keyframes pulse {
@@ -70,21 +78,23 @@
       100% { opacity: 1; transform: scale(1.2); }
     }
     
-    /* ----- MENU CARD (MOBILE OPTIMIZED) ----- */
+    /* ----- MAIN MENU CARD ----- */
     .menu-card {
       background: white;
       border-radius: 36px;
       padding: 1.5rem;
-      box-shadow: 0 20px 40px -15px rgba(0,0,0,0.15);
+      box-shadow: 0 25px 40px -20px rgba(45, 30, 24, 0.25);
+      border: 1px solid #f0ddd2;
     }
     
     /* ----- HOTEL SECTION ----- */
     .hotel-section {
       display: flex;
       flex-wrap: wrap;
+      gap: 1rem;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1.8rem;
+      margin-bottom: 1.5rem;
       border-bottom: 2px dashed #dbb9a8;
       padding-bottom: 1.2rem;
     }
@@ -96,7 +106,6 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 0.3rem;
     }
     .hotel-name i {
       color: #b18067;
@@ -107,8 +116,9 @@
       align-items: center;
       gap: 8px;
       color: #6b5548;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       flex-wrap: wrap;
+      margin-top: 4px;
     }
     .contact-info {
       background: #fff9f2;
@@ -117,17 +127,22 @@
       display: flex;
       flex-wrap: wrap;
       gap: 1rem;
-      font-size: 0.85rem;
-      margin-top: 0.5rem;
+      font-size: 0.8rem;
+      border: 1px solid #ecd3c4;
+    }
+    .contact-info i {
+      color: #b18067;
+      width: 18px;
     }
     
-    /* ----- CATEGORIES (MOBILE) ----- */
+    /* ----- CATEGORY CARDS ----- */
     .category {
       background: #fffcf7;
       border-radius: 28px;
       padding: 1.2rem;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.2rem;
       border: 1px solid #f0ddd2;
+      transition: all 0.2s;
     }
     .category-title {
       display: flex;
@@ -143,12 +158,12 @@
     }
     .category-title h2 {
       font-family: 'Playfair Display', serif;
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       font-weight: 600;
       color: #3d2c24;
     }
     
-    /* ----- MENU ITEMS (MOBILE) ----- */
+    /* ----- MENU ITEMS ----- */
     .item {
       display: flex;
       justify-content: space-between;
@@ -156,18 +171,23 @@
       padding: 0.6rem 0;
       border-bottom: 1px dashed #efd9cf;
     }
+    .item:last-child {
+      border-bottom: none;
+    }
     .item-name {
       font-weight: 700;
       font-size: 1rem;
+      color: #2c1e19;
       display: flex;
       align-items: center;
       gap: 6px;
       flex-wrap: wrap;
     }
     .item-desc {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: #6b5246;
       margin-top: 2px;
+      line-height: 1.3;
     }
     .price {
       font-weight: 800;
@@ -178,68 +198,101 @@
       color: #5c3d33;
       white-space: nowrap;
       margin-left: 0.5rem;
+      border: 1px solid #f3d9ce;
     }
     .price:before {
       content: "रू";
       margin-right: 3px;
+      font-size: 0.9rem;
     }
     .badge {
       background: #e7d2c5;
       border-radius: 40px;
       padding: 0.15rem 0.8rem;
-      font-size: 0.6rem;
+      font-size: 0.55rem;
       font-weight: 700;
       text-transform: uppercase;
+      color: #4d352c;
+      letter-spacing: 0.5px;
+      border: 1px solid #cfaa99;
     }
     
-    /* ----- FOOTER (MOBILE) ----- */
+    /* ----- FOOTER SECTION ----- */
     .footer {
       background: #fdf3ed;
       border-radius: 40px;
       padding: 1.2rem;
       margin-top: 1.5rem;
       text-align: center;
+      border: 1px solid #efd9cf;
     }
     .footer-badges {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 0.8rem;
+      gap: 0.7rem;
       margin-bottom: 0.8rem;
     }
     .footer-badge {
       background: #e7d2c5;
       border-radius: 40px;
-      padding: 0.3rem 1rem;
+      padding: 0.25rem 1rem;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
+      color: #4d352c;
+      border: 1px solid #d4b1a0;
+    }
+    .footer-badge i {
+      color: #a5664a;
     }
     
-    /* ----- FORCE REFRESH HINT (MOBILE) ----- */
+    /* ----- REFRESH HINT (MOBILE) ----- */
     .refresh-hint {
       display: flex;
       justify-content: center;
+      align-items: center;
       margin-top: 1rem;
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       color: #8b6f63;
-    }
-    .refresh-hint i {
-      margin: 0 4px;
+      gap: 6px;
     }
     
-    /* ----- OWNER LINK (HIDDEN) ----- */
+    /* ----- HIDDEN OWNER LINK ----- */
     .owner-link {
       position: fixed;
-      bottom: 10px;
-      right: 10px;
-      opacity: 0.3;
-      font-size: 0.7rem;
+      bottom: 15px;
+      right: 15px;
+      opacity: 0.2;
+      transition: opacity 0.3s;
+      z-index: 999;
+    }
+    .owner-link:hover {
+      opacity: 0.8;
     }
     .owner-link a {
-      color: #5f4a3d;
+      background: #2d241f;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       text-decoration: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    
+    /* ----- DESKTOP OPTIMIZATION ----- */
+    @media (min-width: 768px) {
+      body { padding: 2rem; }
+      .menu-card { padding: 2.5rem; }
+      .hotel-name { font-size: 2.8rem; }
+      .category-title h2 { font-size: 1.8rem; }
+      .item-name { font-size: 1.2rem; }
+      .item-desc { font-size: 0.85rem; }
+      .price { font-size: 1.3rem; }
     }
   </style>
 </head>
@@ -248,39 +301,43 @@
     <!-- HEADER -->
     <div class="header">
       <span class="qr-badge">
-        <i class="fas fa-qrcode"></i> NIYALO
+        <i class="fas fa-qrcode"></i> NIYALO CAFE
       </span>
       <span class="live-badge">
-        <span class="pulse"></span> LIVE MENU
+        <span class="pulse"></span>
+        <span>LIVE · FRESH</span>
       </span>
     </div>
     
     <!-- MENU CONTENT -->
     <div class="menu-card" id="menuContent">
-      <div style="text-align:center;padding:2rem;">
-        <i class="fas fa-spinner fa-spin" style="font-size:2rem;color:#b18067;"></i>
-        <p style="margin-top:1rem;color:#5f4a3d;">Loading menu...</p>
+      <div style="text-align:center;padding:2.5rem 1rem;">
+        <i class="fas fa-spinner fa-spin" style="font-size:2.2rem;color:#b18067;"></i>
+        <p style="margin-top:1rem;color:#5f4a3d;font-weight:500;">Loading menu...</p>
       </div>
     </div>
     
     <!-- FOOTER NOTE -->
     <div class="refresh-hint">
-      <i class="fas fa-sync-alt"></i> auto-updates every 2 seconds
+      <i class="fas fa-sync-alt"></i> auto-updates every second
+      <i class="fas fa-mobile-alt" style="margin-left:6px;"></i>
     </div>
     
-    <!-- OWNER LINK (HIDDEN) -->
+    <!-- OWNER LINK (hidden) -->
     <div class="owner-link">
-      <a href="owner.html">⚡</a>
+      <a href="owner.html" title="Owner Login">
+        <i class="fas fa-crown"></i>
+      </a>
     </div>
   </div>
 
   <script>
     // ===========================================
-    // NIYALO · MOBILE-OPTIMIZED GUEST MENU
-    // FORCES UPDATE EVERY 1 SECOND
-    // WORKS ON ALL DEVICES!
+    // NIYALO · GUEST MENU - ULTIMATE MOBILE FIX
+    // WORKS ON EVERY DEVICE, EVERY BROWSER
     // ===========================================
     
+    // ---------- DEFAULT MENU (ALWAYS SHOWS) ----------
     const DEFAULT_MENU = {
       hotel: {
         name: "Niyalo Cafe",
@@ -355,66 +412,70 @@
       ]
     };
 
-    // ---------- RENDER MENU ----------
+    // ---------- RENDER MENU FUNCTION ----------
     function renderMenu(data) {
-      let html = `
-        <div class="hotel-section">
-          <div>
-            <div class="hotel-name">
-              <i class="fas fa-leaf"></i>
-              <span>${data.hotel.name}</span>
-              <i class="fas fa-mug-hot"></i>
+      try {
+        let html = `
+          <div class="hotel-section">
+            <div>
+              <div class="hotel-name">
+                <i class="fas fa-leaf"></i>
+                <span>${data.hotel.name}</span>
+                <i class="fas fa-mug-hot"></i>
+              </div>
+              <div class="hotel-tagline">
+                <i class="fas fa-map-pin"></i> ${data.hotel.location}
+                <span style="margin:0 4px;">•</span>
+                <i class="fas fa-seedling"></i> ${data.hotel.tagline}
+              </div>
             </div>
-            <div class="hotel-tagline">
-              <i class="fas fa-map-pin"></i> ${data.hotel.location}
-              <span style="margin:0 4px;">•</span>
-              <i class="fas fa-seedling"></i> ${data.hotel.tagline}
+            <div class="contact-info">
+              <div><i class="fas fa-clock"></i> ${data.hotel.hours}</div>
+              <div><i class="fas fa-phone-alt"></i> ${data.hotel.phone}</div>
             </div>
           </div>
-          <div class="contact-info">
-            <div><i class="fas fa-clock"></i> ${data.hotel.hours}</div>
-            <div><i class="fas fa-phone-alt"></i> ${data.hotel.phone}</div>
-          </div>
-        </div>
-      `;
-      
-      data.categories.forEach(cat => {
-        html += `<div class="category">`;
-        html += `<div class="category-title"><i class="fas fa-${cat.icon}"></i><h2>${cat.title}</h2></div>`;
+        `;
         
-        cat.items.forEach(item => {
-          html += `<div class="item">`;
-          html += `<div style="flex:1">`;
-          html += `<div class="item-name">`;
-          html += `<span>${item.name}</span>`;
-          if (item.badge) {
-            html += `<span class="badge">${item.badge}</span>`;
-          }
-          html += `</div>`;
-          html += `<div class="item-desc">${item.desc}</div>`;
-          html += `</div>`;
-          html += `<span class="price">${item.price}</span>`;
+        data.categories.forEach(cat => {
+          html += `<div class="category">`;
+          html += `<div class="category-title"><i class="fas fa-${cat.icon}"></i><h2>${cat.title}</h2></div>`;
+          
+          cat.items.forEach(item => {
+            html += `<div class="item">`;
+            html += `<div style="flex:1">`;
+            html += `<div class="item-name">`;
+            html += `<span>${item.name}</span>`;
+            if (item.badge) {
+              html += `<span class="badge">${item.badge}</span>`;
+            }
+            html += `</div>`;
+            html += `<div class="item-desc">${item.desc}</div>`;
+            html += `</div>`;
+            html += `<span class="price">${item.price}</span>`;
+            html += `</div>`;
+          });
           html += `</div>`;
         });
+        
+        html += `<div class="footer">`;
+        html += `<div class="footer-badges">`;
+        data.footer.forEach(text => {
+          html += `<span class="footer-badge"><i class="fas fa-heart"></i> ${text}</span>`;
+        });
         html += `</div>`;
-      });
-      
-      html += `<div class="footer">`;
-      html += `<div class="footer-badges">`;
-      data.footer.forEach(text => {
-        html += `<span class="footer-badge"><i class="fas fa-heart"></i> ${text}</span>`;
-      });
-      html += `</div>`;
-      html += `<div style="margin-top:0.5rem; font-size:0.9rem;">`;
-      html += `<i class="fas fa-heart" style="color:#c2714b;"></i> ${data.hotel.heartNote} <i class="fas fa-heart" style="color:#c2714b;"></i>`;
-      html += `</div>`;
-      html += `</div>`;
-      
-      document.getElementById('menuContent').innerHTML = html;
+        html += `<div style="margin-top:0.8rem; font-size:0.9rem; color:#4a352e;">`;
+        html += `<i class="fas fa-heart" style="color:#c2714b;"></i> ${data.hotel.heartNote} <i class="fas fa-heart" style="color:#c2714b;"></i>`;
+        html += `</div>`;
+        html += `</div>`;
+        
+        document.getElementById('menuContent').innerHTML = html;
+      } catch(e) {
+        console.log('Render error:', e);
+      }
     }
 
-    // ---------- LOAD FROM LOCALSTORAGE (FORCED EVERY SECOND) ----------
-    function loadFromStorage() {
+    // ---------- LOAD MENU FROM LOCALSTORAGE ----------
+    function loadMenu() {
       try {
         const saved = localStorage.getItem('niyalo_live_menu');
         if (saved) {
@@ -425,41 +486,50 @@
             categories: ownerData.categories || DEFAULT_MENU.categories
           };
           renderMenu(menuData);
-          console.log('✅ Menu updated at', new Date().toLocaleTimeString());
         } else {
-          // First time - show default
           renderMenu(DEFAULT_MENU);
         }
       } catch(e) {
-        console.log('Error loading, using default');
         renderMenu(DEFAULT_MENU);
       }
     }
 
-    // ---------- MOBILE-SPECIFIC FIX: FORCE CHECK EVERY 500ms ----------
-    console.log('🚀 Niyalo Guest Menu - Mobile Optimized');
+    // ===========================================
+    // MOBILE SYNC FIX - AGGRESSIVE UPDATES
+    // ===========================================
     
-    // Load immediately
-    loadFromStorage();
+    // 1. Load immediately
+    loadMenu();
     
-    // CRITICAL FOR MOBILE: Check every 500ms (not relying on storage event)
-    setInterval(loadFromStorage, 500);
+    // 2. Check EVERY 500ms (works on all mobile browsers)
+    setInterval(loadMenu, 500);
     
-    // Also listen for storage events (for desktop)
-    window.addEventListener('storage', (e) => {
-      if (e.key === 'niyalo_live_menu') {
-        console.log('🔄 Storage event triggered');
-        loadFromStorage();
+    // 3. Listen for storage events (desktop)
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'niyalo_live_menu' || e.key === 'niyalo_last_update') {
+        loadMenu();
       }
     });
     
-    // Force reload when page becomes visible (user switches back to tab)
-    document.addEventListener('visibilitychange', () => {
+    // 4. Reload when page becomes visible (mobile Safari fix)
+    document.addEventListener('visibilitychange', function() {
       if (!document.hidden) {
-        console.log('👁️ Page visible, reloading menu');
-        loadFromStorage();
+        loadMenu();
       }
     });
+    
+    // 5. Force reload on page show (mobile back button fix)
+    window.addEventListener('pageshow', function() {
+      loadMenu();
+    });
+    
+    // 6. Touch event fallback (mobile Chrome fix)
+    document.addEventListener('touchstart', function() {
+      // Gentle check, not aggressive
+      setTimeout(loadMenu, 100);
+    }, { passive: true });
+    
+    console.log('🚀 Niyalo Guest Menu - Mobile Optimized');
   </script>
 </body>
 </html>
