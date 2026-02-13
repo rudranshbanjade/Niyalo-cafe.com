@@ -26,7 +26,6 @@
       width: 100%;
     }
     
-    /* ----- PREMIUM HEADER ----- */
     .owner-header {
       background: rgba(28, 24, 22, 0.95);
       backdrop-filter: blur(10px);
@@ -71,7 +70,6 @@
       text-transform: uppercase;
     }
     
-    /* ----- EDIT CONTROLS ----- */
     .edit-controls {
       display: flex;
       gap: 0.8rem;
@@ -128,7 +126,6 @@
       gap: 6px;
     }
     
-    /* ----- EDITABLE STYLES ----- */
     [contenteditable="true"] {
       outline: none;
       border-bottom: 2px dashed #b18067;
@@ -151,7 +148,6 @@
       box-shadow: 0 4px 8px rgba(126, 79, 58, 0.1);
     }
     
-    /* ----- LOCKED MODE - COMPLETELY UNCLICKABLE ----- */
     .editing-disabled [contenteditable="true"],
     .editing-disabled .category-title span,
     .editing-disabled .item-name span,
@@ -185,7 +181,6 @@
       display: none !important;
     }
     
-    /* ----- MAIN MENU CARD ----- */
     .menu-master {
       background: #fcf7f2;
       border-radius: 48px 48px 36px 36px;
@@ -195,7 +190,6 @@
       margin-bottom: 1.8rem;
     }
     
-    /* ----- HOTEL PROFILE ----- */
     .hotel-profile {
       display: flex;
       flex-wrap: wrap;
@@ -228,7 +222,6 @@
       gap: 1.2rem;
     }
     
-    /* ----- CATEGORY CARDS ----- */
     .category-card {
       background: white;
       border-radius: 36px;
@@ -273,7 +266,6 @@
       cursor: pointer;
     }
     
-    /* ----- MENU ROWS ----- */
     .menu-row {
       display: flex;
       justify-content: space-between;
@@ -341,7 +333,6 @@
       background: #8f6e5a;
     }
     
-    /* ----- FOOTER EDITOR ----- */
     .footer-editor {
       background: #fdf1ea;
       border-radius: 60px;
@@ -364,7 +355,6 @@
       gap: 8px;
     }
     
-    /* ----- SYNC STATUS ----- */
     .sync-status {
       display: flex;
       justify-content: flex-end;
@@ -389,7 +379,6 @@
 </head>
 <body>
   <div class="owner-container">
-    <!-- HEADER -->
     <div class="owner-header">
       <div class="logo-area">
         <div class="logo-icon">
@@ -413,9 +402,7 @@
       </div>
     </div>
 
-    <!-- MAIN MENU -->
     <div class="menu-master" id="masterMenu">
-      <!-- HOTEL INFO -->
       <div class="hotel-profile">
         <div>
           <div class="hotel-title">
@@ -437,17 +424,14 @@
         </div>
       </div>
 
-      <!-- CATEGORIES CONTAINER -->
       <div id="categoriesContainer"></div>
 
-      <!-- ADD CATEGORY -->
       <div style="text-align:center;">
         <button class="add-category-btn" id="addCategoryBtn">
           <i class="fas fa-plus-circle"></i> ADD NEW CATEGORY
         </button>
       </div>
 
-      <!-- FOOTER -->
       <div class="footer-editor">
         <div style="text-align:center;margin-bottom:1rem;">
           <span style="background:#ab8c7a;color:white;padding:0.3rem 1.5rem;border-radius:60px;font-weight:600;">
@@ -468,7 +452,6 @@
       </div>
     </div>
 
-    <!-- SYNC STATUS -->
     <div class="sync-status">
       <div class="sync-pulse" id="syncStatus">
         <i class="fas fa-check-circle"></i> READY
@@ -478,11 +461,11 @@
 
   <script>
     // ===========================================
-    // NIYALO · OWNER SUITE - PERSISTENT STORAGE
-    // NEVER RESETS! SAVES EVERY CHANGE FOREVER
+    // NIYALO · OWNER SUITE - ABSOLUTELY NO RESET!
+    // FIXED: localStorage ALWAYS overrides default
     // ===========================================
     
-    // ---------- DEFAULT MENU (ONLY USED FIRST TIME) ----------
+    // ---------- DEFAULT MENU (ONLY USED IF NO SAVED DATA) ----------
     const DEFAULT_MENU = {
       hotel: {
         name: "Niyalo Cafe",
@@ -537,30 +520,31 @@
       ]
     };
 
-    // ========== 🚀 CRITICAL FIX: LOAD SAVED DATA FIRST ==========
-    // This is the fix - load from localStorage IMMEDIATELY
+    // ========== 🚀 CRITICAL FIX: LOAD FROM STORAGE IMMEDIATELY ==========
+    // This runs BEFORE anything else
     let menuData;
     
-    function loadSavedData() {
+    function loadMenuData() {
       const saved = localStorage.getItem('niyalo_live_menu');
       if (saved) {
         try {
           menuData = JSON.parse(saved);
-          console.log('✅ Loaded saved menu data');
+          console.log('✅ Loaded SAVED menu data from localStorage');
         } catch(e) {
-          console.log('Error loading saved data, using default');
+          console.log('Error parsing saved data, using default');
           menuData = JSON.parse(JSON.stringify(DEFAULT_MENU));
         }
       } else {
-        console.log('No saved data, using default');
+        console.log('No saved data found, using default menu');
         menuData = JSON.parse(JSON.stringify(DEFAULT_MENU));
+        // Save default to localStorage immediately
+        localStorage.setItem('niyalo_live_menu', JSON.stringify(menuData));
       }
     }
     
-    // LOAD IMMEDIATELY!
-    loadSavedData();
-    
-    // ========== END FIX ==========
+    // CALL IT IMMEDIATELY!
+    loadMenuData();
+    // ========== END CRITICAL FIX ==========
 
     let isEditMode = true;
     
@@ -585,9 +569,9 @@
       }
     }
 
-    // ---------- SAVE & PUBLISH (WITH PERSISTENCE) ----------
+    // ---------- SAVE TO LOCALSTORAGE (WITH FORCE) ----------
     function saveToLocalStorage(showAlert = true) {
-      // Update hotel data
+      // Update hotel data from DOM
       menuData.hotel.name = document.getElementById('hotelName')?.innerText || menuData.hotel.name;
       menuData.hotel.location = document.getElementById('hotelLocation')?.innerText || menuData.hotel.location;
       menuData.hotel.tagline = document.getElementById('hotelTagline')?.innerText || menuData.hotel.tagline;
@@ -596,13 +580,13 @@
       menuData.hotel.address = document.getElementById('address')?.innerText || menuData.hotel.address;
       menuData.hotel.heartNote = document.getElementById('heartNote')?.innerText || menuData.hotel.heartNote;
       
-      // Update footer
+      // Update footer from DOM
       menuData.footer.forEach(f => {
         const el = document.getElementById(f.id);
         if (el) f.text = el.innerText;
       });
       
-      // Update items
+      // Update items from DOM
       menuData.categories.forEach(cat => {
         cat.items.forEach(item => {
           const n = document.getElementById(item.id);
@@ -618,11 +602,11 @@
         if (t) cat.title = t.innerText;
       });
       
-      // ========== 🚀 PERSISTENCE FIX ==========
+      // ========== 🚀 PERSISTENCE FIX - MULTIPLE SAVES ==========
       // Save to localStorage (THIS IS WHAT KEEPS DATA FOREVER!)
       localStorage.setItem('niyalo_live_menu', JSON.stringify(menuData));
       
-      // Force second write for safety
+      // Force second write for mobile
       setTimeout(() => {
         localStorage.setItem('niyalo_live_menu', JSON.stringify(menuData));
       }, 50);
@@ -634,7 +618,7 @@
       sessionStorage.setItem('niyalo_backup', JSON.stringify(menuData));
       // ========== PERSISTENCE FIX END ==========
       
-      // Update status
+      // Update sync status
       const status = document.getElementById('syncStatus');
       if (status) {
         status.innerHTML = '<i class="fas fa-check-circle"></i> SAVED ' + new Date().toLocaleTimeString();
@@ -646,9 +630,11 @@
       }
       
       if (showAlert) alert('✅ Menu saved! Changes are permanent.');
+      
+      console.log('💾 Saved to localStorage at', new Date().toLocaleTimeString());
     }
 
-    // ---------- RENDER MENU (USES LOADED menuData) ----------
+    // ---------- RENDER MENU (USES menuData) ----------
     function renderOwnerMenu() {
       const container = document.getElementById('categoriesContainer');
       container.innerHTML = '';
@@ -767,7 +753,7 @@
     // ---------- CRUD OPERATIONS (WITH AUTO-SAVE) ----------
     window.deleteCategory = function(id) {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
-      if (confirm('Delete this category?')) {
+      if (confirm('Delete this entire category?')) {
         menuData.categories = menuData.categories.filter(c => c.id !== id);
         renderOwnerMenu();
         saveToLocalStorage(false);
@@ -854,7 +840,7 @@
 
     // ---------- INITIALIZE ----------
     window.onload = function() {
-      // Render with LOADED data (not default!)
+      // Render with menuData (which already loaded saved data!)
       renderOwnerMenu();
       
       // Set up event listeners
@@ -871,10 +857,10 @@
       // Update status
       const status = document.getElementById('syncStatus');
       if (status) {
-        status.innerHTML = '<i class="fas fa-check-circle"></i> READY · DATA SAVED';
+        status.innerHTML = '<i class="fas fa-check-circle"></i> READY · AUTO-SAVE ACTIVE';
       }
       
-      console.log('🚀 Owner panel loaded with persistent storage');
+      console.log('🚀 Owner panel loaded with SAVED data');
     };
   </script>
 </body>
