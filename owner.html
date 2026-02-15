@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
+    /* YOUR STYLES - KEEP THEM */
     *{margin:0;padding:0;box-sizing:border-box;}
     body{background:#12100e;font-family:'Plus Jakarta Sans',sans-serif;padding:1.5rem;display:flex;justify-content:center;}
     .owner-container{max-width:1400px;width:100%;}
@@ -115,7 +116,8 @@
     const SUPABASE_URL = 'https://outxrzhbocyvopmivzzf.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dHhyemhib2N5dm9wbWl2enpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNTU1NDgsImV4cCI6MjA4NjYzMTU0OH0.apOAqrdlz3WBo9Aht3xzHc-XBkInHSQVfHu3NRuCxNc';
     const TABLE_NAME = 'menus';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // ===== DEFAULT MENU =====
     const DEFAULT_MENU = {
@@ -148,50 +150,48 @@
       ]
     };
 
-    let menuData = JSON.parse(JSON.stringify(DEFAULT_MENU));
+    let menuData;
     let isEditMode = true;
-
-    // ===== LOAD FROM LOCALSTORAGE FIRST (IMMEDIATE) =====
-    function loadFromLocalStorage() {
-      const saved = localStorage.getItem('niyalo_menu_backup');
-      if (saved) {
-        try {
-          menuData = JSON.parse(saved);
-          document.getElementById('syncStatus').innerHTML = '✅ LOADED FROM LOCAL';
-          renderOwnerMenu();
-          return true;
-        } catch(e) {}
-      }
-      return false;
-    }
-
-    // ===== SAVE TO LOCALSTORAGE =====
-    function saveToLocalStorage() {
-      localStorage.setItem('niyalo_menu_backup', JSON.stringify(menuData));
-    }
 
     // ===== LOAD FROM SUPABASE =====
     async function loadFromSupabase() {
+      console.log('🔄 Loading from Supabase...');
       try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
           .from(TABLE_NAME)
           .select('*')
           .eq('id', 1)
-          .single();
+          .maybeSingle();
 
-        if (data) {
-          menuData = data.data;
-          saveToLocalStorage(); // Backup to localStorage
-          document.getElementById('syncStatus').innerHTML = '✅ LOADED FROM CLOUD';
-          renderOwnerMenu();
+        if (error) {
+          console.log('❌ Supabase error:', error);
         }
+
+        if (data && data.data) {
+          console.log('✅ Found data in Supabase:', data.data);
+          menuData = data.data;
+          document.getElementById('syncStatus').innerHTML = '✅ LOADED FROM CLOUD';
+        } else {
+          console.log('⚠️ No data in Supabase, using default');
+          menuData = JSON.parse(JSON.stringify(DEFAULT_MENU));
+          // Save default to Supabase
+          await supabaseClient.from(TABLE_NAME).insert({ id: 1, data: menuData });
+          console.log('✅ Default saved to Supabase');
+          document.getElementById('syncStatus').innerHTML = '✅ DEFAULT SAVED';
+        }
+        renderOwnerMenu();
       } catch (error) {
-        document.getElementById('syncStatus').innerHTML = '⚠️ USING LOCAL';
+        console.log('❌ Load error:', error);
+        menuData = JSON.parse(JSON.stringify(DEFAULT_MENU));
+        renderOwnerMenu();
       }
     }
 
     // ===== SAVE TO SUPABASE =====
     async function saveToSupabase(showAlert = true) {
+      console.log('💾 Saving to Supabase...');
+      if (!menuData) return;
+      
       // Update menuData from DOM
       menuData.hotel.name = document.getElementById('hotelName').innerText;
       menuData.hotel.location = document.getElementById('hotelLocation').innerText;
@@ -221,26 +221,28 @@
         });
       });
 
-      // Save to localStorage immediately
-      saveToLocalStorage();
-
       try {
-        const { error } = await supabase
+        const { error } = await supabaseClient
           .from(TABLE_NAME)
           .upsert({ id: 1, data: menuData });
 
         if (error) throw error;
         
+        console.log('✅ Save successful!');
         document.getElementById('syncStatus').innerHTML = '✅ SAVED ' + new Date().toLocaleTimeString();
         if (showAlert) alert('✅ Saved to cloud!');
       } catch (error) {
-        document.getElementById('syncStatus').innerHTML = '⚠️ SAVED LOCALLY ONLY';
-        if (showAlert) alert('⚠️ Saved locally! Cloud sync failed.');
+        console.log('❌ Save error:', error);
+        document.getElementById('syncStatus').innerHTML = '❌ ERROR';
+        if (showAlert) alert('❌ Error: ' + error.message);
       }
     }
 
     // ===== RENDER FUNCTIONS =====
     function renderOwnerMenu() {
+      console.log('🎨 Rendering menu with data:', menuData);
+      if (!menuData) return;
+      
       const container = document.getElementById('categoriesContainer');
       container.innerHTML = '';
       
@@ -359,7 +361,6 @@
       if (confirm('Delete category?')) {
         menuData.categories = menuData.categories.filter(c => c.id !== id);
         renderOwnerMenu();
-        saveToLocalStorage();
       }
     };
     
@@ -369,7 +370,6 @@
       if (cat) {
         cat.items = cat.items.filter(i => i.id !== itemId);
         renderOwnerMenu();
-        saveToLocalStorage();
       }
     };
     
@@ -377,14 +377,12 @@
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       menuData.categories.forEach(c => c.items.forEach(i => { if (i.id === itemId) i.badge = null; }));
       renderOwnerMenu();
-      saveToLocalStorage();
     };
     
     window.deleteFooterItem = function(id) {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       menuData.footer = menuData.footer.filter(f => f.id !== id);
       renderFooter();
-      saveToLocalStorage();
     };
     
     window.addNewCategory = function() {
@@ -403,7 +401,6 @@
         }] 
       });
       renderOwnerMenu();
-      saveToLocalStorage();
     };
     
     window.addNewItem = function(catId) {
@@ -418,7 +415,6 @@
           badge: null 
         });
         renderOwnerMenu();
-        saveToLocalStorage();
       }
     };
     
@@ -428,19 +424,8 @@
       if (text && text.trim()) {
         menuData.categories.forEach(c => c.items.forEach(i => { if (i.id === itemId) i.badge = text.trim(); }));
         renderOwnerMenu();
-        saveToLocalStorage();
       }
     };
-    
-    window.addFooterBtn = document.getElementById('addFooterBtn');
-    if (window.addFooterBtn) {
-      window.addFooterBtn.addEventListener('click', function() {
-        if (!isEditMode) return alert('Turn ON Edit Mode first');
-        menuData.footer.push({ id: 'footer'+Date.now(), text: 'new feature' });
-        renderFooter();
-        saveToLocalStorage();
-      });
-    }
 
     // ===== EVENT LISTENERS =====
     document.getElementById('editModeBtn').addEventListener('click', function() {
@@ -450,30 +435,25 @@
       applyEditMode();
     });
 
-    document.getElementById('saveBtn').addEventListener('click', () => saveToSupabase(true));
+    document.getElementById('saveBtn').addEventListener('click', function() {
+      saveToSupabase(true);
+    });
     
     document.getElementById('addCategoryBtn').addEventListener('click', function() {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
-      window.addNewCategory();
+      addNewCategory();
+    });
+    
+    document.getElementById('addFooterBtn').addEventListener('click', function() {
+      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      menuData.footer.push({ id: 'footer'+Date.now(), text: 'new feature' });
+      renderFooter();
     });
 
     // ===== INIT =====
     window.onload = function() {
-      // Try loading from localStorage first (IMMEDIATE)
-      if (!loadFromLocalStorage()) {
-        // If no localStorage, use default
-        renderOwnerMenu();
-      }
-      
-      // Then try loading from Supabase (updates if newer)
+      console.log('🚀 Page loaded, starting...');
       loadFromSupabase();
-      
-      // Auto-save to localStorage on any edit
-      document.addEventListener('input', function() {
-        if (isEditMode) {
-          saveToLocalStorage();
-        }
-      });
     };
   </script>
 </body>
