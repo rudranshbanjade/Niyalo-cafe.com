@@ -53,19 +53,23 @@
   </div>
 
   <script>
-    // ===== YOUR SUPABASE KEYS =====
+    // ===== YOUR SUPABASE CONFIGURATION =====
     const SUPABASE_URL = 'https://outxrzhbocyvopmivzzf.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dHhyemhib2N5dm9wbWl2enpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNTU1NDgsImV4cCI6MjA4NjYzMTU0OH0.apOAqrdlz3WBo9Aht3xzHc-XBkInHSQVfHu3NRuCxNc';
+    const TABLE_NAME = 'menus';
 
-    // Initialize Supabase (ONCE!)
+    // Initialize Supabase
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // Use the CORRECT table name
-const { data, error } = await supabaseClient
-  .from('menus') 
-  .select('*')
-  .eq('id', 1)
-  .single();
+    async function loadMenu() {
+      try {
+        const { data, error } = await supabaseClient
+          .from(TABLE_NAME)
+          .select('*')
+          .eq('id', 1)
+          .single();
+
+        if (error) throw error;
 
         if (data) {
           const menu = data.data;
@@ -77,6 +81,8 @@ const { data, error } = await supabaseClient
                 </div>
                 <div class="hotel-tagline">
                   <i class="fas fa-map-pin"></i> ${menu.hotel.location}
+                  <span style="margin:0 4px;">•</span>
+                  <i class="fas fa-seedling"></i> ${menu.hotel.tagline}
                 </div>
               </div>
               <div class="contact-info">
@@ -86,6 +92,20 @@ const { data, error } = await supabaseClient
             </div>
           `;
           
+          menu.categories.forEach(cat => {
+            html += `<div class="category"><div class="category-title"><i class="fas fa-${cat.icon}"></i><h2>${cat.title}</h2></div>`;
+            cat.items.forEach(item => {
+              html += `<div class="item"><div><div class="item-name">${item.name}${item.badge ? `<span class="badge">${item.badge}</span>` : ''}</div><div class="item-desc">${item.desc}</div></div><span class="price">${item.price}</span></div>`;
+            });
+            html += `</div>`;
+          });
+          
+          html += `<div class="footer"><div class="footer-badges">`;
+          menu.footer.forEach(f => {
+            html += `<span class="footer-badge"><i class="fas fa-heart"></i> ${f.text}</span>`;
+          });
+          html += `</div><div><i class="fas fa-heart" style="color:#c2714b;"></i> ${menu.hotel.heartNote} <i class="fas fa-heart" style="color:#c2714b;"></i></div></div>`;
+          
           document.getElementById('menuContent').innerHTML = html;
         }
       } catch (error) {
@@ -93,15 +113,8 @@ const { data, error } = await supabaseClient
       }
     }
 
-    // Load immediately and every 2 seconds
     loadMenu();
     setInterval(loadMenu, 2000);
   </script>
 </body>
 </html>
-
-
-
-
-
-
