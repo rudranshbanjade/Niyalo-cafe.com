@@ -63,7 +63,7 @@
     async function loadMenu() {
       try {
         const { data, error } = await supabaseClient
-          .from('menus')
+          .from('menu')
           .select('*')
           .eq('id', 1)
           .single();
@@ -100,5 +100,6 @@
   </script>
 </body>
 </html>
+
 
 
