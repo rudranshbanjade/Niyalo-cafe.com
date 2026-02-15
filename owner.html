@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* YOUR EXACT UI STYLES - NOTHING CHANGED */
+    /* YOUR EXACT STYLES */
     *{margin:0;padding:0;box-sizing:border-box;}
     body{background:#12100e;font-family:'Plus Jakarta Sans',sans-serif;padding:1.5rem;display:flex;justify-content:center;}
     .owner-container{max-width:1400px;width:100%;}
@@ -112,14 +112,14 @@
   </div>
 
   <script>
-    // SUPABASE CONFIG - FROM YOUR WORKING TEST
-    const supabase = window.supabase.createClient(
+    // CREATE SUPABASE CLIENT - ONLY ONCE!
+    const supabaseClient = window.supabase.createClient(
       'https://outxrzhbocyvopmivzzf.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dHhyemhib2N5dm9wbWl2enpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNTU1NDgsImV4cCI6MjA4NjYzMTU0OH0.apOAqrdlz3WBo9Aht3xzHc-XBkInHSQVfHu3NRuCxNc'
     );
 
-    // COMPLETE MENU DATA
-    let menuData = {
+    // DEFAULT MENU DATA
+    const DEFAULT_MENU = {
       hotel: {
         name: "Niyalo Cafe",
         location: "Lakeside, Pokhara",
@@ -145,38 +145,34 @@
           { id: "item2_2", name: "Chili Garlic Prawns", desc: "lemon · parsley · sourdough", price: "690", badge: null },
           { id: "item2_3", name: "Wild Mushroom Toast", desc: "thyme · truffle oil · pecorino", price: "620", badge: "signature" },
           { id: "item2_4", name: "Harissa Cauliflower", desc: "tahini · pomegranate · almonds", price: "510", badge: null }
-        ]},
-        { id: "cat3", title: "bowls & greens", icon: "leaf", items: [
-          { id: "item3_1", name: "Niyalo Harvest Bowl", desc: "quinoa · sweet potato · kale · miso", price: "650", badge: null },
-          { id: "item3_2", name: "Sesame Salmon", desc: "soba · edamame · pickled ginger", price: "820", badge: null },
-          { id: "item3_3", name: "Turmeric Coconut Lentils", desc: "brown rice · crispy shallots", price: "550", badge: "vegan" }
         ]}
       ]
     };
 
+    let menuData = JSON.parse(JSON.stringify(DEFAULT_MENU));
     let isEditMode = true;
 
-    // ===== LOAD FROM SUPABASE =====
-    async function loadFromSupabase() {
+    // ===== LOAD DATA =====
+    async function loadData() {
       try {
-        const { data } = await supabase
+        const { data, error } = await supabaseClient
           .from('menus')
           .select('*')
           .eq('id', 1)
-          .single();
-        
+          .maybeSingle();
+
         if (data && data.data) {
           menuData = data.data;
           document.getElementById('syncStatus').innerHTML = '✅ LOADED FROM CLOUD';
         }
       } catch(e) {
-        console.log('No data yet, using default');
+        console.log('Using default data');
       }
-      renderEverything();
+      renderAll();
     }
 
-    // ===== RENDER EVERYTHING =====
-    function renderEverything() {
+    // ===== RENDER ALL =====
+    function renderAll() {
       // Update hotel fields
       document.getElementById('hotelName').innerText = menuData.hotel.name;
       document.getElementById('hotelLocation').innerText = menuData.hotel.location;
@@ -185,16 +181,15 @@
       document.getElementById('phone').innerText = menuData.hotel.phone;
       document.getElementById('heartNote').innerText = menuData.hotel.heartNote;
       
-      // Render categories
       renderCategories();
-      
-      // Render footer
       renderFooter();
     }
 
     // ===== RENDER CATEGORIES =====
     function renderCategories() {
       const container = document.getElementById('categoriesContainer');
+      if (!container) return;
+      
       container.innerHTML = '';
       
       menuData.categories.forEach(cat => {
@@ -215,7 +210,7 @@
               <div style="flex:1">
                 <div class="item-name">
                   <span contenteditable="${isEditMode}" id="${item.id}">${item.name}</span>
-                  ${item.badge ? `<span class="badge-pill" style="background:#e7d2c5;border-radius:60px;padding:0.2rem 1rem;margin-left:8px;font-size:0.7rem;">
+                  ${item.badge ? `<span style="background:#e7d2c5;border-radius:60px;padding:0.2rem 1rem;margin-left:8px;font-size:0.7rem;">
                     <span contenteditable="${isEditMode}" id="${item.id}Badge">${item.badge}</span>
                   </span>` : ''}
                 </div>
@@ -234,6 +229,8 @@
     // ===== RENDER FOOTER =====
     function renderFooter() {
       const container = document.getElementById('footerBadgesContainer');
+      if (!container) return;
+      
       container.innerHTML = '';
       menuData.footer.forEach(f => {
         container.innerHTML += `
@@ -286,7 +283,7 @@
       menuData.hotel.phone = document.getElementById('phone').innerText;
       menuData.hotel.heartNote = document.getElementById('heartNote').innerText;
       
-      const { error } = await supabase
+      const { error } = await supabaseClient
         .from('menus')
         .upsert({ id: 1, data: menuData });
       
@@ -303,7 +300,7 @@
       isEditMode = !isEditMode;
       this.innerHTML = isEditMode ? '🔓 EDIT ON' : '🔒 EDIT OFF';
       this.classList.toggle('active');
-      renderEverything();
+      renderAll();
     });
 
     document.getElementById('saveBtn').addEventListener('click', saveToSupabase);
@@ -327,7 +324,7 @@
     });
 
     // ===== INIT =====
-    loadFromSupabase();
+    loadData();
   </script>
 </body>
 </html>
