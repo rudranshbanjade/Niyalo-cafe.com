@@ -1,60 +1,102 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Niyalo Cafe Menu</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Niyalo Cafe · Digital Menu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#fcf3ec;font-family:'Plus Jakarta Sans',sans-serif;padding:1rem;display:flex;justify-content:center;}
+    .container{max-width:1300px;width:100%;}
+    .header{background:#dac1b3;border-radius:40px 40px 20px 20px;padding:0.8rem 1.2rem;margin-bottom:1.2rem;display:flex;justify-content:space-between;align-items:center;border-bottom:4px solid #b18067;}
+    .qr-badge{background:#765b4e;color:white;padding:0.4rem 1.2rem;border-radius:40px;}
+    .live-badge{background:#2d5a4b;color:white;padding:0.4rem 1.2rem;border-radius:40px;display:flex;align-items:center;gap:6px;}
+    .menu-card{background:white;border-radius:36px;padding:1.5rem;}
+    .hotel-section{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;margin-bottom:1.5rem;border-bottom:2px dashed #dbb9a8;padding-bottom:1.2rem;}
+    .hotel-name{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:#35271f;display:flex;align-items:center;gap:8px;}
+    .hotel-name i{color:#b18067;}
+    .hotel-tagline{display:flex;align-items:center;gap:8px;color:#6b5548;font-size:0.85rem;margin-top:4px;}
+    .contact-info{background:#fff9f2;padding:0.6rem 1.2rem;border-radius:50px;display:flex;flex-wrap:wrap;gap:1rem;}
+    .category{background:#fffcf7;border-radius:28px;padding:1.2rem;margin-bottom:1.2rem;border:1px solid #f0ddd2;}
+    .category-title{display:flex;align-items:center;gap:8px;border-bottom:2px dotted #eacec2;padding-bottom:0.8rem;margin-bottom:0.8rem;}
+    .category-title i{font-size:1.6rem;color:#aa7862;}
+    .category-title h2{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:600;color:#3d2c24;}
+    .item{display:flex;justify-content:space-between;align-items:baseline;padding:0.6rem 0;border-bottom:1px dashed #efd9cf;}
+    .item-name{font-weight:700;font-size:1rem;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+    .item-desc{font-size:0.75rem;color:#6b5246;}
+    .price{font-weight:800;font-size:1.1rem;background:#ffefe7;padding:0.15rem 1rem;border-radius:40px;color:#5c3d33;}
+    .price:before{content:"रू";margin-right:3px;}
+    .badge{background:#e7d2c5;border-radius:40px;padding:0.15rem 0.8rem;font-size:0.55rem;font-weight:700;color:#4d352c;}
+    .footer{background:#fdf3ed;border-radius:40px;padding:1.2rem;margin-top:1.5rem;text-align:center;}
+    .footer-badges{display:flex;flex-wrap:wrap;justify-content:center;gap:0.7rem;margin-bottom:0.8rem;}
+    .footer-badge{background:#e7d2c5;border-radius:40px;padding:0.25rem 1rem;display:inline-flex;align-items:center;gap:6px;font-size:0.75rem;}
+    .pulse{width:8px;height:8px;background:#b3f0d0;border-radius:50%;animation:pulse 1.5s infinite;}
+    @keyframes pulse{0%{opacity:0.6}100%{opacity:1;transform:scale(1.2);}}
+  </style>
 </head>
-<body style="font-family:sans-serif;padding:20px;background:#fcf3ec;">
-
-<div style="max-width:600px;margin:0 auto;background:white;padding:30px;border-radius:30px;">
-
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;">
-    <h1 style="font-size:2rem;">☕ NIYALO</h1>
-    <span style="background:#2d5a4b;color:white;padding:8px 16px;border-radius:30px;">LIVE</span>
-  </div>
-
-  <div id="menuContent" style="text-align:center;padding:40px;">
-    <p>Loading menu...</p>
-  </div>
-
-</div>
-
-<script>
-// ===== YOUR SUPABASE KEYS =====
-const SUPABASE_URL = 'https://outxrzhbocvopmvizzf.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dHhyemhib2N2b3Btdml6emYiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczOTU5NzM4NywiZXhwIjoyMDU1MTczMzg3fQ.qLfjrV_XpIs9tRr8CM3c0qOcw23VCl50trbKnS73fYw';
-
-// Initialize Supabase
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-async function loadMenu() {
-  try {
-    const { data, error } = await supabase
-      .from('menus')
-      .select('*')
-      .eq('id', 1)
-      .single();
+<body>
+  <div class="container">
+    <div class="header">
+      <span class="qr-badge"><i class="fas fa-qrcode"></i> NIYALO CAFE</span>
+      <span class="live-badge"><span class="pulse"></span> LIVE</span>
+    </div>
     
-    if (data && data.data) {
-      document.getElementById('menuContent').innerHTML = `
-        <div style="text-align:left;">
-          <h2>${data.data.hotel.name}</h2>
-          <p>📍 ${data.data.hotel.location}</p>
-          <p>📞 ${data.data.hotel.phone}</p>
-          <p>⏰ ${data.data.hotel.hours}</p>
-        </div>
-      `;
+    <div class="menu-card" id="menuContent">
+      <div style="text-align:center;padding:2rem;">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>Loading menu...</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== YOUR SUPABASE KEYS =====
+    const SUPABASE_URL = 'https://outxrzhbocvopmvizzf.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dHhyemhib2N2b3Btdml6emYiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczOTU5NzM4NywiZXhwIjoyMDU1MTczMzg3fQ.qLfjrV_XpIs9tRr8CM3c0qOcw23VCl50trbKnS73fYw';
+
+    // Initialize Supabase (ONCE!)
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    async function loadMenu() {
+      try {
+        const { data, error } = await supabaseClient
+          .from('menus')
+          .select('*')
+          .eq('id', 1)
+          .single();
+
+        if (data) {
+          const menu = data.data;
+          let html = `
+            <div class="hotel-section">
+              <div>
+                <div class="hotel-name">
+                  <i class="fas fa-leaf"></i> <span>${menu.hotel.name}</span> <i class="fas fa-mug-hot"></i>
+                </div>
+                <div class="hotel-tagline">
+                  <i class="fas fa-map-pin"></i> ${menu.hotel.location}
+                </div>
+              </div>
+              <div class="contact-info">
+                <div><i class="fas fa-clock"></i> ${menu.hotel.hours}</div>
+                <div><i class="fas fa-phone-alt"></i> ${menu.hotel.phone}</div>
+              </div>
+            </div>
+          `;
+          
+          document.getElementById('menuContent').innerHTML = html;
+        }
+      } catch (error) {
+        document.getElementById('menuContent').innerHTML = '<p>Error loading menu</p>';
+      }
     }
-  } catch (e) {
-    document.getElementById('menuContent').innerHTML = '<p>Error loading menu</p>';
-  }
-}
 
-// Load immediately and every 2 seconds
-loadMenu();
-setInterval(loadMenu, 2000);
-</script>
-
+    // Load immediately and every 2 seconds
+    loadMenu();
+    setInterval(loadMenu, 2000);
+  </script>
 </body>
 </html>
