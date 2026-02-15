@@ -54,7 +54,7 @@
 
   <script>
     // ===== YOUR SUPABASE KEYS =====
-    const SUPABASE_URL = 'https://husqvlglbztwauofantk.supabase.co';
+    const SUPABASE_URL = 'https://outxrzhbocyvopmivzzf.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dHhyemhib2N5dm9wbWl2enpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNTU1NDgsImV4cCI6MjA4NjYzMTU0OH0.apOAqrdlz3WBo9Aht3xzHc-XBkInHSQVfHu3NRuCxNc';
 
     // Initialize Supabase (ONCE!)
@@ -62,7 +62,7 @@
 
     // Use the CORRECT table name
 const { data, error } = await supabaseClient
-  .from('menu') 
+  .from('menus') 
   .select('*')
   .eq('id', 1)
   .single();
@@ -99,6 +99,7 @@ const { data, error } = await supabaseClient
   </script>
 </body>
 </html>
+
 
 
 
