@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
+    /* YOUR EXACT STYLES - KEEP THEM */
     *{margin:0;padding:0;box-sizing:border-box;}
     body{background:#12100e;font-family:'Plus Jakarta Sans',sans-serif;padding:1.5rem;display:flex;justify-content:center;}
     .owner-container{max-width:1400px;width:100%;}
@@ -116,7 +117,7 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dHhyemhib2N5dm9wbWl2enpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNTU1NDgsImV4cCI6MjA4NjYzMTU0OH0.apOAqrdlz3WBo9Aht3xzHc-XBkInHSQVfHu3NRuCxNc';
     const TABLE_NAME = 'menus';
     
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // ===== DEFAULT MENU =====
     const DEFAULT_MENU = {
@@ -149,127 +150,115 @@
       ]
     };
 
-    let menuData;
+    let menuData = null;
     let isEditMode = true;
 
     // ===== LOAD FROM SUPABASE =====
-    async function loadFromSupabase() {
-      console.log('🔄 Loading from Supabase...');
+    async function loadData() {
+      console.log('🔄 Loading data...');
       try {
-        const { data, error } = await supabaseClient
-          .from(TABLE_NAME)
-          .select('*')
-          .eq('id', 1)
-          .maybeSingle();
-
-        if (error) {
-          console.log('❌ Supabase error:', error);
-        }
-
-        if (data && data.data) {
-          console.log('✅ Found data in Supabase:', data.data);
-          menuData = data.data;
-          document.getElementById('syncStatus').innerHTML = '✅ LOADED FROM CLOUD';
-        } else {
-          console.log('⚠️ No data in Supabase, using default');
-          menuData = JSON.parse(JSON.stringify(DEFAULT_MENU));
-          // Save default to Supabase
-          const { error: insertError } = await supabaseClient
-            .from(TABLE_NAME)
-            .insert({ id: 1, data: menuData });
-          
-          if (insertError) {
-            console.log('❌ Error saving default:', insertError);
-          } else {
-            console.log('✅ Default saved to Supabase');
-          }
-          document.getElementById('syncStatus').innerHTML = '✅ DEFAULT SAVED';
-        }
-        renderOwnerMenu();
-      } catch (error) {
-        console.log('❌ Load error:', error);
-        menuData = JSON.parse(JSON.stringify(DEFAULT_MENU));
-        renderOwnerMenu();
-      }
-    }
-
-    // ===== SAVE TO SUPABASE =====
-    async function saveToSupabase(showAlert = true) {
-      console.log('💾 SAVE BUTTON CLICKED!');
-      console.log('Current menuData before update:', menuData);
-      
-      if (!menuData) {
-        console.log('❌ menuData is null!');
-        return;
-      }
-      
-      // Update menuData from DOM
-      menuData.hotel.name = document.getElementById('hotelName').innerText;
-      menuData.hotel.location = document.getElementById('hotelLocation').innerText;
-      menuData.hotel.tagline = document.getElementById('hotelTagline').innerText;
-      menuData.hotel.hours = document.getElementById('hours').innerText;
-      menuData.hotel.phone = document.getElementById('phone').innerText;
-      menuData.hotel.heartNote = document.getElementById('heartNote').innerText;
-      
-      menuData.footer.forEach(f => {
-        const el = document.getElementById(f.id);
-        if (el) f.text = el.innerText;
-      });
-
-      menuData.categories.forEach(cat => {
-        const titleEl = document.getElementById(cat.id + 'Title');
-        if (titleEl) cat.title = titleEl.innerText;
-        
-        cat.items.forEach(item => {
-          const nameEl = document.getElementById(item.id);
-          if (nameEl) item.name = nameEl.innerText;
-          const descEl = document.getElementById(item.id + 'Desc');
-          if (descEl) item.desc = descEl.innerText;
-          const priceEl = document.getElementById(item.id + 'Price');
-          if (priceEl) item.price = priceEl.innerText;
-          const badgeEl = document.getElementById(item.id + 'Badge');
-          if (badgeEl && item.badge) item.badge = badgeEl.innerText;
-        });
-      });
-
-      console.log('📤 Sending to Supabase:', menuData);
-
-      try {
-        const { data, error } = await supabaseClient
-          .from(TABLE_NAME)
-          .upsert({ id: 1, data: menuData })
-          .select();
-
-        if (error) {
-          console.log('❌ Supabase error response:', error);
-          throw error;
-        }
-        
-        console.log('✅ Save successful! Response:', data);
-        document.getElementById('syncStatus').innerHTML = '✅ SAVED ' + new Date().toLocaleTimeString();
-        
-        // Verify by loading again
-        console.log('🔄 Verifying save by reloading...');
-        const { data: verifyData } = await supabaseClient
+        const { data, error } = await supabase
           .from(TABLE_NAME)
           .select('*')
           .eq('id', 1)
           .single();
-        console.log('📥 Verified data from Supabase:', verifyData);
+
+        if (error) {
+          console.log('No data in Supabase, using default');
+          menuData = JSON.parse(JSON.stringify(DEFAULT_MENU));
+          // Save default to Supabase
+          const { error: insertError } = await supabase
+            .from(TABLE_NAME)
+            .insert({ id: 1, data: menuData });
+          
+          if (insertError) {
+            console.log('Error saving default:', insertError);
+          } else {
+            console.log('✅ Default saved');
+          }
+        } else {
+          console.log('✅ Data loaded from Supabase:', data);
+          menuData = data.data;
+        }
         
-        if (showAlert) alert('✅ Saved to cloud!');
-      } catch (error) {
-        console.log('❌ Save error:', error);
-        document.getElementById('syncStatus').innerHTML = '❌ ERROR: ' + error.message;
-        if (showAlert) alert('❌ Error: ' + error.message);
+        console.log('🎨 Rendering menu...');
+        renderMenu();
+        document.getElementById('syncStatus').innerHTML = '✅ READY';
+      } catch (err) {
+        console.log('Error:', err);
+        menuData = JSON.parse(JSON.stringify(DEFAULT_MENU));
+        renderMenu();
       }
     }
 
-    // ===== RENDER FUNCTIONS =====
-    function renderOwnerMenu() {
-      console.log('🎨 Rendering menu with data:', menuData);
-      if (!menuData) return;
+    // ===== SAVE TO SUPABASE =====
+    async function saveData() {
+      console.log('💾 SAVING DATA...');
       
+      // Get current values from DOM
+      const updatedMenu = {
+        hotel: {
+          name: document.getElementById('hotelName').innerText,
+          location: document.getElementById('hotelLocation').innerText,
+          tagline: document.getElementById('hotelTagline').innerText,
+          hours: document.getElementById('hours').innerText,
+          phone: document.getElementById('phone').innerText,
+          heartNote: document.getElementById('heartNote').innerText
+        },
+        footer: menuData.footer.map(f => ({
+          id: f.id,
+          text: document.getElementById(f.id)?.innerText || f.text
+        })),
+        categories: []
+      };
+
+      // Get categories from DOM
+      menuData.categories.forEach(cat => {
+        const newCat = {
+          id: cat.id,
+          title: document.getElementById(cat.id + 'Title')?.innerText || cat.title,
+          icon: cat.icon,
+          items: []
+        };
+        
+        cat.items.forEach(item => {
+          newCat.items.push({
+            id: item.id,
+            name: document.getElementById(item.id)?.innerText || item.name,
+            desc: document.getElementById(item.id + 'Desc')?.innerText || item.desc,
+            price: document.getElementById(item.id + 'Price')?.innerText || item.price,
+            badge: document.getElementById(item.id + 'Badge')?.innerText || item.badge
+          });
+        });
+        
+        updatedMenu.categories.push(newCat);
+      });
+
+      console.log('📤 Sending to Supabase:', updatedMenu);
+
+      try {
+        const { error } = await supabase
+          .from(TABLE_NAME)
+          .upsert({ id: 1, data: updatedMenu });
+
+        if (error) {
+          console.log('❌ Save error:', error);
+          alert('Error saving: ' + error.message);
+          document.getElementById('syncStatus').innerHTML = '❌ ERROR';
+        } else {
+          console.log('✅ Save successful!');
+          menuData = updatedMenu;
+          document.getElementById('syncStatus').innerHTML = '✅ SAVED ' + new Date().toLocaleTimeString();
+          alert('✅ Saved to cloud!');
+        }
+      } catch (err) {
+        console.log('❌ Error:', err);
+        alert('Error: ' + err.message);
+      }
+    }
+
+    // ===== RENDER MENU =====
+    function renderMenu() {
       const container = document.getElementById('categoriesContainer');
       container.innerHTML = '';
       
@@ -387,7 +376,7 @@
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       if (confirm('Delete category?')) {
         menuData.categories = menuData.categories.filter(c => c.id !== id);
-        renderOwnerMenu();
+        renderMenu();
       }
     };
     
@@ -396,14 +385,14 @@
       const cat = menuData.categories.find(c => c.id === catId);
       if (cat) {
         cat.items = cat.items.filter(i => i.id !== itemId);
-        renderOwnerMenu();
+        renderMenu();
       }
     };
     
     window.deleteBadge = function(itemId) {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       menuData.categories.forEach(c => c.items.forEach(i => { if (i.id === itemId) i.badge = null; }));
-      renderOwnerMenu();
+      renderMenu();
     };
     
     window.deleteFooterItem = function(id) {
@@ -427,7 +416,7 @@
           badge: null 
         }] 
       });
-      renderOwnerMenu();
+      renderMenu();
     };
     
     window.addNewItem = function(catId) {
@@ -441,7 +430,7 @@
           price: '199', 
           badge: null 
         });
-        renderOwnerMenu();
+        renderMenu();
       }
     };
     
@@ -450,7 +439,7 @@
       const text = prompt('Badge text:');
       if (text && text.trim()) {
         menuData.categories.forEach(c => c.items.forEach(i => { if (i.id === itemId) i.badge = text.trim(); }));
-        renderOwnerMenu();
+        renderMenu();
       }
     };
 
@@ -462,9 +451,7 @@
       applyEditMode();
     });
 
-    document.getElementById('saveBtn').addEventListener('click', function() {
-      saveToSupabase(true);
-    });
+    document.getElementById('saveBtn').addEventListener('click', saveData);
     
     document.getElementById('addCategoryBtn').addEventListener('click', function() {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
@@ -478,10 +465,7 @@
     });
 
     // ===== INIT =====
-    window.onload = function() {
-      console.log('🚀 Page loaded, starting...');
-      loadFromSupabase();
-    };
+    loadData();
   </script>
 </body>
 </html>
