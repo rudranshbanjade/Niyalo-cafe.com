@@ -6,26 +6,34 @@
   <title>Niyalo Cafe · Digital Menu</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Supabase JS (THIS MUST LOAD FIRST!) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* YOUR EXISTING GUEST STYLES */
     *{margin:0;padding:0;box-sizing:border-box;}
     body{background:#fcf3ec;font-family:'Plus Jakarta Sans',sans-serif;padding:1rem;display:flex;justify-content:center;}
     .container{max-width:1300px;width:100%;}
     .header{background:#dac1b3;border-radius:40px 40px 20px 20px;padding:0.8rem 1.2rem;margin-bottom:1.2rem;display:flex;justify-content:space-between;align-items:center;border-bottom:4px solid #b18067;}
     .qr-badge{background:#765b4e;color:white;padding:0.4rem 1.2rem;border-radius:40px;}
     .live-badge{background:#2d5a4b;color:white;padding:0.4rem 1.2rem;border-radius:40px;display:flex;align-items:center;gap:6px;}
-    .menu-card{background:white;border-radius:36px;padding:1.5rem;}
-    .hotel-name{font-family:'Playfair Display',serif;font-size:2rem;display:flex;align-items:center;gap:8px;}
+    .menu-card{background:white;border-radius:36px;padding:1.5rem;box-shadow:0 25px 40px -20px rgba(0,0,0,0.2);}
+    .hotel-section{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;margin-bottom:1.5rem;border-bottom:2px dashed #dbb9a8;padding-bottom:1.2rem;}
+    .hotel-name{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:#35271f;display:flex;align-items:center;gap:8px;}
+    .hotel-name i{color:#b18067;}
+    .hotel-tagline{display:flex;align-items:center;gap:8px;color:#6b5548;font-size:0.85rem;margin-top:4px;}
     .contact-info{background:#fff9f2;padding:0.6rem 1.2rem;border-radius:50px;display:flex;flex-wrap:wrap;gap:1rem;}
-    .category{background:#fffcf7;border-radius:28px;padding:1.2rem;margin-bottom:1.2rem;}
+    .category{background:#fffcf7;border-radius:28px;padding:1.2rem;margin-bottom:1.2rem;border:1px solid #f0ddd2;}
     .category-title{display:flex;align-items:center;gap:8px;border-bottom:2px dotted #eacec2;padding-bottom:0.8rem;margin-bottom:0.8rem;}
-    .item{display:flex;justify-content:space-between;padding:0.6rem 0;border-bottom:1px dashed #efd9cf;}
-    .price{font-weight:800;background:#ffefe7;padding:0.15rem 1rem;border-radius:40px;}
+    .category-title i{font-size:1.6rem;color:#aa7862;}
+    .category-title h2{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:600;color:#3d2c24;}
+    .item{display:flex;justify-content:space-between;align-items:baseline;padding:0.6rem 0;border-bottom:1px dashed #efd9cf;}
+    .item-name{font-weight:700;font-size:1rem;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+    .item-desc{font-size:0.75rem;color:#6b5246;}
+    .price{font-weight:800;font-size:1.1rem;background:#ffefe7;padding:0.15rem 1rem;border-radius:40px;color:#5c3d33;}
     .price:before{content:"रू";margin-right:3px;}
-    .badge{background:#e7d2c5;border-radius:40px;padding:0.15rem 0.8rem;font-size:0.55rem;}
+    .badge{background:#e7d2c5;border-radius:40px;padding:0.15rem 0.8rem;font-size:0.55rem;font-weight:700;color:#4d352c;}
     .footer{background:#fdf3ed;border-radius:40px;padding:1.2rem;margin-top:1.5rem;text-align:center;}
     .footer-badges{display:flex;flex-wrap:wrap;justify-content:center;gap:0.7rem;margin-bottom:0.8rem;}
+    .footer-badge{background:#e7d2c5;border-radius:40px;padding:0.25rem 1rem;display:inline-flex;align-items:center;gap:6px;font-size:0.75rem;}
     .pulse{width:8px;height:8px;background:#b3f0d0;border-radius:50%;animation:pulse 1.5s infinite;}
     @keyframes pulse{0%{opacity:0.6}100%{opacity:1;transform:scale(1.2);}}
   </style>
@@ -46,26 +54,26 @@
   </div>
 
   <script>
-    // 🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴
-    // 🔥🔥🔥 PASTE THE SAME SUPABASE KEYS HERE! 🔥🔥🔥
-    // 🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴
-    
+    // ===========================================
+    // YOUR SUPABASE KEYS - SAME AS OWNER
+    // ===========================================
     const SUPABASE_URL = 'https://outxrzhbocvopmvizzf.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dHhyemhib2N2b3Btdml6emYiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczOTU5NzM4NywiZXhwIjoyMDU1MTczMzg3fQ.qLfjrV_XpIs9tRr8CM3c0qOcw23VCl50trbKnS73fYw';
-    
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dHhyemhib2N2b3Btdml6emYiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczOTU5NzM4NywiZXhwIjoyMDU1MTczMzg3fQ.qLfjrV_XpIs9tRr8CM3c0qOcw23VCl50trbKnS73fYw';
+
     // Initialize Supabase
-    const { createClient } = supabase;
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     function renderMenu(data) {
       let html = `
-        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;margin-bottom:1.5rem;">
+        <div class="hotel-section">
           <div>
             <div class="hotel-name">
               <i class="fas fa-leaf"></i> <span>${data.hotel.name}</span> <i class="fas fa-mug-hot"></i>
             </div>
-            <div style="display:flex;gap:8px;color:#6b5548;">
+            <div class="hotel-tagline">
               <i class="fas fa-map-pin"></i> ${data.hotel.location}
+              <span style="margin:0 4px;">•</span>
+              <i class="fas fa-seedling"></i> ${data.hotel.tagline}
             </div>
           </div>
           <div class="contact-info">
@@ -94,11 +102,15 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
     async function loadFromSupabase() {
       try {
-        const { data, error } = await supabaseClient
+        const { data, error } = await supabase
           .from('menus')
           .select('*')
           .eq('id', 1)
           .single();
+
+        if (error && error.code !== 'PGRST116') {
+          console.error('Error:', error);
+        }
 
         if (data) {
           renderMenu(data.data);
@@ -122,7 +134,7 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
           });
         }
       } catch (error) {
-        console.log('Error loading');
+        console.error('Error:', error);
       }
     }
 
@@ -132,7 +144,3 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
   </script>
 </body>
 </html>
-
-
-
-
