@@ -8,7 +8,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* YOUR EXACT STYLES - KEEP THEM */
     *{margin:0;padding:0;box-sizing:border-box;}
     body{background:#12100e;font-family:'Plus Jakarta Sans',sans-serif;padding:1.5rem;display:flex;justify-content:center;}
     .owner-container{max-width:1400px;width:100%;}
@@ -81,29 +80,13 @@
         </div>
       </div>
 
+      <!-- SIMPLE TEST BUTTON -->
+      <div style="text-align:center; margin-bottom:20px;">
+        <button id="testBtn" style="background:#c49a6c; color:white; padding:10px 20px; border:none; border-radius:10px; cursor:pointer;">🔍 TEST SUPABASE CONNECTION</button>
+      </div>
+
       <!-- CATEGORIES CONTAINER -->
       <div id="categoriesContainer"></div>
-
-      <!-- ADD CATEGORY BUTTON -->
-      <div style="text-align:center;">
-        <button class="add-category-btn" id="addCategoryBtn">➕ ADD NEW CATEGORY</button>
-      </div>
-
-      <!-- FOOTER EDITOR -->
-      <div class="footer-editor">
-        <div style="text-align:center;margin-bottom:1rem;">
-          <span style="background:#ab8c7a;color:white;padding:0.3rem 1.5rem;border-radius:60px;">❤️ FOOTER BADGES</span>
-        </div>
-        <div class="footer-badge-container" id="footerBadgesContainer"></div>
-        <div style="text-align:center;margin-top:0.8rem;">
-          <button class="add-footer-btn" id="addFooterBtn">➕ ADD BADGE</button>
-        </div>
-        <div style="text-align:center;margin-top:1.5rem;">
-          <i class="fas fa-heart" style="color:#c2714b;"></i>
-          <span contenteditable="true" id="heartNote">order at counter · everything made to share</span>
-          <i class="fas fa-heart" style="color:#c2714b;"></i>
-        </div>
-      </div>
     </div>
 
     <div class="sync-status">
@@ -119,6 +102,50 @@
     
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    // ===== TEST CONNECTION =====
+    document.getElementById('testBtn').addEventListener('click', async function() {
+      alert('🔍 Testing Supabase connection... Check console!');
+      console.log('🔍 TESTING SUPABASE CONNECTION');
+      
+      try {
+        // Test 1: Can we connect?
+        console.log('Test 1: Checking connection...');
+        const { data, error } = await supabase
+          .from(TABLE_NAME)
+          .select('*')
+          .limit(1);
+        
+        if (error) {
+          console.log('❌ Connection failed:', error);
+          alert('❌ Connection failed: ' + error.message);
+        } else {
+          console.log('✅ Connection successful! Data:', data);
+          alert('✅ Connection successful! Check console.');
+        }
+        
+        // Test 2: Try to insert test data
+        console.log('Test 2: Trying to insert test data...');
+        const testData = {
+          id: 999,
+          data: { test: "hello" }
+        };
+        
+        const { error: insertError } = await supabase
+          .from(TABLE_NAME)
+          .insert(testData);
+        
+        if (insertError) {
+          console.log('❌ Insert failed:', insertError);
+        } else {
+          console.log('✅ Insert successful!');
+        }
+        
+      } catch (err) {
+        console.log('❌ Unexpected error:', err);
+        alert('❌ Error: ' + err.message);
+      }
+    });
+
     // ===== DEFAULT MENU =====
     const DEFAULT_MENU = {
       hotel: {
@@ -129,343 +156,16 @@
         phone: "+977 981-234567",
         heartNote: "order at counter · everything made to share"
       },
-      footer: [
-        { id: "footer1", text: "house-baked daily" },
-        { id: "footer2", text: "vegan & gluten-free" },
-        { id: "footer3", text: "free high-speed wifi" }
-      ],
-      categories: [
-        { id: "cat1", title: "all-day breakfast", icon: "sunrise", items: [
-          { id: "item1_1", name: "Niyalo Shakshuka", desc: "poached eggs · spiced tomato · feta", price: "590", badge: null },
-          { id: "item1_2", name: "Cardamom French Toast", desc: "brioche · orange · maple", price: "520", badge: null },
-          { id: "item1_3", name: "Avocado Garden Toast", desc: "sourdough · za'atar · radish", price: "580", badge: "vegan" },
-          { id: "item1_4", name: "House Granola Pot", desc: "yoghurt · berries · honey", price: "420", badge: null }
-        ]},
-        { id: "cat2", title: "small plates", icon: "utensils", items: [
-          { id: "item2_1", name: "Burnt Eggplant Dip", desc: "smoked paprika · flatbread", price: "450", badge: null },
-          { id: "item2_2", name: "Chili Garlic Prawns", desc: "lemon · parsley · sourdough", price: "690", badge: null },
-          { id: "item2_3", name: "Wild Mushroom Toast", desc: "thyme · truffle oil · pecorino", price: "620", badge: "signature" },
-          { id: "item2_4", name: "Harissa Cauliflower", desc: "tahini · pomegranate · almonds", price: "510", badge: null }
-        ]}
-      ]
+      categories: []
     };
 
-    let menuData = null;
-    let isEditMode = true;
-
-    // ===== LOAD FROM SUPABASE =====
-    async function loadData() {
-      console.log('🔄 Loading data...');
-      try {
-        const { data, error } = await supabase
-          .from(TABLE_NAME)
-          .select('*')
-          .eq('id', 1)
-          .single();
-
-        if (error) {
-          console.log('No data in Supabase, using default');
-          menuData = JSON.parse(JSON.stringify(DEFAULT_MENU));
-          // Save default to Supabase
-          const { error: insertError } = await supabase
-            .from(TABLE_NAME)
-            .insert({ id: 1, data: menuData });
-          
-          if (insertError) {
-            console.log('Error saving default:', insertError);
-          } else {
-            console.log('✅ Default saved');
-          }
-        } else {
-          console.log('✅ Data loaded from Supabase:', data);
-          menuData = data.data;
-        }
-        
-        console.log('🎨 Rendering menu...');
-        renderMenu();
-        document.getElementById('syncStatus').innerHTML = '✅ READY';
-      } catch (err) {
-        console.log('Error:', err);
-        menuData = JSON.parse(JSON.stringify(DEFAULT_MENU));
-        renderMenu();
-      }
-    }
-
-    // ===== SAVE TO SUPABASE =====
-    async function saveData() {
-      console.log('💾 SAVING DATA...');
-      
-      // Get current values from DOM
-      const updatedMenu = {
-        hotel: {
-          name: document.getElementById('hotelName').innerText,
-          location: document.getElementById('hotelLocation').innerText,
-          tagline: document.getElementById('hotelTagline').innerText,
-          hours: document.getElementById('hours').innerText,
-          phone: document.getElementById('phone').innerText,
-          heartNote: document.getElementById('heartNote').innerText
-        },
-        footer: menuData.footer.map(f => ({
-          id: f.id,
-          text: document.getElementById(f.id)?.innerText || f.text
-        })),
-        categories: []
-      };
-
-      // Get categories from DOM
-      menuData.categories.forEach(cat => {
-        const newCat = {
-          id: cat.id,
-          title: document.getElementById(cat.id + 'Title')?.innerText || cat.title,
-          icon: cat.icon,
-          items: []
-        };
-        
-        cat.items.forEach(item => {
-          newCat.items.push({
-            id: item.id,
-            name: document.getElementById(item.id)?.innerText || item.name,
-            desc: document.getElementById(item.id + 'Desc')?.innerText || item.desc,
-            price: document.getElementById(item.id + 'Price')?.innerText || item.price,
-            badge: document.getElementById(item.id + 'Badge')?.innerText || item.badge
-          });
-        });
-        
-        updatedMenu.categories.push(newCat);
-      });
-
-      console.log('📤 Sending to Supabase:', updatedMenu);
-
-      try {
-        const { error } = await supabase
-          .from(TABLE_NAME)
-          .upsert({ id: 1, data: updatedMenu });
-
-        if (error) {
-          console.log('❌ Save error:', error);
-          alert('Error saving: ' + error.message);
-          document.getElementById('syncStatus').innerHTML = '❌ ERROR';
-        } else {
-          console.log('✅ Save successful!');
-          menuData = updatedMenu;
-          document.getElementById('syncStatus').innerHTML = '✅ SAVED ' + new Date().toLocaleTimeString();
-          alert('✅ Saved to cloud!');
-        }
-      } catch (err) {
-        console.log('❌ Error:', err);
-        alert('Error: ' + err.message);
-      }
-    }
-
-    // ===== RENDER MENU =====
-    function renderMenu() {
+    // Simple render
+    function renderSimpleMenu() {
       const container = document.getElementById('categoriesContainer');
-      container.innerHTML = '';
-      
-      menuData.categories.forEach(cat => {
-        const card = document.createElement('div');
-        card.className = 'category-card';
-        
-        const header = document.createElement('div');
-        header.className = 'category-header';
-        header.innerHTML = `
-          <div class="category-title">
-            <i class="fas fa-${cat.icon}"></i>
-            <h3><span contenteditable="true" id="${cat.id}Title">${cat.title}</span></h3>
-          </div>
-          <button class="delete-cat-btn" onclick="deleteCategory('${cat.id}')">🗑️ DELETE</button>
-        `;
-        card.appendChild(header);
-        
-        cat.items.forEach(item => {
-          const row = document.createElement('div');
-          row.className = 'menu-row';
-          
-          const left = document.createElement('div');
-          left.style.flex = '1';
-          
-          const nameDiv = document.createElement('div');
-          nameDiv.className = 'item-name';
-          nameDiv.innerHTML = `<span contenteditable="true" id="${item.id}">${item.name}</span>`;
-          
-          if (item.badge) {
-            const badge = document.createElement('span');
-            badge.style.cssText = 'background:#e7d2c5;border-radius:60px;padding:0.2rem 1rem;margin-left:8px;font-size:0.7rem;';
-            badge.innerHTML = `
-              <span contenteditable="true" id="${item.id}Badge">${item.badge}</span>
-              <button class="delete-btn" style="width:24px;height:24px;" onclick="deleteBadge('${item.id}')">×</button>
-            `;
-            nameDiv.appendChild(badge);
-          } else {
-            const addBtn = document.createElement('button');
-            addBtn.className = 'add-badge-btn';
-            addBtn.style.cssText = 'background:#9f7e6b;color:white;border:none;border-radius:40px;padding:0.2rem 1rem;margin-left:8px;font-size:0.7rem;cursor:pointer;';
-            addBtn.innerHTML = '🏷️ ADD BADGE';
-            addBtn.onclick = (e) => { e.stopPropagation(); addBadgeToItem(item.id); };
-            nameDiv.appendChild(addBtn);
-          }
-          
-          const descDiv = document.createElement('div');
-          descDiv.className = 'item-desc';
-          descDiv.innerHTML = `<span contenteditable="true" id="${item.id}Desc">${item.desc}</span>`;
-          
-          left.appendChild(nameDiv);
-          left.appendChild(descDiv);
-          
-          const right = document.createElement('div');
-          right.style.display = 'flex';
-          right.style.alignItems = 'center';
-          right.style.gap = '8px';
-          
-          const price = document.createElement('span');
-          price.className = 'price-tag';
-          price.innerHTML = `<span contenteditable="true" id="${item.id}Price">${item.price}</span>`;
-          
-          const del = document.createElement('button');
-          del.className = 'delete-btn';
-          del.innerHTML = '🗑️';
-          del.onclick = () => deleteMenuItem(cat.id, item.id);
-          
-          right.appendChild(price);
-          right.appendChild(del);
-          
-          row.appendChild(left);
-          row.appendChild(right);
-          card.appendChild(row);
-        });
-        
-        const addBtn = document.createElement('button');
-        addBtn.className = 'add-item-btn';
-        addBtn.innerHTML = '➕ ADD NEW ITEM';
-        addBtn.onclick = () => addNewItem(cat.id);
-        card.appendChild(addBtn);
-        
-        container.appendChild(card);
-      });
-      
-      renderFooter();
-      applyEditMode();
+      container.innerHTML = '<div style="color:white; text-align:center;">Simple menu loaded</div>';
     }
 
-    function renderFooter() {
-      const container = document.getElementById('footerBadgesContainer');
-      container.innerHTML = '';
-      menuData.footer.forEach(f => {
-        const badge = document.createElement('span');
-        badge.className = 'footer-badge';
-        badge.innerHTML = `
-          <i class="fas fa-heart" style="color:#a5664a;"></i>
-          <span contenteditable="true" id="${f.id}">${f.text}</span>
-          <button class="delete-btn" style="width:24px;height:24px;" onclick="deleteFooterItem('${f.id}')">×</button>
-        `;
-        container.appendChild(badge);
-      });
-    }
-
-    function applyEditMode() {
-      const master = document.getElementById('masterMenu');
-      if (!isEditMode) {
-        master.classList.add('editing-disabled');
-      } else {
-        master.classList.remove('editing-disabled');
-      }
-    }
-
-    // ===== CRUD OPERATIONS =====
-    window.deleteCategory = function(id) {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
-      if (confirm('Delete category?')) {
-        menuData.categories = menuData.categories.filter(c => c.id !== id);
-        renderMenu();
-      }
-    };
-    
-    window.deleteMenuItem = function(catId, itemId) {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
-      const cat = menuData.categories.find(c => c.id === catId);
-      if (cat) {
-        cat.items = cat.items.filter(i => i.id !== itemId);
-        renderMenu();
-      }
-    };
-    
-    window.deleteBadge = function(itemId) {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
-      menuData.categories.forEach(c => c.items.forEach(i => { if (i.id === itemId) i.badge = null; }));
-      renderMenu();
-    };
-    
-    window.deleteFooterItem = function(id) {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
-      menuData.footer = menuData.footer.filter(f => f.id !== id);
-      renderFooter();
-    };
-    
-    window.addNewCategory = function() {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
-      const id = 'cat' + Date.now();
-      menuData.categories.push({ 
-        id, 
-        title: 'New Category', 
-        icon: 'utensils', 
-        items: [{ 
-          id: id + '_item1', 
-          name: 'New Dish', 
-          desc: 'description', 
-          price: '199', 
-          badge: null 
-        }] 
-      });
-      renderMenu();
-    };
-    
-    window.addNewItem = function(catId) {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
-      const cat = menuData.categories.find(c => c.id === catId);
-      if (cat) {
-        cat.items.push({ 
-          id: catId + '_item' + Date.now(), 
-          name: 'New Item', 
-          desc: 'item description', 
-          price: '199', 
-          badge: null 
-        });
-        renderMenu();
-      }
-    };
-    
-    window.addBadgeToItem = function(itemId) {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
-      const text = prompt('Badge text:');
-      if (text && text.trim()) {
-        menuData.categories.forEach(c => c.items.forEach(i => { if (i.id === itemId) i.badge = text.trim(); }));
-        renderMenu();
-      }
-    };
-
-    // ===== EVENT LISTENERS =====
-    document.getElementById('editModeBtn').addEventListener('click', function() {
-      isEditMode = !isEditMode;
-      this.innerHTML = isEditMode ? '🔓 EDIT ON' : '🔒 EDIT OFF';
-      this.classList.toggle('active');
-      applyEditMode();
-    });
-
-    document.getElementById('saveBtn').addEventListener('click', saveData);
-    
-    document.getElementById('addCategoryBtn').addEventListener('click', function() {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
-      addNewCategory();
-    });
-    
-    document.getElementById('addFooterBtn').addEventListener('click', function() {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
-      menuData.footer.push({ id: 'footer'+Date.now(), text: 'new feature' });
-      renderFooter();
-    });
-
-    // ===== INIT =====
-    loadData();
+    renderSimpleMenu();
   </script>
 </body>
 </html>
