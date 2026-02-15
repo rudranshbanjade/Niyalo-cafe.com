@@ -1,119 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Niyalo · Simple Test</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    body {
-      background: #12100e;
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      color: white;
-    }
-    .container {
-      max-width: 500px;
-      margin: 0 auto;
-      background: #fcf7f2;
-      color: black;
-      padding: 30px;
-      border-radius: 20px;
-    }
-    input, button {
-      width: 100%;
-      padding: 15px;
-      margin: 10px 0;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-    }
-    input {
-      background: #f0f0f0;
-    }
-    button {
-      background: #27ae60;
-      color: white;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    button:hover {
-      background: #2ecc71;
-    }
-    #result {
-      background: #f0f0f0;
-      padding: 15px;
-      border-radius: 10px;
-      margin-top: 20px;
-      white-space: pre-wrap;
-    }
-  </style>
+  <title>Simple Test</title>
 </head>
-<body>
-  <div class="container">
-    <h1>🔧 Supabase Test</h1>
-    
-    <input type="text" id="testInput" placeholder="Enter test data" value="Hello World">
-    
-    <button id="testSaveBtn">💾 TEST SAVE</button>
-    <button id="testLoadBtn">🔄 TEST LOAD</button>
-    
-    <div id="result">Ready to test...</div>
-  </div>
-
-  <script>
-    // Supabase config
-    const SUPABASE_URL = 'https://outxrzhbocyvopmivzzf.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dHhyemhib2N5dm9wbWl2enpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNTU1NDgsImV4cCI6MjA4NjYzMTU0OH0.apOAqrdlz3WBo9Aht3xzHc-XBkInHSQVfHu3NRuCxNc';
-    
-    // Create Supabase client
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    // Get elements
-    const testSaveBtn = document.getElementById('testSaveBtn');
-    const testLoadBtn = document.getElementById('testLoadBtn');
-    const testInput = document.getElementById('testInput');
-    const result = document.getElementById('result');
-
-    // Test Save
-    testSaveBtn.onclick = async function() {
-      const value = testInput.value;
-      result.innerHTML = '⏳ Saving...';
-      
-      try {
-        const { error } = await supabase
-          .from('menus')
-          .upsert({ id: 999, data: { test: value } });
-        
-        if (error) {
-          result.innerHTML = '❌ Error: ' + error.message;
-        } else {
-          result.innerHTML = '✅ Saved: "' + value + '"';
-        }
-      } catch(err) {
-        result.innerHTML = '❌ Error: ' + err.message;
-      }
-    };
-
-    // Test Load
-    testLoadBtn.onclick = async function() {
-      result.innerHTML = '⏳ Loading...';
-      
-      try {
-        const { data, error } = await supabase
-          .from('menus')
-          .select('*')
-          .eq('id', 999);
-        
-        if (error) {
-          result.innerHTML = '❌ Error: ' + error.message;
-        } else {
-          result.innerHTML = '✅ Loaded: ' + JSON.stringify(data, null, 2);
-        }
-      } catch(err) {
-        result.innerHTML = '❌ Error: ' + err.message;
-      }
-    };
-  </script>
+<body style="background: #12100e; color: white; padding: 20px; font-family: Arial;">
+  <h1>🔧 Simple Test Page</h1>
+  
+  <button onclick="alert('Button 1 clicked!')" style="background: #27ae60; color: white; padding: 15px 30px; border: none; border-radius: 10px; margin: 10px; cursor: pointer;">
+    TEST BUTTON 1
+  </button>
+  
+  <button onclick="alert('Button 2 clicked!')" style="background: #3498db; color: white; padding: 15px 30px; border: none; border-radius: 10px; margin: 10px; cursor: pointer;">
+    TEST BUTTON 2
+  </button>
+  
+  <p>Do these buttons show alerts when clicked?</p>
 </body>
 </html>
