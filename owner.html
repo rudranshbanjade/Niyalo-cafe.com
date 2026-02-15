@@ -2,13 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Niyalo · Owner Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* YOUR ORIGINAL UI STYLES - EXACTLY AS YOU HAD THEM */
     *{margin:0;padding:0;box-sizing:border-box;}
     body{background:#12100e;font-family:'Plus Jakarta Sans',sans-serif;padding:1.5rem;display:flex;justify-content:center;}
     .owner-container{max-width:1400px;width:100%;}
@@ -22,6 +21,8 @@
     [contenteditable="true"]{outline:none;border-bottom:2px dashed #b18067;background:rgba(255,235,220,0.3);cursor:text;padding:0 4px;}
     .menu-master{background:#fcf7f2;border-radius:48px;padding:1.8rem;}
     .hotel-title{font-family:'Playfair Display',serif;font-size:2.2rem;display:flex;align-items:center;gap:10px;}
+    .hotel-title i{color:#a57159;font-size:2rem;}
+    .contact-bubble{background:#fff1e9;padding:0.7rem 1.5rem;border-radius:60px;display:flex;gap:1.2rem;}
     .category-card{background:white;border-radius:36px;padding:1.5rem;margin-bottom:1.8rem;border:1px solid #efdbd1;}
     .category-header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px dotted #eacbbe;padding-bottom:1rem;margin-bottom:1rem;}
     .category-title{display:flex;align-items:center;gap:10px;}
@@ -41,8 +42,6 @@
     .footer-badge{background:#e7d2c5;border-radius:60px;padding:0.3rem 1.2rem;display:inline-flex;align-items:center;gap:8px;}
     .sync-status{display:flex;justify-content:flex-end;margin-top:1rem;}
     .sync-pulse{background:#2d5a4b;color:white;padding:0.6rem 1.8rem;border-radius:60px;}
-    .editing-disabled [contenteditable="true"]{border-bottom:none!important;background:transparent!important;cursor:default!important;pointer-events:none!important;}
-    .editing-disabled .delete-btn,.editing-disabled .delete-cat-btn,.editing-disabled .add-item-btn,.editing-disabled .add-category-btn,.editing-disabled .add-footer-btn{display:none!important;}
   </style>
 </head>
 <body>
@@ -75,7 +74,7 @@
             <span contenteditable="true" id="hotelTagline">homemade · local love</span>
           </div>
         </div>
-        <div style="background:#fff1e9;padding:0.7rem 1.5rem;border-radius:60px;display:flex;gap:1.2rem;">
+        <div class="contact-bubble">
           <span><i class="fas fa-clock"></i> <span contenteditable="true" id="hours">7:00–22:00 daily</span></span>
           <span><i class="fas fa-phone-alt"></i> <span contenteditable="true" id="phone">+977 981-234567</span></span>
         </div>
@@ -83,27 +82,6 @@
 
       <!-- CATEGORIES CONTAINER -->
       <div id="categoriesContainer"></div>
-
-      <!-- ADD CATEGORY BUTTON -->
-      <div style="text-align:center;">
-        <button class="add-category-btn" id="addCategoryBtn">➕ ADD NEW CATEGORY</button>
-      </div>
-
-      <!-- FOOTER EDITOR -->
-      <div class="footer-editor">
-        <div style="text-align:center;margin-bottom:1rem;">
-          <span style="background:#ab8c7a;color:white;padding:0.3rem 1.5rem;border-radius:60px;">❤️ FOOTER BADGES</span>
-        </div>
-        <div class="footer-badge-container" id="footerBadgesContainer"></div>
-        <div style="text-align:center;margin-top:0.8rem;">
-          <button class="add-footer-btn" id="addFooterBtn">➕ ADD BADGE</button>
-        </div>
-        <div style="text-align:center;margin-top:1.5rem;">
-          <i class="fas fa-heart" style="color:#c2714b;"></i>
-          <span contenteditable="true" id="heartNote">order at counter · everything made to share</span>
-          <i class="fas fa-heart" style="color:#c2714b;"></i>
-        </div>
-      </div>
     </div>
 
     <div class="sync-status">
@@ -112,347 +90,45 @@
   </div>
 
   <script>
-    // ===== SUPABASE CONFIG (FROM YOUR WORKING TEST) =====
-    const supabase = window.supabase.createClient(
-      'https://outxrzhbocyvopmivzzf.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dHhyemhib2N5dm9wbWl2enpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNTU1NDgsImV4cCI6MjA4NjYzMTU0OH0.apOAqrdlz3WBo9Aht3xzHc-XBkInHSQVfHu3NRuCxNc'
-    );
-
-    // ===== YOUR FULL MENU DATA =====
-    let menuData = {
-      hotel: {
-        name: "Niyalo Cafe",
-        location: "Lakeside, Pokhara",
-        tagline: "homemade · local love",
-        hours: "7:00–22:00 daily",
-        phone: "+977 981-234567",
-        heartNote: "order at counter · everything made to share"
-      },
-      footer: [
-        { id: "footer1", text: "house-baked daily" },
-        { id: "footer2", text: "vegan & gluten-free" },
-        { id: "footer3", text: "free high-speed wifi" }
-      ],
-      categories: [
-        { id: "cat1", title: "all-day breakfast", icon: "sunrise", items: [
-          { id: "item1_1", name: "Niyalo Shakshuka", desc: "poached eggs · spiced tomato · feta", price: "590", badge: null },
-          { id: "item1_2", name: "Cardamom French Toast", desc: "brioche · orange · maple", price: "520", badge: null },
-          { id: "item1_3", name: "Avocado Garden Toast", desc: "sourdough · za'atar · radish", price: "580", badge: "vegan" },
-          { id: "item1_4", name: "House Granola Pot", desc: "yoghurt · berries · honey", price: "420", badge: null }
-        ]},
-        { id: "cat2", title: "small plates", icon: "utensils", items: [
-          { id: "item2_1", name: "Burnt Eggplant Dip", desc: "smoked paprika · flatbread", price: "450", badge: null },
-          { id: "item2_2", name: "Chili Garlic Prawns", desc: "lemon · parsley · sourdough", price: "690", badge: null },
-          { id: "item2_3", name: "Wild Mushroom Toast", desc: "thyme · truffle oil · pecorino", price: "620", badge: "signature" },
-          { id: "item2_4", name: "Harissa Cauliflower", desc: "tahini · pomegranate · almonds", price: "510", badge: null }
-        ]},
-        { id: "cat3", title: "bowls & greens", icon: "leaf", items: [
-          { id: "item3_1", name: "Niyalo Harvest Bowl", desc: "quinoa · sweet potato · kale · miso", price: "650", badge: null },
-          { id: "item3_2", name: "Sesame Salmon", desc: "soba · edamame · pickled ginger", price: "820", badge: null },
-          { id: "item3_3", name: "Turmeric Coconut Lentils", desc: "brown rice · crispy shallots", price: "550", badge: "vegan" }
-        ]},
-        { id: "cat4", title: "slow sips", icon: "mug-saucer", items: [
-          { id: "item4_1", name: "House Espresso Blend", desc: "single origin · honey process", price: "210", badge: null },
-          { id: "item4_2", name: "Cardamom Rose Latte", desc: "oat milk · dried rose petals", price: "290", badge: "best seller" },
-          { id: "item4_3", name: "Iced Turmeric Tonic", desc: "ginger · lemon · agave", price: "250", badge: null },
-          { id: "item4_4", name: "Salted Honey Affogato", desc: "gelato · espresso · maldon", price: "360", badge: null }
-        ]},
-        { id: "cat5", title: "sweet corner", icon: "cake", items: [
-          { id: "item5_1", name: "Miso Chocolate Chip Cookie", desc: "brown butter · sea salt", price: "180", badge: null },
-          { id: "item5_2", name: "Pistachio & Orange Cake", desc: "labneh frosting · rose", price: "320", badge: null },
-          { id: "item5_3", name: "Vegan Berry Crumble", desc: "oat topping · coconut cream", price: "340", badge: null },
-          { id: "item5_4", name: "Chai-Spiced Bun", desc: "cream cheese drizzle", price: "220", badge: null }
-        ]},
-        { id: "cat6", title: "cold + curated", icon: "wine-bottle", items: [
-          { id: "item6_1", name: "Kombucha (rotating)", desc: "ginger · lemongrass · local", price: "250", badge: null },
-          { id: "item6_2", name: "Orange & Carrot", desc: "cold pressed · turmeric", price: "290", badge: null },
-          { id: "item6_3", name: "Michelada", desc: "lime · tajin · agave", price: "390", badge: null },
-          { id: "item6_4", name: "Hibiscus Spritz", desc: "sparkling · mint · lime", price: "350", badge: null }
-        ]}
-      ]
-    };
-
-    let isEditMode = true;
-
-    // ===== LOAD FROM SUPABASE =====
-    async function loadFromSupabase() {
-      try {
-        const { data, error } = await supabase
-          .from('menus')
-          .select('*')
-          .eq('id', 1)
-          .single();
-
-        if (data && data.data) {
-          menuData = data.data;
-          console.log('✅ Loaded from Supabase');
-        }
-        renderOwnerMenu();
-      } catch (error) {
-        console.log('Using default menu');
-        renderOwnerMenu();
-      }
-    }
-
-    // ===== SAVE TO SUPABASE =====
-    async function saveToSupabase() {
-      // Update menuData from DOM
-      updateMenuDataFromDOM();
-
-      const { error } = await supabase
-        .from('menus')
-        .upsert({ id: 1, data: menuData });
-
-      if (error) {
-        alert('❌ Error: ' + error.message);
-      } else {
-        document.getElementById('syncStatus').innerHTML = '✅ SAVED ' + new Date().toLocaleTimeString();
-        alert('✅ Saved to cloud!');
-      }
-    }
-
-    // ===== UPDATE MENUDATA FROM DOM =====
-    function updateMenuDataFromDOM() {
-      menuData.hotel.name = document.getElementById('hotelName').innerText;
-      menuData.hotel.location = document.getElementById('hotelLocation').innerText;
-      menuData.hotel.tagline = document.getElementById('hotelTagline').innerText;
-      menuData.hotel.hours = document.getElementById('hours').innerText;
-      menuData.hotel.phone = document.getElementById('phone').innerText;
-      menuData.hotel.heartNote = document.getElementById('heartNote').innerText;
-      
-      menuData.footer.forEach(f => {
-        const el = document.getElementById(f.id);
-        if (el) f.text = el.innerText;
-      });
-
-      menuData.categories.forEach(cat => {
-        const titleEl = document.getElementById(cat.id + 'Title');
-        if (titleEl) cat.title = titleEl.innerText;
-        
-        cat.items.forEach(item => {
-          const nameEl = document.getElementById(item.id);
-          if (nameEl) item.name = nameEl.innerText;
-          const descEl = document.getElementById(item.id + 'Desc');
-          if (descEl) item.desc = descEl.innerText;
-          const priceEl = document.getElementById(item.id + 'Price');
-          if (priceEl) item.price = priceEl.innerText;
-          const badgeEl = document.getElementById(item.id + 'Badge');
-          if (badgeEl && item.badge) item.badge = badgeEl.innerText;
-        });
-      });
-    }
-
-    // ===== RENDER FUNCTIONS =====
-    function renderOwnerMenu() {
-      const container = document.getElementById('categoriesContainer');
-      container.innerHTML = '';
-      
-      menuData.categories.forEach(cat => {
-        const card = document.createElement('div');
-        card.className = 'category-card';
-        
-        const header = document.createElement('div');
-        header.className = 'category-header';
-        header.innerHTML = `
-          <div class="category-title">
-            <i class="fas fa-${cat.icon}"></i>
-            <h3><span contenteditable="true" id="${cat.id}Title">${cat.title}</span></h3>
-          </div>
-          <button class="delete-cat-btn" onclick="deleteCategory('${cat.id}')">🗑️ DELETE</button>
-        `;
-        card.appendChild(header);
-        
-        cat.items.forEach(item => {
-          const row = document.createElement('div');
-          row.className = 'menu-row';
-          
-          const left = document.createElement('div');
-          left.style.flex = '1';
-          
-          const nameDiv = document.createElement('div');
-          nameDiv.className = 'item-name';
-          nameDiv.innerHTML = `<span contenteditable="true" id="${item.id}">${item.name}</span>`;
-          
-          if (item.badge) {
-            const badge = document.createElement('span');
-            badge.style.cssText = 'background:#e7d2c5;border-radius:60px;padding:0.2rem 1rem;margin-left:8px;font-size:0.7rem;';
-            badge.innerHTML = `
-              <span contenteditable="true" id="${item.id}Badge">${item.badge}</span>
-              <button class="delete-btn" style="width:24px;height:24px;" onclick="deleteBadge('${item.id}')">×</button>
-            `;
-            nameDiv.appendChild(badge);
-          } else {
-            const addBtn = document.createElement('button');
-            addBtn.className = 'add-badge-btn';
-            addBtn.style.cssText = 'background:#9f7e6b;color:white;border:none;border-radius:40px;padding:0.2rem 1rem;margin-left:8px;font-size:0.7rem;cursor:pointer;';
-            addBtn.innerHTML = '🏷️ ADD BADGE';
-            addBtn.onclick = (e) => { e.stopPropagation(); addBadgeToItem(item.id); };
-            nameDiv.appendChild(addBtn);
-          }
-          
-          const descDiv = document.createElement('div');
-          descDiv.className = 'item-desc';
-          descDiv.innerHTML = `<span contenteditable="true" id="${item.id}Desc">${item.desc}</span>`;
-          
-          left.appendChild(nameDiv);
-          left.appendChild(descDiv);
-          
-          const right = document.createElement('div');
-          right.style.display = 'flex';
-          right.style.alignItems = 'center';
-          right.style.gap = '8px';
-          
-          const price = document.createElement('span');
-          price.className = 'price-tag';
-          price.innerHTML = `<span contenteditable="true" id="${item.id}Price">${item.price}</span>`;
-          
-          const del = document.createElement('button');
-          del.className = 'delete-btn';
-          del.innerHTML = '🗑️';
-          del.onclick = () => deleteMenuItem(cat.id, item.id);
-          
-          right.appendChild(price);
-          right.appendChild(del);
-          
-          row.appendChild(left);
-          row.appendChild(right);
-          card.appendChild(row);
-        });
-        
-        const addBtn = document.createElement('button');
-        addBtn.className = 'add-item-btn';
-        addBtn.innerHTML = '➕ ADD NEW ITEM';
-        addBtn.onclick = () => addNewItem(cat.id);
-        card.appendChild(addBtn);
-        
-        container.appendChild(card);
-      });
-      
-      renderFooter();
-      applyEditMode();
-    }
-
-    function renderFooter() {
-      const container = document.getElementById('footerBadgesContainer');
-      container.innerHTML = '';
-      menuData.footer.forEach(f => {
-        const badge = document.createElement('span');
-        badge.className = 'footer-badge';
-        badge.innerHTML = `
-          <i class="fas fa-heart" style="color:#a5664a;"></i>
-          <span contenteditable="true" id="${f.id}">${f.text}</span>
-          <button class="delete-btn" style="width:24px;height:24px;" onclick="deleteFooterItem('${f.id}')">×</button>
-        `;
-        container.appendChild(badge);
-      });
-    }
-
-    function applyEditMode() {
-      const master = document.getElementById('masterMenu');
-      if (!isEditMode) {
-        master.classList.add('editing-disabled');
-      } else {
-        master.classList.remove('editing-disabled');
-      }
-    }
-
-    // ===== CRUD OPERATIONS =====
-    window.deleteCategory = function(id) {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
-      if (confirm('Delete category?')) {
-        menuData.categories = menuData.categories.filter(c => c.id !== id);
-        renderOwnerMenu();
-      }
-    };
-    
-    window.deleteMenuItem = function(catId, itemId) {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
-      const cat = menuData.categories.find(c => c.id === catId);
-      if (cat) {
-        cat.items = cat.items.filter(i => i.id !== itemId);
-        renderOwnerMenu();
-      }
-    };
-    
-    window.deleteBadge = function(itemId) {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
-      menuData.categories.forEach(c => c.items.forEach(i => { if (i.id === itemId) i.badge = null; }));
-      renderOwnerMenu();
-    };
-    
-    window.deleteFooterItem = function(id) {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
-      menuData.footer = menuData.footer.filter(f => f.id !== id);
-      renderFooter();
-    };
-    
-    window.addNewCategory = function() {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
-      const id = 'cat' + Date.now();
-      menuData.categories.push({ 
-        id, 
-        title: 'New Category', 
-        icon: 'utensils', 
-        items: [{ 
-          id: id + '_item1', 
-          name: 'New Dish', 
-          desc: 'description', 
-          price: '199', 
-          badge: null 
-        }] 
-      });
-      renderOwnerMenu();
-    };
-    
-    window.addNewItem = function(catId) {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
-      const cat = menuData.categories.find(c => c.id === catId);
-      if (cat) {
-        cat.items.push({ 
-          id: catId + '_item' + Date.now(), 
-          name: 'New Item', 
-          desc: 'item description', 
-          price: '199', 
-          badge: null 
-        });
-        renderOwnerMenu();
-      }
-    };
-    
-    window.addBadgeToItem = function(itemId) {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
-      const text = prompt('Badge text:');
-      if (text && text.trim()) {
-        menuData.categories.forEach(c => c.items.forEach(i => { if (i.id === itemId) i.badge = text.trim(); }));
-        renderOwnerMenu();
-      }
-    };
-
-    // ===== EVENT LISTENERS =====
-    document.getElementById('editModeBtn').addEventListener('click', function() {
-      isEditMode = !isEditMode;
-      this.innerHTML = isEditMode ? '🔓 EDIT ON' : '🔒 EDIT OFF';
+    // ===== DIRECT BUTTON HANDLERS =====
+    document.getElementById('editModeBtn').onclick = function() {
+      alert('✓ Edit button clicked');
       this.classList.toggle('active');
-      applyEditMode();
-    });
-
-    document.getElementById('saveBtn').addEventListener('click', saveToSupabase);
-    
-    document.getElementById('addCategoryBtn').addEventListener('click', function() {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
-      addNewCategory();
-    });
-    
-    document.getElementById('addFooterBtn').addEventListener('click', function() {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
-      menuData.footer.push({ id: 'footer'+Date.now(), text: 'new feature' });
-      renderFooter();
-    });
-
-    // ===== INIT =====
-    window.onload = function() {
-      loadFromSupabase();
+      this.innerHTML = this.classList.contains('active') ? '🔓 EDIT ON' : '🔒 EDIT OFF';
     };
+
+    document.getElementById('saveBtn').onclick = function() {
+      alert('✓ Save button clicked');
+      document.getElementById('syncStatus').innerHTML = '✅ SAVED ' + new Date().toLocaleTimeString();
+    };
+
+    // ===== LOAD CATEGORIES =====
+    function loadCategories() {
+      const container = document.getElementById('categoriesContainer');
+      container.innerHTML = `
+        <div class="category-card">
+          <div class="category-header">
+            <div class="category-title">
+              <i class="fas fa-sunrise"></i>
+              <h3><span contenteditable="true" id="cat1Title">all-day breakfast</span></h3>
+            </div>
+            <button class="delete-cat-btn" onclick="alert('Delete category')">🗑️ DELETE</button>
+          </div>
+          <div class="menu-row">
+            <div style="flex:1">
+              <div class="item-name">
+                <span contenteditable="true" id="item1_1">Niyalo Shakshuka</span>
+              </div>
+              <div class="item-desc"><span contenteditable="true" id="item1_1Desc">poached eggs · spiced tomato · feta</span></div>
+            </div>
+            <span class="price-tag"><span contenteditable="true" id="item1_1Price">590</span></span>
+          </div>
+          <button class="add-item-btn" onclick="alert('Add item')">➕ ADD NEW ITEM</button>
+        </div>
+      `;
+    }
+
+    loadCategories();
   </script>
 </body>
 </html>
