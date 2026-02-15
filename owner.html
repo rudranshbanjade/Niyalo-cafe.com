@@ -1,25 +1,204 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Ultimate Test</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Niyalo · Owner Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#12100e;font-family:'Plus Jakarta Sans',sans-serif;padding:1.5rem;display:flex;justify-content:center;}
+    .owner-container{max-width:1400px;width:100%;}
+    .owner-header{background:rgba(28,24,22,0.95);border-radius:60px 60px 30px 30px;padding:1rem 1.8rem;margin-bottom:1.8rem;display:flex;justify-content:space-between;align-items:center;border-bottom:5px solid #c49a6c;}
+    .logo-text h1{font-family:'Playfair Display',serif;color:#fcede5;font-size:1.6rem;}
+    .edit-controls{display:flex;gap:0.8rem;align-items:center;flex-wrap:wrap;}
+    .edit-mode-btn{background:#2d5a4b;color:white;padding:0.6rem 1.5rem;border-radius:60px;cursor:pointer;border:none;font-weight:600;}
+    .edit-mode-btn.active{background:#c49a6c;}
+    .save-btn{background:#27ae60;color:white;padding:0.6rem 1.8rem;border-radius:60px;cursor:pointer;border:none;font-weight:600;}
+    .guest-link{background:#5f4a3d;color:white;padding:0.6rem 1.5rem;border-radius:60px;text-decoration:none;}
+    [contenteditable="true"]{outline:none;border-bottom:2px dashed #b18067;background:rgba(255,235,220,0.3);cursor:text;padding:0 4px;}
+    .menu-master{background:#fcf7f2;border-radius:48px;padding:1.8rem;}
+    .hotel-title{font-family:'Playfair Display',serif;font-size:2.2rem;display:flex;align-items:center;gap:10px;}
+    .category-card{background:white;border-radius:36px;padding:1.5rem;margin-bottom:1.8rem;border:1px solid #efdbd1;}
+    .category-header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px dotted #eacbbe;padding-bottom:1rem;margin-bottom:1rem;}
+    .category-title{display:flex;align-items:center;gap:10px;}
+    .category-title i{font-size:1.8rem;color:#aa7862;}
+    .category-title h3{font-family:'Playfair Display',serif;font-size:1.6rem;color:#3d2c24;}
+    .menu-row{display:flex;justify-content:space-between;align-items:center;padding:0.7rem 0;border-bottom:1px dashed #efd9d0;}
+    .item-name{font-weight:700;font-size:1.1rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+    .item-desc{font-size:0.8rem;color:#6b5246;}
+    .price-tag{font-weight:800;font-size:1.2rem;background:#ffefe7;padding:0.2rem 1.2rem;border-radius:60px;}
+    .price-tag span:before{content:"रू";margin-right:4px;}
+    .delete-btn{background:#c0392b;color:white;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;}
+    .add-item-btn{background:#2c5f4b;color:white;border:none;border-radius:60px;padding:0.5rem 1.5rem;margin-top:0.8rem;cursor:pointer;}
+    .add-category-btn{background:#8e6b4f;color:white;border:none;border-radius:60px;padding:0.8rem 2rem;font-size:1rem;cursor:pointer;margin:1rem 0;}
+    .add-footer-btn{background:#8f6e5a;color:white;border:none;border-radius:60px;padding:0.5rem 1.5rem;cursor:pointer;}
+    .footer-editor{background:#fdf1ea;border-radius:60px;padding:1.5rem;margin-top:1.8rem;}
+    .footer-badge-container{display:flex;flex-wrap:wrap;justify-content:center;gap:1rem;margin-bottom:1rem;}
+    .footer-badge{background:#e7d2c5;border-radius:60px;padding:0.3rem 1.2rem;display:inline-flex;align-items:center;gap:8px;}
+    .sync-status{display:flex;justify-content:flex-end;margin-top:1rem;}
+    .sync-pulse{background:#2d5a4b;color:white;padding:0.6rem 1.8rem;border-radius:60px;}
+    .editing-disabled [contenteditable="true"]{border-bottom:none!important;background:transparent!important;cursor:default!important;pointer-events:none!important;}
+    .editing-disabled .delete-btn,.editing-disabled .delete-cat-btn,.editing-disabled .add-item-btn,.editing-disabled .add-category-btn,.editing-disabled .add-footer-btn{display:none!important;}
+  </style>
 </head>
-<body style="background: #12100e; color: white; padding: 20px; font-family: Arial;">
-  <h1>🔧 Ultimate Test</h1>
-  
-  <button 
-    onclick="alert('Button clicked!'); document.getElementById('result').innerHTML = 'Clicked at ' + new Date().toLocaleTimeString();" 
-    style="background: #27ae60; color: white; padding: 20px 40px; border: none; border-radius: 10px; margin: 10px; cursor: pointer; font-size: 18px;">
-    CLICK THIS BUTTON
-  </button>
-  
-  <div id="result" style="background: #2d2d2d; padding: 20px; border-radius: 10px; margin: 20px 0; color: yellow; font-size: 16px;">
-    No clicks yet
+<body>
+  <div class="owner-container">
+    <div class="owner-header">
+      <div class="logo-text">
+        <h1><i class="fas fa-crown" style="color:#c49a6c;"></i> Niyalo · Owner</h1>
+      </div>
+      <div class="edit-controls">
+        <button id="editModeBtn" class="edit-mode-btn active">🔓 EDIT ON</button>
+        <button id="saveBtn" class="save-btn">💾 SAVE TO CLOUD</button>
+        <a href="index.html" target="_blank" class="guest-link">👁️ VIEW</a>
+      </div>
+    </div>
+
+    <div class="menu-master" id="masterMenu">
+      <!-- HOTEL INFO -->
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;margin-bottom:2rem;">
+        <div>
+          <div class="hotel-title">
+            <i class="fas fa-leaf"></i>
+            <span contenteditable="true" id="hotelName">Niyalo Cafe</span>
+            <i class="fas fa-mug-hot"></i>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:6px;">
+            <i class="fas fa-map-pin"></i>
+            <span contenteditable="true" id="hotelLocation">Lakeside, Pokhara</span>
+            <span>•</span>
+            <i class="fas fa-seedling"></i>
+            <span contenteditable="true" id="hotelTagline">homemade · local love</span>
+          </div>
+        </div>
+        <div style="background:#fff1e9;padding:0.7rem 1.5rem;border-radius:60px;display:flex;gap:1.2rem;">
+          <span><i class="fas fa-clock"></i> <span contenteditable="true" id="hours">7:00–22:00 daily</span></span>
+          <span><i class="fas fa-phone-alt"></i> <span contenteditable="true" id="phone">+977 981-234567</span></span>
+        </div>
+      </div>
+
+      <!-- SIMPLE TEST BUTTONS -->
+      <div style="background:white; padding:20px; border-radius:20px; margin-bottom:20px;">
+        <h3 style="margin-bottom:10px;">🔧 Supabase Test</h3>
+        <button id="testSave" style="background:#27ae60; color:white; padding:10px 20px; border:none; border-radius:10px; margin:5px; cursor:pointer;">💾 TEST SAVE</button>
+        <button id="testLoad" style="background:#3498db; color:white; padding:10px 20px; border:none; border-radius:10px; margin:5px; cursor:pointer;">🔄 TEST LOAD</button>
+        <div id="testResult" style="margin-top:10px; padding:10px; background:#f0f0f0; border-radius:10px;"></div>
+      </div>
+
+      <!-- CATEGORIES CONTAINER -->
+      <div id="categoriesContainer"></div>
+
+      <!-- ADD CATEGORY BUTTON -->
+      <div style="text-align:center;">
+        <button class="add-category-btn" id="addCategoryBtn">➕ ADD NEW CATEGORY</button>
+      </div>
+
+      <!-- FOOTER EDITOR -->
+      <div class="footer-editor">
+        <div style="text-align:center;margin-bottom:1rem;">
+          <span style="background:#ab8c7a;color:white;padding:0.3rem 1.5rem;border-radius:60px;">❤️ FOOTER BADGES</span>
+        </div>
+        <div class="footer-badge-container" id="footerBadgesContainer"></div>
+        <div style="text-align:center;margin-top:0.8rem;">
+          <button class="add-footer-btn" id="addFooterBtn">➕ ADD BADGE</button>
+        </div>
+        <div style="text-align:center;margin-top:1.5rem;">
+          <i class="fas fa-heart" style="color:#c2714b;"></i>
+          <span contenteditable="true" id="heartNote">order at counter · everything made to share</span>
+          <i class="fas fa-heart" style="color:#c2714b;"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="sync-status">
+      <div class="sync-pulse" id="syncStatus">🟢 READY</div>
+    </div>
   </div>
-  
-  <button 
-    onclick="alert('Second button works too!')" 
-    style="background: #3498db; color: white; padding: 20px 40px; border: none; border-radius: 10px; margin: 10px; cursor: pointer; font-size: 18px;">
-    SECOND BUTTON
-  </button>
+
+  <script>
+    // ===== SUPABASE CONFIG =====
+    const SUPABASE_URL = 'https://outxrzhbocyvopmivzzf.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dHhyemhib2N5dm9wbWl2enpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNTU1NDgsImV4cCI6MjA4NjYzMTU0OH0.apOAqrdlz3WBo9Aht3xzHc-XBkInHSQVfHu3NRuCxNc';
+    
+    // Create Supabase client
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // ===== TEST SAVE =====
+    document.getElementById('testSave').onclick = async function() {
+      document.getElementById('testResult').innerHTML = '⏳ Saving...';
+      try {
+        const { error } = await supabase
+          .from('menus')
+          .upsert({ 
+            id: 999, 
+            data: { 
+              test: 'Hello at ' + new Date().toLocaleTimeString() 
+            } 
+          });
+        
+        if (error) {
+          document.getElementById('testResult').innerHTML = '❌ Error: ' + error.message;
+        } else {
+          document.getElementById('testResult').innerHTML = '✅ Saved successfully!';
+        }
+      } catch(err) {
+        document.getElementById('testResult').innerHTML = '❌ Error: ' + err.message;
+      }
+    };
+
+    // ===== TEST LOAD =====
+    document.getElementById('testLoad').onclick = async function() {
+      document.getElementById('testResult').innerHTML = '⏳ Loading...';
+      try {
+        const { data, error } = await supabase
+          .from('menus')
+          .select('*')
+          .eq('id', 999);
+        
+        if (error) {
+          document.getElementById('testResult').innerHTML = '❌ Error: ' + error.message;
+        } else {
+          document.getElementById('testResult').innerHTML = '✅ Loaded: ' + JSON.stringify(data);
+        }
+      } catch(err) {
+        document.getElementById('testResult').innerHTML = '❌ Error: ' + err.message;
+      }
+    };
+
+    // ===== SAVE TO CLOUD =====
+    document.getElementById('saveBtn').onclick = async function() {
+      const menuData = {
+        hotel: {
+          name: document.getElementById('hotelName').innerText,
+          location: document.getElementById('hotelLocation').innerText,
+          tagline: document.getElementById('hotelTagline').innerText,
+          hours: document.getElementById('hours').innerText,
+          phone: document.getElementById('phone').innerText,
+          heartNote: document.getElementById('heartNote').innerText
+        }
+      };
+      
+      const { error } = await supabase
+        .from('menus')
+        .upsert({ id: 1, data: menuData });
+      
+      if (error) {
+        alert('❌ Error: ' + error.message);
+      } else {
+        alert('✅ Saved to cloud!');
+      }
+    };
+
+    // ===== EDIT MODE =====
+    let isEditMode = true;
+    document.getElementById('editModeBtn').onclick = function() {
+      isEditMode = !isEditMode;
+      this.innerHTML = isEditMode ? '🔓 EDIT ON' : '🔒 EDIT OFF';
+      this.classList.toggle('active');
+    };
+  </script>
 </body>
 </html>
