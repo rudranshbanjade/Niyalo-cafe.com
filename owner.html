@@ -155,7 +155,7 @@
     async function loadFromSupabase() {
       try {
         const { data, error } = await supabaseClient
-          .from('menus')
+          .from('menu')
           .select('*')
           .eq('id', 1)
           .single();
@@ -182,7 +182,7 @@
 
       try {
         const { error } = await supabaseClient
-          .from('menus')
+          .from('menu')
           .upsert({ id: 1, data: menuData });
 
         if (error) throw error;
@@ -269,3 +269,4 @@
   </script>
 </body>
 </html>
+
