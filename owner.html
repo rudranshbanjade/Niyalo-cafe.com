@@ -1,59 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Supabase Test</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <title>Basic Test</title>
 </head>
 <body style="background: #12100e; color: white; padding: 20px; font-family: Arial;">
-  <h1>🔧 Supabase Connection Test</h1>
+  <h1>🔧 Basic Test Page</h1>
   
   <div style="background: #2d2d2d; padding: 20px; border-radius: 10px; margin: 20px 0;">
-    <p id="status" style="color: yellow;">Ready to test...</p>
+    <p>Click the button below to see if JavaScript is working:</p>
   </div>
   
-  <button onclick="testConnection()" style="background: #27ae60; color: white; padding: 15px 30px; border: none; border-radius: 10px; margin: 10px; cursor: pointer;">
-    TEST SUPABASE CONNECTION
+  <button onclick="showMessage()" style="background: #27ae60; color: white; padding: 15px 30px; border: none; border-radius: 10px; margin: 10px; cursor: pointer;">
+    CLICK ME
   </button>
   
-  <div id="result" style="background: #2d2d2d; padding: 20px; border-radius: 10px; margin: 20px 0; white-space: pre-wrap;"></div>
+  <div id="message" style="background: #2d2d2d; padding: 20px; border-radius: 10px; margin: 20px 0; color: yellow;"></div>
 
   <script>
-    // Your Supabase config
-    const SUPABASE_URL = 'https://outxrzhbocyvopmivzzf.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dHhyemhib2N5dm9wbWl2enpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNTU1NDgsImV4cCI6MjA4NjYzMTU0OH0.apOAqrdlz3WBo9Aht3xzHc-XBkInHSQVfHu3NRuCxNc';
-    
-    let supabase;
-
-    async function testConnection() {
-      const status = document.getElementById('status');
-      const result = document.getElementById('result');
-      
-      try {
-        status.innerHTML = '⏳ Creating Supabase client...';
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        
-        status.innerHTML = '⏳ Testing connection...';
-        result.innerHTML = '';
-        
-        // Test 1: Try to select from menus table
-        const { data, error } = await supabase
-          .from('menus')
-          .select('*')
-          .limit(1);
-        
-        if (error) {
-          status.innerHTML = '❌ Connection failed!';
-          result.innerHTML = 'Error: ' + JSON.stringify(error, null, 2);
-        } else {
-          status.innerHTML = '✅ Connection successful!';
-          result.innerHTML = 'Data: ' + JSON.stringify(data, null, 2);
-        }
-        
-      } catch(err) {
-        status.innerHTML = '❌ Error!';
-        result.innerHTML = 'Error: ' + err.message;
-      }
+    function showMessage() {
+      document.getElementById('message').innerHTML = '✅ Button clicked at ' + new Date().toLocaleTimeString();
     }
+    
+    // Also try on page load
+    window.onload = function() {
+      console.log('Page loaded');
+      document.getElementById('message').innerHTML = '✅ Page loaded at ' + new Date().toLocaleTimeString();
+    };
   </script>
 </body>
 </html>
