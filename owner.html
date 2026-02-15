@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
+    /* YOUR EXACT SAME UI STYLES - NOTHING CHANGED */
     *{margin:0;padding:0;box-sizing:border-box;}
     body{background:#12100e;font-family:'Plus Jakarta Sans',sans-serif;padding:1.5rem;display:flex;justify-content:center;}
     .owner-container{max-width:1400px;width:100%;}
@@ -58,6 +59,7 @@
     </div>
 
     <div class="menu-master" id="masterMenu">
+      <!-- HOTEL INFO -->
       <div style="display:flex;flex-wrap:wrap;justify-content:space-between;margin-bottom:2rem;">
         <div>
           <div class="hotel-title">
@@ -79,12 +81,15 @@
         </div>
       </div>
 
+      <!-- CATEGORIES CONTAINER -->
       <div id="categoriesContainer"></div>
 
+      <!-- ADD CATEGORY BUTTON -->
       <div style="text-align:center;">
         <button class="add-category-btn" id="addCategoryBtn">➕ ADD NEW CATEGORY</button>
       </div>
 
+      <!-- FOOTER EDITOR -->
       <div class="footer-editor">
         <div style="text-align:center;margin-bottom:1rem;">
           <span style="background:#ab8c7a;color:white;padding:0.3rem 1.5rem;border-radius:60px;">❤️ FOOTER BADGES</span>
@@ -107,14 +112,14 @@
   </div>
 
   <script>
-    // ===== YOUR SUPABASE CONFIGURATION =====
+    // ===== YOUR SUPABASE CONFIG =====
     const SUPABASE_URL = 'https://outxrzhbocyvopmivzzf.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dHhyemhib2N5dm9wbWl2enpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNTU1NDgsImV4cCI6MjA4NjYzMTU0OH0.apOAqrdlz3WBo9Aht3xzHc-XBkInHSQVfHu3NRuCxNc';
     const TABLE_NAME = 'menus';
 
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // Default menu data (only used if NO data exists in Supabase)
+    // DEFAULT MENU (only used if NO DATA in Supabase)
     const DEFAULT_MENU = {
       hotel: {
         name: "Niyalo Cafe",
@@ -145,6 +150,7 @@
       ]
     };
 
+    // THIS IS THE FIX - menuData starts as DEFAULT but gets OVERWRITTEN by Supabase data
     let menuData = JSON.parse(JSON.stringify(DEFAULT_MENU));
     let isEditMode = true;
 
@@ -155,16 +161,19 @@
           .from(TABLE_NAME)
           .select('*')
           .eq('id', 1)
-          .maybeSingle(); // Changed from .single() to .maybeSingle()
+          .maybeSingle();
 
         if (data) {
+          // ✅ IMPORTANT: Overwrite menuData with saved data
           menuData = data.data;
           document.getElementById('syncStatus').innerHTML = '✅ LOADED FROM CLOUD';
         } else {
-          // No data found, save default to Supabase
+          // No data yet, save default to Supabase
           await saveToSupabase(false);
-          document.getElementById('syncStatus').innerHTML = '✅ DEFAULT SAVED TO CLOUD';
+          document.getElementById('syncStatus').innerHTML = '✅ DEFAULT SAVED';
         }
+        
+        // Render with the (now correct) menuData
         renderOwnerMenu();
       } catch (error) {
         console.error('Load error:', error);
@@ -187,7 +196,7 @@
         if (el) f.text = el.innerText;
       });
 
-      // Update categories and items from DOM
+      // Update categories
       menuData.categories.forEach(cat => {
         const titleEl = document.getElementById(cat.id + 'Title');
         if (titleEl) cat.title = titleEl.innerText;
@@ -211,15 +220,12 @@
         
         document.getElementById('syncStatus').innerHTML = '✅ SAVED ' + new Date().toLocaleTimeString();
         if (showAlert) alert('✅ Saved to cloud!');
-        
-        // Force a reload from Supabase to verify
-        setTimeout(() => loadFromSupabase(), 500);
       } catch (error) {
         alert('❌ Error: ' + error.message);
       }
     }
 
-    // ===== RENDER FUNCTIONS =====
+    // ===== RENDER FUNCTIONS (YOUR EXACT SAME UI CODE) =====
     function renderOwnerMenu() {
       const container = document.getElementById('categoriesContainer');
       container.innerHTML = '';
@@ -387,6 +393,7 @@
 
     // ===== INITIALIZE =====
     window.onload = function() {
+      // THIS IS THE KEY - load from Supabase FIRST, then render
       loadFromSupabase();
       setTimeout(setupAutoSave, 1500);
     };
