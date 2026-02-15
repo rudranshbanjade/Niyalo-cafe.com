@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* YOUR GUEST PAGE STYLES */
+    /* YOUR EXACT GUEST STYLES */
     *{margin:0;padding:0;box-sizing:border-box;}
     body{background:#fcf3ec;font-family:'Plus Jakarta Sans',sans-serif;padding:1rem;display:flex;justify-content:center;}
     .container{max-width:1300px;width:100%;}
@@ -54,57 +54,78 @@
   </div>
 
   <script>
-    const supabase = window.supabase.createClient(
+    // CREATE SUPABASE CLIENT - ONLY ONCE!
+    const supabaseClient = window.supabase.createClient(
       'https://outxrzhbocyvopmivzzf.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dHhyemhib2N5dm9wbWl2enpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNTU1NDgsImV4cCI6MjA4NjYzMTU0OH0.apOAqrdlz3WBo9Aht3xzHc-XBkInHSQVfHu3NRuCxNc'
     );
 
     async function loadMenu() {
-      const { data } = await supabase
-        .from('menus')
-        .select('*')
-        .eq('id', 1)
-        .single();
-      
-      if (data && data.data) {
-        const menu = data.data;
-        let html = `
-          <div class="hotel-section">
-            <div>
-              <div class="hotel-name">
-                <i class="fas fa-leaf"></i> <span>${menu.hotel.name}</span> <i class="fas fa-mug-hot"></i>
+      try {
+        const { data, error } = await supabaseClient
+          .from('menus')
+          .select('*')
+          .eq('id', 1)
+          .single();
+
+        if (error) {
+          console.log('Error loading menu:', error);
+          document.getElementById('menuContent').innerHTML = '<p>Error loading menu. Please try again.</p>';
+          return;
+        }
+
+        if (data && data.data) {
+          const menu = data.data;
+          let html = `
+            <div class="hotel-section">
+              <div>
+                <div class="hotel-name">
+                  <i class="fas fa-leaf"></i> <span>${menu.hotel.name}</span> <i class="fas fa-mug-hot"></i>
+                </div>
+                <div class="hotel-tagline">
+                  <i class="fas fa-map-pin"></i> ${menu.hotel.location}
+                  <span style="margin:0 4px;">•</span>
+                  <i class="fas fa-seedling"></i> ${menu.hotel.tagline}
+                </div>
               </div>
-              <div class="hotel-tagline">
-                <i class="fas fa-map-pin"></i> ${menu.hotel.location}
-                <span style="margin:0 4px;">•</span>
-                <i class="fas fa-seedling"></i> ${menu.hotel.tagline}
+              <div class="contact-info">
+                <div><i class="fas fa-clock"></i> ${menu.hotel.hours}</div>
+                <div><i class="fas fa-phone-alt"></i> ${menu.hotel.phone}</div>
               </div>
             </div>
-            <div class="contact-info">
-              <div><i class="fas fa-clock"></i> ${menu.hotel.hours}</div>
-              <div><i class="fas fa-phone-alt"></i> ${menu.hotel.phone}</div>
-            </div>
-          </div>
-        `;
-        
-        menu.categories.forEach(cat => {
-          html += `<div class="category"><div class="category-title"><i class="fas fa-${cat.icon}"></i><h2>${cat.title}</h2></div>`;
-          cat.items.forEach(item => {
-            html += `<div class="item"><div><div class="item-name">${item.name}${item.badge ? `<span class="badge">${item.badge}</span>` : ''}</div><div class="item-desc">${item.desc}</div></div><span class="price">${item.price}</span></div>`;
-          });
-          html += `</div>`;
-        });
-        
-        html += `<div class="footer"><div class="footer-badges">`;
-        menu.footer.forEach(f => {
-          html += `<span class="footer-badge"><i class="fas fa-heart"></i> ${f.text}</span>`;
-        });
-        html += `</div><div><i class="fas fa-heart" style="color:#c2714b;"></i> ${menu.hotel.heartNote} <i class="fas fa-heart" style="color:#c2714b;"></i></div></div>`;
-        
-        document.getElementById('menuContent').innerHTML = html;
+          `;
+          
+          if (menu.categories && menu.categories.length > 0) {
+            menu.categories.forEach(cat => {
+              html += `<div class="category"><div class="category-title"><i class="fas fa-${cat.icon}"></i><h2>${cat.title}</h2></div>`;
+              if (cat.items && cat.items.length > 0) {
+                cat.items.forEach(item => {
+                  html += `<div class="item"><div><div class="item-name">${item.name}${item.badge ? `<span class="badge">${item.badge}</span>` : ''}</div><div class="item-desc">${item.desc}</div></div><span class="price">${item.price}</span></div>`;
+                });
+              }
+              html += `</div>`;
+            });
+          }
+          
+          if (menu.footer && menu.footer.length > 0) {
+            html += `<div class="footer"><div class="footer-badges">`;
+            menu.footer.forEach(f => {
+              html += `<span class="footer-badge"><i class="fas fa-heart"></i> ${f.text}</span>`;
+            });
+            html += `</div><div><i class="fas fa-heart" style="color:#c2714b;"></i> ${menu.hotel.heartNote} <i class="fas fa-heart" style="color:#c2714b;"></i></div></div>`;
+          }
+          
+          document.getElementById('menuContent').innerHTML = html;
+        } else {
+          document.getElementById('menuContent').innerHTML = '<p>No menu data found.</p>';
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        document.getElementById('menuContent').innerHTML = '<p>Error loading menu. Please try again.</p>';
       }
     }
 
+    // Load immediately and refresh every 2 seconds
     loadMenu();
     setInterval(loadMenu, 2000);
   </script>
