@@ -61,6 +61,7 @@
     // Initialize Supabase
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    // ✅ FIXED: Marked the function as ASYNC
     async function loadMenu() {
       try {
         const { data, error } = await supabaseClient
@@ -113,8 +114,13 @@
       }
     }
 
+    // Call the async function
     loadMenu();
-    setInterval(loadMenu, 2000);
+    
+    // Set up interval to refresh
+    setInterval(async () => {
+      await loadMenu();
+    }, 2000);
   </script>
 </body>
 </html>
