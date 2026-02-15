@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* YOUR ORIGINAL UI STYLES - EXACTLY AS BEFORE */
+    /* YOUR EXACT UI STYLES - NOTHING CHANGED */
     *{margin:0;padding:0;box-sizing:border-box;}
     body{background:#12100e;font-family:'Plus Jakarta Sans',sans-serif;padding:1.5rem;display:flex;justify-content:center;}
     .owner-container{max-width:1400px;width:100%;}
@@ -81,10 +81,12 @@
         </div>
       </div>
 
-      <!-- SIMPLE MENU DISPLAY -->
-      <div id="simpleMenu" style="background:white; padding:20px; border-radius:20px; margin:20px 0;">
-        <h3 style="margin-bottom:15px;">📋 Today's Menu</h3>
-        <div id="menuItems"></div>
+      <!-- CATEGORIES CONTAINER -->
+      <div id="categoriesContainer"></div>
+
+      <!-- ADD CATEGORY BUTTON -->
+      <div style="text-align:center;">
+        <button class="add-category-btn" id="addCategoryBtn">➕ ADD NEW CATEGORY</button>
       </div>
 
       <!-- FOOTER EDITOR -->
@@ -93,6 +95,9 @@
           <span style="background:#ab8c7a;color:white;padding:0.3rem 1.5rem;border-radius:60px;">❤️ FOOTER BADGES</span>
         </div>
         <div class="footer-badge-container" id="footerBadgesContainer"></div>
+        <div style="text-align:center;margin-top:0.8rem;">
+          <button class="add-footer-btn" id="addFooterBtn">➕ ADD BADGE</button>
+        </div>
         <div style="text-align:center;margin-top:1.5rem;">
           <i class="fas fa-heart" style="color:#c2714b;"></i>
           <span contenteditable="true" id="heartNote">order at counter · everything made to share</span>
@@ -107,75 +112,222 @@
   </div>
 
   <script>
-    // Supabase config (YOUR WORKING KEYS)
+    // SUPABASE CONFIG - FROM YOUR WORKING TEST
     const supabase = window.supabase.createClient(
       'https://outxrzhbocyvopmivzzf.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dHhyemhib2N5dm9wbWl2enpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNTU1NDgsImV4cCI6MjA4NjYzMTU0OH0.apOAqrdlz3WBo9Aht3xzHc-XBkInHSQVfHu3NRuCxNc'
     );
 
-    let isEditMode = true;
+    // COMPLETE MENU DATA
     let menuData = {
-      items: [
-        { name: "Niyalo Shakshuka", price: "590" },
-        { name: "Cardamom French Toast", price: "520" }
+      hotel: {
+        name: "Niyalo Cafe",
+        location: "Lakeside, Pokhara",
+        tagline: "homemade · local love",
+        hours: "7:00–22:00 daily",
+        phone: "+977 981-234567",
+        heartNote: "order at counter · everything made to share"
+      },
+      footer: [
+        { id: "footer1", text: "house-baked daily" },
+        { id: "footer2", text: "vegan & gluten-free" },
+        { id: "footer3", text: "free high-speed wifi" }
+      ],
+      categories: [
+        { id: "cat1", title: "all-day breakfast", icon: "sunrise", items: [
+          { id: "item1_1", name: "Niyalo Shakshuka", desc: "poached eggs · spiced tomato · feta", price: "590", badge: null },
+          { id: "item1_2", name: "Cardamom French Toast", desc: "brioche · orange · maple", price: "520", badge: null },
+          { id: "item1_3", name: "Avocado Garden Toast", desc: "sourdough · za'atar · radish", price: "580", badge: "vegan" },
+          { id: "item1_4", name: "House Granola Pot", desc: "yoghurt · berries · honey", price: "420", badge: null }
+        ]},
+        { id: "cat2", title: "small plates", icon: "utensils", items: [
+          { id: "item2_1", name: "Burnt Eggplant Dip", desc: "smoked paprika · flatbread", price: "450", badge: null },
+          { id: "item2_2", name: "Chili Garlic Prawns", desc: "lemon · parsley · sourdough", price: "690", badge: null },
+          { id: "item2_3", name: "Wild Mushroom Toast", desc: "thyme · truffle oil · pecorino", price: "620", badge: "signature" },
+          { id: "item2_4", name: "Harissa Cauliflower", desc: "tahini · pomegranate · almonds", price: "510", badge: null }
+        ]},
+        { id: "cat3", title: "bowls & greens", icon: "leaf", items: [
+          { id: "item3_1", name: "Niyalo Harvest Bowl", desc: "quinoa · sweet potato · kale · miso", price: "650", badge: null },
+          { id: "item3_2", name: "Sesame Salmon", desc: "soba · edamame · pickled ginger", price: "820", badge: null },
+          { id: "item3_3", name: "Turmeric Coconut Lentils", desc: "brown rice · crispy shallots", price: "550", badge: "vegan" }
+        ]}
       ]
     };
 
-    // ===== DISPLAY MENU =====
-    function displayMenu() {
-      let html = '';
-      menuData.items.forEach(item => {
-        html += `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px dashed #ddd;">
-          <span contenteditable="${isEditMode}" style="flex:1;">${item.name}</span>
-          <span contenteditable="${isEditMode}" style="font-weight:bold;">रू${item.price}</span>
-        </div>`;
-      });
-      document.getElementById('menuItems').innerHTML = html;
+    let isEditMode = true;
+
+    // ===== LOAD FROM SUPABASE =====
+    async function loadFromSupabase() {
+      try {
+        const { data } = await supabase
+          .from('menus')
+          .select('*')
+          .eq('id', 1)
+          .single();
+        
+        if (data && data.data) {
+          menuData = data.data;
+          document.getElementById('syncStatus').innerHTML = '✅ LOADED FROM CLOUD';
+        }
+      } catch(e) {
+        console.log('No data yet, using default');
+      }
+      renderEverything();
     }
 
-    // ===== EDIT MODE TOGGLE =====
-    document.getElementById('editModeBtn').onclick = function() {
-      isEditMode = !isEditMode;
-      this.innerHTML = isEditMode ? '🔓 EDIT ON' : '🔒 EDIT OFF';
-      this.classList.toggle('active');
-      displayMenu();
+    // ===== RENDER EVERYTHING =====
+    function renderEverything() {
+      // Update hotel fields
+      document.getElementById('hotelName').innerText = menuData.hotel.name;
+      document.getElementById('hotelLocation').innerText = menuData.hotel.location;
+      document.getElementById('hotelTagline').innerText = menuData.hotel.tagline;
+      document.getElementById('hours').innerText = menuData.hotel.hours;
+      document.getElementById('phone').innerText = menuData.hotel.phone;
+      document.getElementById('heartNote').innerText = menuData.hotel.heartNote;
+      
+      // Render categories
+      renderCategories();
+      
+      // Render footer
+      renderFooter();
+    }
+
+    // ===== RENDER CATEGORIES =====
+    function renderCategories() {
+      const container = document.getElementById('categoriesContainer');
+      container.innerHTML = '';
+      
+      menuData.categories.forEach(cat => {
+        let catHtml = `
+          <div class="category-card">
+            <div class="category-header">
+              <div class="category-title">
+                <i class="fas fa-${cat.icon}"></i>
+                <h3><span contenteditable="${isEditMode}" id="${cat.id}Title">${cat.title}</span></h3>
+              </div>
+              <button class="delete-cat-btn" onclick="deleteCategory('${cat.id}')">🗑️ DELETE</button>
+            </div>
+        `;
+        
+        cat.items.forEach(item => {
+          catHtml += `
+            <div class="menu-row">
+              <div style="flex:1">
+                <div class="item-name">
+                  <span contenteditable="${isEditMode}" id="${item.id}">${item.name}</span>
+                  ${item.badge ? `<span class="badge-pill" style="background:#e7d2c5;border-radius:60px;padding:0.2rem 1rem;margin-left:8px;font-size:0.7rem;">
+                    <span contenteditable="${isEditMode}" id="${item.id}Badge">${item.badge}</span>
+                  </span>` : ''}
+                </div>
+                <div class="item-desc"><span contenteditable="${isEditMode}" id="${item.id}Desc">${item.desc}</span></div>
+              </div>
+              <span class="price-tag"><span contenteditable="${isEditMode}" id="${item.id}Price">${item.price}</span></span>
+            </div>
+          `;
+        });
+        
+        catHtml += `<button class="add-item-btn" onclick="addNewItem('${cat.id}')">➕ ADD NEW ITEM</button></div>`;
+        container.innerHTML += catHtml;
+      });
+    }
+
+    // ===== RENDER FOOTER =====
+    function renderFooter() {
+      const container = document.getElementById('footerBadgesContainer');
+      container.innerHTML = '';
+      menuData.footer.forEach(f => {
+        container.innerHTML += `
+          <span class="footer-badge">
+            <i class="fas fa-heart" style="color:#a5664a;"></i>
+            <span contenteditable="${isEditMode}" id="${f.id}">${f.text}</span>
+            <button class="delete-btn" style="width:24px;height:24px;" onclick="deleteFooterItem('${f.id}')">×</button>
+          </span>
+        `;
+      });
+    }
+
+    // ===== DELETE FUNCTIONS =====
+    window.deleteCategory = function(id) {
+      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      if (confirm('Delete category?')) {
+        menuData.categories = menuData.categories.filter(c => c.id !== id);
+        renderCategories();
+      }
+    };
+    
+    window.deleteFooterItem = function(id) {
+      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      menuData.footer = menuData.footer.filter(f => f.id !== id);
+      renderFooter();
     };
 
-    // ===== SAVE TO CLOUD =====
-    document.getElementById('saveBtn').onclick = async function() {
-      document.getElementById('syncStatus').innerHTML = '⏳ SAVING...';
+    window.addNewItem = function(catId) {
+      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      const cat = menuData.categories.find(c => c.id === catId);
+      if (cat) {
+        cat.items.push({ 
+          id: catId + '_item' + Date.now(), 
+          name: 'New Item', 
+          desc: 'item description', 
+          price: '199', 
+          badge: null 
+        });
+        renderCategories();
+      }
+    };
+
+    // ===== SAVE TO SUPABASE =====
+    window.saveToSupabase = async function() {
+      // Update data from DOM
+      menuData.hotel.name = document.getElementById('hotelName').innerText;
+      menuData.hotel.location = document.getElementById('hotelLocation').innerText;
+      menuData.hotel.tagline = document.getElementById('hotelTagline').innerText;
+      menuData.hotel.hours = document.getElementById('hours').innerText;
+      menuData.hotel.phone = document.getElementById('phone').innerText;
+      menuData.hotel.heartNote = document.getElementById('heartNote').innerText;
       
       const { error } = await supabase
         .from('menus')
         .upsert({ id: 1, data: menuData });
       
       if (error) {
-        document.getElementById('syncStatus').innerHTML = '❌ ERROR';
-        alert('Error: ' + error.message);
+        alert('❌ Error: ' + error.message);
       } else {
         document.getElementById('syncStatus').innerHTML = '✅ SAVED ' + new Date().toLocaleTimeString();
         alert('✅ Saved to cloud!');
       }
     };
 
-    // ===== LOAD FROM CLOUD =====
-    async function loadFromCloud() {
-      const { data } = await supabase
-        .from('menus')
-        .select('*')
-        .eq('id', 1)
-        .single();
-      
-      if (data && data.data) {
-        menuData = data.data;
-        displayMenu();
-        document.getElementById('syncStatus').innerHTML = '✅ LOADED FROM CLOUD';
-      }
-    }
+    // ===== BUTTON HANDLERS =====
+    document.getElementById('editModeBtn').addEventListener('click', function() {
+      isEditMode = !isEditMode;
+      this.innerHTML = isEditMode ? '🔓 EDIT ON' : '🔒 EDIT OFF';
+      this.classList.toggle('active');
+      renderEverything();
+    });
+
+    document.getElementById('saveBtn').addEventListener('click', saveToSupabase);
+    
+    document.getElementById('addCategoryBtn').addEventListener('click', function() {
+      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      const id = 'cat' + Date.now();
+      menuData.categories.push({ 
+        id, 
+        title: 'New Category', 
+        icon: 'utensils', 
+        items: [] 
+      });
+      renderCategories();
+    });
+    
+    document.getElementById('addFooterBtn').addEventListener('click', function() {
+      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      menuData.footer.push({ id: 'footer'+Date.now(), text: 'new feature' });
+      renderFooter();
+    });
 
     // ===== INIT =====
-    displayMenu();
-    loadFromCloud();
+    loadFromSupabase();
   </script>
 </body>
 </html>
