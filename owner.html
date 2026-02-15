@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
   <title>Niyalo · Owner Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -151,10 +151,27 @@
     let menuData = JSON.parse(JSON.stringify(DEFAULT_MENU));
     let isEditMode = true;
 
-    // ===== LOAD FROM SUPABASE (WITH FALLBACK) =====
+    // ===== LOAD FROM LOCALSTORAGE FIRST (IMMEDIATE) =====
+    function loadFromLocalStorage() {
+      const saved = localStorage.getItem('niyalo_menu_backup');
+      if (saved) {
+        try {
+          menuData = JSON.parse(saved);
+          document.getElementById('syncStatus').innerHTML = '✅ LOADED FROM LOCAL';
+          renderOwnerMenu();
+          return true;
+        } catch(e) {}
+      }
+      return false;
+    }
+
+    // ===== SAVE TO LOCALSTORAGE =====
+    function saveToLocalStorage() {
+      localStorage.setItem('niyalo_menu_backup', JSON.stringify(menuData));
+    }
+
+    // ===== LOAD FROM SUPABASE =====
     async function loadFromSupabase() {
-      document.getElementById('syncStatus').innerHTML = '⏳ LOADING...';
-      
       try {
         const { data, error } = await supabase
           .from(TABLE_NAME)
@@ -164,17 +181,13 @@
 
         if (data) {
           menuData = data.data;
+          saveToLocalStorage(); // Backup to localStorage
           document.getElementById('syncStatus').innerHTML = '✅ LOADED FROM CLOUD';
-        } else {
-          // No data - save default
-          await supabase.from(TABLE_NAME).insert({ id: 1, data: menuData });
-          document.getElementById('syncStatus').innerHTML = '✅ DEFAULT SAVED';
+          renderOwnerMenu();
         }
       } catch (error) {
         document.getElementById('syncStatus').innerHTML = '⚠️ USING LOCAL';
       }
-      
-      renderOwnerMenu();
     }
 
     // ===== SAVE TO SUPABASE =====
@@ -203,8 +216,13 @@
           if (descEl) item.desc = descEl.innerText;
           const priceEl = document.getElementById(item.id + 'Price');
           if (priceEl) item.price = priceEl.innerText;
+          const badgeEl = document.getElementById(item.id + 'Badge');
+          if (badgeEl && item.badge) item.badge = badgeEl.innerText;
         });
       });
+
+      // Save to localStorage immediately
+      saveToLocalStorage();
 
       try {
         const { error } = await supabase
@@ -216,11 +234,12 @@
         document.getElementById('syncStatus').innerHTML = '✅ SAVED ' + new Date().toLocaleTimeString();
         if (showAlert) alert('✅ Saved to cloud!');
       } catch (error) {
-        alert('❌ Error: ' + error.message);
+        document.getElementById('syncStatus').innerHTML = '⚠️ SAVED LOCALLY ONLY';
+        if (showAlert) alert('⚠️ Saved locally! Cloud sync failed.');
       }
     }
 
-    // ===== RENDER FUNCTIONS (YOUR UI) =====
+    // ===== RENDER FUNCTIONS =====
     function renderOwnerMenu() {
       const container = document.getElementById('categoriesContainer');
       container.innerHTML = '';
@@ -340,6 +359,7 @@
       if (confirm('Delete category?')) {
         menuData.categories = menuData.categories.filter(c => c.id !== id);
         renderOwnerMenu();
+        saveToLocalStorage();
       }
     };
     
@@ -349,6 +369,7 @@
       if (cat) {
         cat.items = cat.items.filter(i => i.id !== itemId);
         renderOwnerMenu();
+        saveToLocalStorage();
       }
     };
     
@@ -356,49 +377,17 @@
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       menuData.categories.forEach(c => c.items.forEach(i => { if (i.id === itemId) i.badge = null; }));
       renderOwnerMenu();
+      saveToLocalStorage();
     };
     
     window.deleteFooterItem = function(id) {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       menuData.footer = menuData.footer.filter(f => f.id !== id);
       renderFooter();
+      saveToLocalStorage();
     };
     
-    window.addNewItem = function(catId) {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
-      const cat = menuData.categories.find(c => c.id === catId);
-      if (cat) {
-        cat.items.push({ 
-          id: catId + '_item' + Date.now(), 
-          name: 'New Item', 
-          desc: 'item description', 
-          price: '199', 
-          badge: null 
-        });
-        renderOwnerMenu();
-      }
-    };
-    
-    window.addBadgeToItem = function(itemId) {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
-      const text = prompt('Badge text:');
-      if (text && text.trim()) {
-        menuData.categories.forEach(c => c.items.forEach(i => { if (i.id === itemId) i.badge = text.trim(); }));
-        renderOwnerMenu();
-      }
-    };
-
-    // ===== EVENT LISTENERS =====
-    document.getElementById('editModeBtn').addEventListener('click', function() {
-      isEditMode = !isEditMode;
-      this.innerHTML = isEditMode ? '🔓 EDIT ON' : '🔒 EDIT OFF';
-      this.classList.toggle('active');
-      applyEditMode();
-    });
-
-    document.getElementById('saveBtn').addEventListener('click', () => saveToSupabase(true));
-    
-    document.getElementById('addCategoryBtn').addEventListener('click', function() {
+    window.addNewCategory = function() {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       const id = 'cat' + Date.now();
       menuData.categories.push({ 
@@ -414,21 +403,77 @@
         }] 
       });
       renderOwnerMenu();
-    });
+      saveToLocalStorage();
+    };
     
-    document.getElementById('addFooterBtn').addEventListener('click', function() {
+    window.addNewItem = function(catId) {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
-      menuData.footer.push({ id: 'footer'+Date.now(), text: 'new feature' });
-      renderFooter();
+      const cat = menuData.categories.find(c => c.id === catId);
+      if (cat) {
+        cat.items.push({ 
+          id: catId + '_item' + Date.now(), 
+          name: 'New Item', 
+          desc: 'item description', 
+          price: '199', 
+          badge: null 
+        });
+        renderOwnerMenu();
+        saveToLocalStorage();
+      }
+    };
+    
+    window.addBadgeToItem = function(itemId) {
+      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      const text = prompt('Badge text:');
+      if (text && text.trim()) {
+        menuData.categories.forEach(c => c.items.forEach(i => { if (i.id === itemId) i.badge = text.trim(); }));
+        renderOwnerMenu();
+        saveToLocalStorage();
+      }
+    };
+    
+    window.addFooterBtn = document.getElementById('addFooterBtn');
+    if (window.addFooterBtn) {
+      window.addFooterBtn.addEventListener('click', function() {
+        if (!isEditMode) return alert('Turn ON Edit Mode first');
+        menuData.footer.push({ id: 'footer'+Date.now(), text: 'new feature' });
+        renderFooter();
+        saveToLocalStorage();
+      });
+    }
+
+    // ===== EVENT LISTENERS =====
+    document.getElementById('editModeBtn').addEventListener('click', function() {
+      isEditMode = !isEditMode;
+      this.innerHTML = isEditMode ? '🔓 EDIT ON' : '🔒 EDIT OFF';
+      this.classList.toggle('active');
+      applyEditMode();
+    });
+
+    document.getElementById('saveBtn').addEventListener('click', () => saveToSupabase(true));
+    
+    document.getElementById('addCategoryBtn').addEventListener('click', function() {
+      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      window.addNewCategory();
     });
 
     // ===== INIT =====
     window.onload = function() {
-      // First show default menu instantly
-      renderOwnerMenu();
+      // Try loading from localStorage first (IMMEDIATE)
+      if (!loadFromLocalStorage()) {
+        // If no localStorage, use default
+        renderOwnerMenu();
+      }
       
-      // Then load from Supabase in background
+      // Then try loading from Supabase (updates if newer)
       loadFromSupabase();
+      
+      // Auto-save to localStorage on any edit
+      document.addEventListener('input', function() {
+        if (isEditMode) {
+          saveToLocalStorage();
+        }
+      });
     };
   </script>
 </body>
