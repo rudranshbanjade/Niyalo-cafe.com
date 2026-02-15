@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
+    /* YOUR STYLES HERE - KEEP THEM */
     *{margin:0;padding:0;box-sizing:border-box;}
     body{background:#12100e;font-family:'Plus Jakarta Sans',sans-serif;padding:1.5rem;display:flex;justify-content:center;}
     .owner-container{max-width:1400px;width:100%;}
@@ -58,6 +59,15 @@
     </div>
 
     <div class="menu-master" id="masterMenu">
+      <!-- SIMPLE INPUT FOR TESTING -->
+      <div style="background:white; padding:20px; border-radius:20px; margin-bottom:20px;">
+        <h3 style="margin-bottom:10px;">🔧 TEST PANEL</h3>
+        <input type="text" id="testInput" placeholder="Type something..." style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:10px;">
+        <button id="testSaveBtn" style="background:#27ae60; color:white; padding:10px 20px; border:none; border-radius:10px; cursor:pointer;">💾 TEST SAVE</button>
+        <button id="testLoadBtn" style="background:#3498db; color:white; padding:10px 20px; border:none; border-radius:10px; cursor:pointer;">🔄 TEST LOAD</button>
+        <div id="testResult" style="margin-top:10px; padding:10px; background:#f0f0f0; border-radius:10px;"></div>
+      </div>
+
       <!-- HOTEL INFO -->
       <div style="display:flex;flex-wrap:wrap;justify-content:space-between;margin-bottom:2rem;">
         <div>
@@ -80,13 +90,29 @@
         </div>
       </div>
 
-      <!-- SIMPLE TEST BUTTON -->
-      <div style="text-align:center; margin-bottom:20px;">
-        <button id="testBtn" style="background:#c49a6c; color:white; padding:10px 20px; border:none; border-radius:10px; cursor:pointer;">🔍 TEST SUPABASE CONNECTION</button>
-      </div>
-
       <!-- CATEGORIES CONTAINER -->
       <div id="categoriesContainer"></div>
+
+      <!-- ADD CATEGORY BUTTON -->
+      <div style="text-align:center;">
+        <button class="add-category-btn" id="addCategoryBtn">➕ ADD NEW CATEGORY</button>
+      </div>
+
+      <!-- FOOTER EDITOR -->
+      <div class="footer-editor">
+        <div style="text-align:center;margin-bottom:1rem;">
+          <span style="background:#ab8c7a;color:white;padding:0.3rem 1.5rem;border-radius:60px;">❤️ FOOTER BADGES</span>
+        </div>
+        <div class="footer-badge-container" id="footerBadgesContainer"></div>
+        <div style="text-align:center;margin-top:0.8rem;">
+          <button class="add-footer-btn" id="addFooterBtn">➕ ADD BADGE</button>
+        </div>
+        <div style="text-align:center;margin-top:1.5rem;">
+          <i class="fas fa-heart" style="color:#c2714b;"></i>
+          <span contenteditable="true" id="heartNote">order at counter · everything made to share</span>
+          <i class="fas fa-heart" style="color:#c2714b;"></i>
+        </div>
+      </div>
     </div>
 
     <div class="sync-status">
@@ -95,56 +121,10 @@
   </div>
 
   <script>
-    // ===== SUPABASE CONFIG =====
+    // ===== SUPABASE CONFIG (ONLY ONCE!) =====
     const SUPABASE_URL = 'https://outxrzhbocyvopmivzzf.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dHhyemhib2N5dm9wbWl2enpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNTU1NDgsImV4cCI6MjA4NjYzMTU0OH0.apOAqrdlz3WBo9Aht3xzHc-XBkInHSQVfHu3NRuCxNc';
-    const TABLE_NAME = 'menus';
-    
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    // ===== TEST CONNECTION =====
-    document.getElementById('testBtn').addEventListener('click', async function() {
-      alert('🔍 Testing Supabase connection... Check console!');
-      console.log('🔍 TESTING SUPABASE CONNECTION');
-      
-      try {
-        // Test 1: Can we connect?
-        console.log('Test 1: Checking connection...');
-        const { data, error } = await supabase
-          .from(TABLE_NAME)
-          .select('*')
-          .limit(1);
-        
-        if (error) {
-          console.log('❌ Connection failed:', error);
-          alert('❌ Connection failed: ' + error.message);
-        } else {
-          console.log('✅ Connection successful! Data:', data);
-          alert('✅ Connection successful! Check console.');
-        }
-        
-        // Test 2: Try to insert test data
-        console.log('Test 2: Trying to insert test data...');
-        const testData = {
-          id: 999,
-          data: { test: "hello" }
-        };
-        
-        const { error: insertError } = await supabase
-          .from(TABLE_NAME)
-          .insert(testData);
-        
-        if (insertError) {
-          console.log('❌ Insert failed:', insertError);
-        } else {
-          console.log('✅ Insert successful!');
-        }
-        
-      } catch (err) {
-        console.log('❌ Unexpected error:', err);
-        alert('❌ Error: ' + err.message);
-      }
-    });
 
     // ===== DEFAULT MENU =====
     const DEFAULT_MENU = {
@@ -156,16 +136,78 @@
         phone: "+977 981-234567",
         heartNote: "order at counter · everything made to share"
       },
+      footer: [
+        { id: "footer1", text: "house-baked daily" },
+        { id: "footer2", text: "vegan & gluten-free" },
+        { id: "footer3", text: "free high-speed wifi" }
+      ],
       categories: []
     };
 
-    // Simple render
-    function renderSimpleMenu() {
-      const container = document.getElementById('categoriesContainer');
-      container.innerHTML = '<div style="color:white; text-align:center;">Simple menu loaded</div>';
+    let menuData = DEFAULT_MENU;
+    let isEditMode = true;
+
+    // ===== SIMPLE TEST FUNCTIONS =====
+    document.getElementById('testSaveBtn').addEventListener('click', async function() {
+      const testValue = document.getElementById('testInput').value;
+      document.getElementById('testResult').innerHTML = '⏳ Saving...';
+      
+      try {
+        const { error } = await supabase
+          .from('menus')
+          .upsert({ id: 999, data: { test: testValue } });
+        
+        if (error) {
+          document.getElementById('testResult').innerHTML = '❌ Error: ' + error.message;
+        } else {
+          document.getElementById('testResult').innerHTML = '✅ Saved: "' + testValue + '"';
+        }
+      } catch(err) {
+        document.getElementById('testResult').innerHTML = '❌ Error: ' + err.message;
+      }
+    });
+
+    document.getElementById('testLoadBtn').addEventListener('click', async function() {
+      document.getElementById('testResult').innerHTML = '⏳ Loading...';
+      
+      try {
+        const { data, error } = await supabase
+          .from('menus')
+          .select('*')
+          .eq('id', 999);
+        
+        if (error) {
+          document.getElementById('testResult').innerHTML = '❌ Error: ' + error.message;
+        } else {
+          document.getElementById('testResult').innerHTML = '✅ Loaded: ' + JSON.stringify(data);
+        }
+      } catch(err) {
+        document.getElementById('testResult').innerHTML = '❌ Error: ' + err.message;
+      }
+    });
+
+    // ===== SIMPLE RENDER =====
+    function renderMenu() {
+      document.getElementById('categoriesContainer').innerHTML = `
+        <div style="background:white; padding:20px; border-radius:20px;">
+          <h3>Current Menu Data:</h3>
+          <pre style="background:#f0f0f0; padding:10px; border-radius:10px;">${JSON.stringify(menuData, null, 2)}</pre>
+        </div>
+      `;
     }
 
-    renderSimpleMenu();
+    renderMenu();
+
+    // ===== BUTTON HANDLERS =====
+    document.getElementById('editModeBtn').addEventListener('click', function() {
+      isEditMode = !isEditMode;
+      this.innerHTML = isEditMode ? '🔓 EDIT ON' : '🔒 EDIT OFF';
+      this.classList.toggle('active');
+    });
+
+    document.getElementById('saveBtn').addEventListener('click', function() {
+      alert('Save button clicked! Use test panel above to test Supabase.');
+    });
   </script>
 </body>
 </html>
