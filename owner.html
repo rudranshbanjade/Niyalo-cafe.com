@@ -146,10 +146,11 @@
 
     let isEditMode = true;
 
+    // ===== LOAD FROM SUPABASE =====
     async function loadFromSupabase() {
       try {
         const { data, error } = await supabaseClient
-          .from(Table_name)
+          .from(TABLE_NAME)
           .select('*')
           .eq('id', 1)
           .single();
@@ -164,7 +165,9 @@
       }
     }
 
-    async function saveToSupabase() {
+    // ===== SAVE TO SUPABASE =====
+    async function saveToSupabase(showAlert = true) {
+      // Update menuData from DOM
       menuData.hotel.name = document.getElementById('hotelName').innerText;
       menuData.hotel.location = document.getElementById('hotelLocation').innerText;
       menuData.hotel.tagline = document.getElementById('hotelTagline').innerText;
@@ -184,12 +187,13 @@
 
         if (error) throw error;
         document.getElementById('syncStatus').innerHTML = '✅ SAVED ' + new Date().toLocaleTimeString();
-        alert('✅ Saved to cloud!');
+        if (showAlert) alert('✅ Saved to cloud!');
       } catch (error) {
         alert('❌ Error: ' + error.message);
       }
     }
 
+    // ===== RENDER FUNCTIONS =====
     function renderOwnerMenu() {
       const container = document.getElementById('categoriesContainer');
       container.innerHTML = '';
@@ -280,11 +284,13 @@
       }
     }
 
+    // ===== CRUD OPERATIONS =====
     window.deleteCategory = function(id) {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       if (confirm('Delete category?')) {
         menuData.categories = menuData.categories.filter(c => c.id !== id);
         renderOwnerMenu();
+        saveToSupabase(false); // 🔥 AUTO-SAVE AFTER DELETE
       }
     };
     
@@ -294,6 +300,7 @@
       if (cat) {
         cat.items = cat.items.filter(i => i.id !== itemId);
         renderOwnerMenu();
+        saveToSupabase(false); // 🔥 AUTO-SAVE AFTER DELETE
       }
     };
     
@@ -301,8 +308,10 @@
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       menuData.footer = menuData.footer.filter(f => f.id !== id);
       renderFooter();
+      saveToSupabase(false); // 🔥 AUTO-SAVE AFTER DELETE
     };
 
+    // ===== EVENT LISTENERS =====
     document.getElementById('editModeBtn').addEventListener('click', function() {
       isEditMode = !isEditMode;
       this.innerHTML = isEditMode ? '🔓 EDIT ON' : '🔒 EDIT OFF';
@@ -310,7 +319,7 @@
       applyEditMode();
     });
 
-    document.getElementById('saveBtn').addEventListener('click', saveToSupabase);
+    document.getElementById('saveBtn').addEventListener('click', () => saveToSupabase(true));
     
     document.getElementById('addCategoryBtn').addEventListener('click', function() {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
@@ -320,16 +329,32 @@
         items: [{ id: id+'_item1', name: 'New Dish', desc: 'description', price: '199', badge: null }] 
       });
       renderOwnerMenu();
+      saveToSupabase(false); // 🔥 AUTO-SAVE AFTER ADD
     });
     
     document.getElementById('addFooterBtn').addEventListener('click', function() {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       menuData.footer.push({ id: 'footer'+Date.now(), text: 'new feature' });
       renderFooter();
+      saveToSupabase(false); // 🔥 AUTO-SAVE AFTER ADD
     });
 
+    // ===== AUTO-SAVE ON TEXT EDIT =====
+    function setupAutoSave() {
+      const editableElements = document.querySelectorAll('[contenteditable="true"]');
+      editableElements.forEach(el => {
+        el.addEventListener('blur', function() {
+          if (isEditMode) {
+            saveToSupabase(false); // 🔥 AUTO-SAVE WHEN YOU CLICK AWAY
+          }
+        });
+      });
+    }
+
+    // ===== INITIALIZE =====
     window.onload = function() {
       loadFromSupabase();
+      setTimeout(setupAutoSave, 1000); // Set up auto-save after menu loads
     };
   </script>
 </body>
