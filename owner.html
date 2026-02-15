@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* YOUR EXACT SAME UI STYLES - NOTHING CHANGED */
+    /* YOUR EXACT UI STYLES - KEEP THEM */
     *{margin:0;padding:0;box-sizing:border-box;}
     body{background:#12100e;font-family:'Plus Jakarta Sans',sans-serif;padding:1.5rem;display:flex;justify-content:center;}
     .owner-container{max-width:1400px;width:100%;}
@@ -112,14 +112,14 @@
   </div>
 
   <script>
-    // ===== YOUR SUPABASE CONFIG =====
+    // ===== SUPABASE CONFIG =====
     const SUPABASE_URL = 'https://outxrzhbocyvopmivzzf.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dHhyemhib2N5dm9wbWl2enpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNTU1NDgsImV4cCI6MjA4NjYzMTU0OH0.apOAqrdlz3WBo9Aht3xzHc-XBkInHSQVfHu3NRuCxNc';
     const TABLE_NAME = 'menus';
 
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // DEFAULT MENU (only used if NO DATA in Supabase)
+    // DEFAULT MENU
     const DEFAULT_MENU = {
       hotel: {
         name: "Niyalo Cafe",
@@ -150,11 +150,10 @@
       ]
     };
 
-    // THIS IS THE FIX - menuData starts as DEFAULT but gets OVERWRITTEN by Supabase data
-    let menuData = JSON.parse(JSON.stringify(DEFAULT_MENU));
+    let menuData;
     let isEditMode = true;
 
-    // ===== LOAD FROM SUPABASE =====
+    // ===== LOAD FROM SUPABASE (PURELY SYNC) =====
     async function loadFromSupabase() {
       try {
         const { data, error } = await supabaseClient
@@ -164,26 +163,30 @@
           .maybeSingle();
 
         if (data) {
-          // ✅ IMPORTANT: Overwrite menuData with saved data
+          // ✅ Use saved data
           menuData = data.data;
           document.getElementById('syncStatus').innerHTML = '✅ LOADED FROM CLOUD';
         } else {
-          // No data yet, save default to Supabase
-          await saveToSupabase(false);
+          // ✅ No data yet - use default AND save it
+          menuData = JSON.parse(JSON.stringify(DEFAULT_MENU));
+          await supabaseClient.from(TABLE_NAME).upsert({ id: 1, data: menuData });
           document.getElementById('syncStatus').innerHTML = '✅ DEFAULT SAVED';
         }
         
-        // Render with the (now correct) menuData
+        // ✅ NOW render with the FINAL menuData
         renderOwnerMenu();
       } catch (error) {
         console.error('Load error:', error);
+        menuData = JSON.parse(JSON.stringify(DEFAULT_MENU));
         renderOwnerMenu();
       }
     }
 
     // ===== SAVE TO SUPABASE =====
     async function saveToSupabase(showAlert = true) {
-      // Update menuData from DOM
+      if (!menuData) return;
+      
+      // Update from DOM
       menuData.hotel.name = document.getElementById('hotelName')?.innerText || menuData.hotel.name;
       menuData.hotel.location = document.getElementById('hotelLocation')?.innerText || menuData.hotel.location;
       menuData.hotel.tagline = document.getElementById('hotelTagline')?.innerText || menuData.hotel.tagline;
@@ -196,11 +199,9 @@
         if (el) f.text = el.innerText;
       });
 
-      // Update categories
       menuData.categories.forEach(cat => {
         const titleEl = document.getElementById(cat.id + 'Title');
         if (titleEl) cat.title = titleEl.innerText;
-        
         cat.items.forEach(item => {
           const nameEl = document.getElementById(item.id);
           if (nameEl) item.name = nameEl.innerText;
@@ -217,7 +218,6 @@
           .upsert({ id: 1, data: menuData });
 
         if (error) throw error;
-        
         document.getElementById('syncStatus').innerHTML = '✅ SAVED ' + new Date().toLocaleTimeString();
         if (showAlert) alert('✅ Saved to cloud!');
       } catch (error) {
@@ -225,8 +225,10 @@
       }
     }
 
-    // ===== RENDER FUNCTIONS (YOUR EXACT SAME UI CODE) =====
+    // ===== RENDER FUNCTIONS (YOUR UI CODE) =====
     function renderOwnerMenu() {
+      if (!menuData) return;
+      
       const container = document.getElementById('categoriesContainer');
       container.innerHTML = '';
       
@@ -316,7 +318,7 @@
       }
     }
 
-    // ===== CRUD OPERATIONS =====
+    // ===== CRUD =====
     window.deleteCategory = function(id) {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       if (confirm('Delete category?')) {
@@ -357,16 +359,8 @@
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       const id = 'cat' + Date.now();
       menuData.categories.push({ 
-        id, 
-        title: 'New Category', 
-        icon: 'utensils', 
-        items: [{ 
-          id: id + '_item1', 
-          name: 'New Dish', 
-          desc: 'description', 
-          price: '199', 
-          badge: null 
-        }] 
+        id, title: 'New Category', icon: 'utensils', 
+        items: [{ id: id+'_item1', name: 'New Dish', desc: 'description', price: '199', badge: null }] 
       });
       renderOwnerMenu();
       saveToSupabase(false);
@@ -379,23 +373,17 @@
       saveToSupabase(false);
     });
 
-    // ===== AUTO-SAVE ON TEXT EDIT =====
-    function setupAutoSave() {
-      const editableElements = document.querySelectorAll('[contenteditable="true"]');
-      editableElements.forEach(el => {
-        el.addEventListener('blur', function() {
-          if (isEditMode) {
-            saveToSupabase(false);
-          }
-        });
-      });
-    }
-
-    // ===== INITIALIZE =====
+    // ===== INIT =====
     window.onload = function() {
-      // THIS IS THE KEY - load from Supabase FIRST, then render
-      loadFromSupabase();
-      setTimeout(setupAutoSave, 1500);
+      loadFromSupabase(); // This will set menuData and THEN render
+      setTimeout(() => {
+        const editableElements = document.querySelectorAll('[contenteditable="true"]');
+        editableElements.forEach(el => {
+          el.addEventListener('blur', function() {
+            if (isEditMode) saveToSupabase(false);
+          });
+        });
+      }, 2000);
     };
   </script>
 </body>
