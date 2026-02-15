@@ -8,7 +8,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* YOUR STYLES - KEEP THEM */
     *{margin:0;padding:0;box-sizing:border-box;}
     body{background:#12100e;font-family:'Plus Jakarta Sans',sans-serif;padding:1.5rem;display:flex;justify-content:center;}
     .owner-container{max-width:1400px;width:100%;}
@@ -175,8 +174,15 @@
           console.log('⚠️ No data in Supabase, using default');
           menuData = JSON.parse(JSON.stringify(DEFAULT_MENU));
           // Save default to Supabase
-          await supabaseClient.from(TABLE_NAME).insert({ id: 1, data: menuData });
-          console.log('✅ Default saved to Supabase');
+          const { error: insertError } = await supabaseClient
+            .from(TABLE_NAME)
+            .insert({ id: 1, data: menuData });
+          
+          if (insertError) {
+            console.log('❌ Error saving default:', insertError);
+          } else {
+            console.log('✅ Default saved to Supabase');
+          }
           document.getElementById('syncStatus').innerHTML = '✅ DEFAULT SAVED';
         }
         renderOwnerMenu();
@@ -189,8 +195,13 @@
 
     // ===== SAVE TO SUPABASE =====
     async function saveToSupabase(showAlert = true) {
-      console.log('💾 Saving to Supabase...');
-      if (!menuData) return;
+      console.log('💾 SAVE BUTTON CLICKED!');
+      console.log('Current menuData before update:', menuData);
+      
+      if (!menuData) {
+        console.log('❌ menuData is null!');
+        return;
+      }
       
       // Update menuData from DOM
       menuData.hotel.name = document.getElementById('hotelName').innerText;
@@ -221,19 +232,35 @@
         });
       });
 
-      try {
-        const { error } = await supabaseClient
-          .from(TABLE_NAME)
-          .upsert({ id: 1, data: menuData });
+      console.log('📤 Sending to Supabase:', menuData);
 
-        if (error) throw error;
+      try {
+        const { data, error } = await supabaseClient
+          .from(TABLE_NAME)
+          .upsert({ id: 1, data: menuData })
+          .select();
+
+        if (error) {
+          console.log('❌ Supabase error response:', error);
+          throw error;
+        }
         
-        console.log('✅ Save successful!');
+        console.log('✅ Save successful! Response:', data);
         document.getElementById('syncStatus').innerHTML = '✅ SAVED ' + new Date().toLocaleTimeString();
+        
+        // Verify by loading again
+        console.log('🔄 Verifying save by reloading...');
+        const { data: verifyData } = await supabaseClient
+          .from(TABLE_NAME)
+          .select('*')
+          .eq('id', 1)
+          .single();
+        console.log('📥 Verified data from Supabase:', verifyData);
+        
         if (showAlert) alert('✅ Saved to cloud!');
       } catch (error) {
         console.log('❌ Save error:', error);
-        document.getElementById('syncStatus').innerHTML = '❌ ERROR';
+        document.getElementById('syncStatus').innerHTML = '❌ ERROR: ' + error.message;
         if (showAlert) alert('❌ Error: ' + error.message);
       }
     }
