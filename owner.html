@@ -2,13 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Niyalo · Owner Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* YOUR EXACT UI STYLES - KEEP THEM */
     *{margin:0;padding:0;box-sizing:border-box;}
     body{background:#12100e;font-family:'Plus Jakarta Sans',sans-serif;padding:1.5rem;display:flex;justify-content:center;}
     .owner-container{max-width:1400px;width:100%;}
@@ -116,10 +115,9 @@
     const SUPABASE_URL = 'https://outxrzhbocyvopmivzzf.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dHhyemhib2N5dm9wbWl2enpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNTU1NDgsImV4cCI6MjA4NjYzMTU0OH0.apOAqrdlz3WBo9Aht3xzHc-XBkInHSQVfHu3NRuCxNc';
     const TABLE_NAME = 'menus';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    // DEFAULT MENU
+    // ===== DEFAULT MENU =====
     const DEFAULT_MENU = {
       hotel: {
         name: "Niyalo Cafe",
@@ -150,49 +148,44 @@
       ]
     };
 
-    let menuData;
+    let menuData = JSON.parse(JSON.stringify(DEFAULT_MENU));
     let isEditMode = true;
 
-    // ===== LOAD FROM SUPABASE (PURELY SYNC) =====
+    // ===== LOAD FROM SUPABASE (WITH FALLBACK) =====
     async function loadFromSupabase() {
+      document.getElementById('syncStatus').innerHTML = '⏳ LOADING...';
+      
       try {
-        const { data, error } = await supabaseClient
+        const { data, error } = await supabase
           .from(TABLE_NAME)
           .select('*')
           .eq('id', 1)
-          .maybeSingle();
+          .single();
 
         if (data) {
-          // ✅ Use saved data
           menuData = data.data;
           document.getElementById('syncStatus').innerHTML = '✅ LOADED FROM CLOUD';
         } else {
-          // ✅ No data yet - use default AND save it
-          menuData = JSON.parse(JSON.stringify(DEFAULT_MENU));
-          await supabaseClient.from(TABLE_NAME).upsert({ id: 1, data: menuData });
+          // No data - save default
+          await supabase.from(TABLE_NAME).insert({ id: 1, data: menuData });
           document.getElementById('syncStatus').innerHTML = '✅ DEFAULT SAVED';
         }
-        
-        // ✅ NOW render with the FINAL menuData
-        renderOwnerMenu();
       } catch (error) {
-        console.error('Load error:', error);
-        menuData = JSON.parse(JSON.stringify(DEFAULT_MENU));
-        renderOwnerMenu();
+        document.getElementById('syncStatus').innerHTML = '⚠️ USING LOCAL';
       }
+      
+      renderOwnerMenu();
     }
 
     // ===== SAVE TO SUPABASE =====
     async function saveToSupabase(showAlert = true) {
-      if (!menuData) return;
-      
-      // Update from DOM
-      menuData.hotel.name = document.getElementById('hotelName')?.innerText || menuData.hotel.name;
-      menuData.hotel.location = document.getElementById('hotelLocation')?.innerText || menuData.hotel.location;
-      menuData.hotel.tagline = document.getElementById('hotelTagline')?.innerText || menuData.hotel.tagline;
-      menuData.hotel.hours = document.getElementById('hours')?.innerText || menuData.hotel.hours;
-      menuData.hotel.phone = document.getElementById('phone')?.innerText || menuData.hotel.phone;
-      menuData.hotel.heartNote = document.getElementById('heartNote')?.innerText || menuData.hotel.heartNote;
+      // Update menuData from DOM
+      menuData.hotel.name = document.getElementById('hotelName').innerText;
+      menuData.hotel.location = document.getElementById('hotelLocation').innerText;
+      menuData.hotel.tagline = document.getElementById('hotelTagline').innerText;
+      menuData.hotel.hours = document.getElementById('hours').innerText;
+      menuData.hotel.phone = document.getElementById('phone').innerText;
+      menuData.hotel.heartNote = document.getElementById('heartNote').innerText;
       
       menuData.footer.forEach(f => {
         const el = document.getElementById(f.id);
@@ -202,6 +195,7 @@
       menuData.categories.forEach(cat => {
         const titleEl = document.getElementById(cat.id + 'Title');
         if (titleEl) cat.title = titleEl.innerText;
+        
         cat.items.forEach(item => {
           const nameEl = document.getElementById(item.id);
           if (nameEl) item.name = nameEl.innerText;
@@ -213,11 +207,12 @@
       });
 
       try {
-        const { error } = await supabaseClient
+        const { error } = await supabase
           .from(TABLE_NAME)
           .upsert({ id: 1, data: menuData });
 
         if (error) throw error;
+        
         document.getElementById('syncStatus').innerHTML = '✅ SAVED ' + new Date().toLocaleTimeString();
         if (showAlert) alert('✅ Saved to cloud!');
       } catch (error) {
@@ -225,10 +220,8 @@
       }
     }
 
-    // ===== RENDER FUNCTIONS (YOUR UI CODE) =====
+    // ===== RENDER FUNCTIONS (YOUR UI) =====
     function renderOwnerMenu() {
-      if (!menuData) return;
-      
       const container = document.getElementById('categoriesContainer');
       container.innerHTML = '';
       
@@ -258,6 +251,23 @@
           nameDiv.className = 'item-name';
           nameDiv.innerHTML = `<span contenteditable="true" id="${item.id}">${item.name}</span>`;
           
+          if (item.badge) {
+            const badge = document.createElement('span');
+            badge.style.cssText = 'background:#e7d2c5;border-radius:60px;padding:0.2rem 1rem;margin-left:8px;font-size:0.7rem;';
+            badge.innerHTML = `
+              <span contenteditable="true" id="${item.id}Badge">${item.badge}</span>
+              <button class="delete-btn" style="width:24px;height:24px;" onclick="deleteBadge('${item.id}')">×</button>
+            `;
+            nameDiv.appendChild(badge);
+          } else {
+            const addBtn = document.createElement('button');
+            addBtn.className = 'add-badge-btn';
+            addBtn.style.cssText = 'background:#9f7e6b;color:white;border:none;border-radius:40px;padding:0.2rem 1rem;margin-left:8px;font-size:0.7rem;cursor:pointer;';
+            addBtn.innerHTML = '🏷️ ADD BADGE';
+            addBtn.onclick = (e) => { e.stopPropagation(); addBadgeToItem(item.id); };
+            nameDiv.appendChild(addBtn);
+          }
+          
           const descDiv = document.createElement('div');
           descDiv.className = 'item-desc';
           descDiv.innerHTML = `<span contenteditable="true" id="${item.id}Desc">${item.desc}</span>`;
@@ -286,6 +296,12 @@
           row.appendChild(right);
           card.appendChild(row);
         });
+        
+        const addBtn = document.createElement('button');
+        addBtn.className = 'add-item-btn';
+        addBtn.innerHTML = '➕ ADD NEW ITEM';
+        addBtn.onclick = () => addNewItem(cat.id);
+        card.appendChild(addBtn);
         
         container.appendChild(card);
       });
@@ -318,13 +334,12 @@
       }
     }
 
-    // ===== CRUD =====
+    // ===== CRUD OPERATIONS =====
     window.deleteCategory = function(id) {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       if (confirm('Delete category?')) {
         menuData.categories = menuData.categories.filter(c => c.id !== id);
         renderOwnerMenu();
-        saveToSupabase(false);
       }
     };
     
@@ -334,15 +349,43 @@
       if (cat) {
         cat.items = cat.items.filter(i => i.id !== itemId);
         renderOwnerMenu();
-        saveToSupabase(false);
       }
+    };
+    
+    window.deleteBadge = function(itemId) {
+      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      menuData.categories.forEach(c => c.items.forEach(i => { if (i.id === itemId) i.badge = null; }));
+      renderOwnerMenu();
     };
     
     window.deleteFooterItem = function(id) {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       menuData.footer = menuData.footer.filter(f => f.id !== id);
       renderFooter();
-      saveToSupabase(false);
+    };
+    
+    window.addNewItem = function(catId) {
+      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      const cat = menuData.categories.find(c => c.id === catId);
+      if (cat) {
+        cat.items.push({ 
+          id: catId + '_item' + Date.now(), 
+          name: 'New Item', 
+          desc: 'item description', 
+          price: '199', 
+          badge: null 
+        });
+        renderOwnerMenu();
+      }
+    };
+    
+    window.addBadgeToItem = function(itemId) {
+      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      const text = prompt('Badge text:');
+      if (text && text.trim()) {
+        menuData.categories.forEach(c => c.items.forEach(i => { if (i.id === itemId) i.badge = text.trim(); }));
+        renderOwnerMenu();
+      }
     };
 
     // ===== EVENT LISTENERS =====
@@ -359,31 +402,33 @@
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       const id = 'cat' + Date.now();
       menuData.categories.push({ 
-        id, title: 'New Category', icon: 'utensils', 
-        items: [{ id: id+'_item1', name: 'New Dish', desc: 'description', price: '199', badge: null }] 
+        id, 
+        title: 'New Category', 
+        icon: 'utensils', 
+        items: [{ 
+          id: id + '_item1', 
+          name: 'New Dish', 
+          desc: 'description', 
+          price: '199', 
+          badge: null 
+        }] 
       });
       renderOwnerMenu();
-      saveToSupabase(false);
     });
     
     document.getElementById('addFooterBtn').addEventListener('click', function() {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       menuData.footer.push({ id: 'footer'+Date.now(), text: 'new feature' });
       renderFooter();
-      saveToSupabase(false);
     });
 
     // ===== INIT =====
     window.onload = function() {
-      loadFromSupabase(); // This will set menuData and THEN render
-      setTimeout(() => {
-        const editableElements = document.querySelectorAll('[contenteditable="true"]');
-        editableElements.forEach(el => {
-          el.addEventListener('blur', function() {
-            if (isEditMode) saveToSupabase(false);
-          });
-        });
-      }, 2000);
+      // First show default menu instantly
+      renderOwnerMenu();
+      
+      // Then load from Supabase in background
+      loadFromSupabase();
     };
   </script>
 </body>
