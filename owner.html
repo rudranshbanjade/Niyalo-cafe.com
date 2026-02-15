@@ -51,8 +51,8 @@
         <h1><i class="fas fa-crown" style="color:#c49a6c;"></i> Niyalo · Owner</h1>
       </div>
       <div class="edit-controls">
-        <button id="editModeBtn" class="edit-mode-btn active">🔓 EDIT ON</button>
-        <button id="saveBtn" class="save-btn">💾 SAVE TO CLOUD</button>
+        <button id="editModeBtn" class="edit-mode-btn active" onclick="toggleEditMode()">🔓 EDIT ON</button>
+        <button id="saveBtn" class="save-btn" onclick="saveToCloud()">💾 SAVE TO CLOUD</button>
         <a href="index.html" target="_blank" class="guest-link">👁️ VIEW</a>
       </div>
     </div>
@@ -80,28 +80,10 @@
         </div>
       </div>
 
-      <!-- CATEGORIES CONTAINER -->
-      <div id="categoriesContainer"></div>
-
-      <!-- ADD CATEGORY BUTTON -->
-      <div style="text-align:center;">
-        <button class="add-category-btn" id="addCategoryBtn">➕ ADD NEW CATEGORY</button>
-      </div>
-
-      <!-- FOOTER EDITOR -->
-      <div class="footer-editor">
-        <div style="text-align:center;margin-bottom:1rem;">
-          <span style="background:#ab8c7a;color:white;padding:0.3rem 1.5rem;border-radius:60px;">❤️ FOOTER BADGES</span>
-        </div>
-        <div class="footer-badge-container" id="footerBadgesContainer"></div>
-        <div style="text-align:center;margin-top:0.8rem;">
-          <button class="add-footer-btn" id="addFooterBtn">➕ ADD BADGE</button>
-        </div>
-        <div style="text-align:center;margin-top:1.5rem;">
-          <i class="fas fa-heart" style="color:#c2714b;"></i>
-          <span contenteditable="true" id="heartNote">order at counter · everything made to share</span>
-          <i class="fas fa-heart" style="color:#c2714b;"></i>
-        </div>
+      <!-- SIMPLE MENU DISPLAY -->
+      <div id="menuDisplay" style="background:white; padding:20px; border-radius:20px; margin-bottom:20px;">
+        <h3 style="margin-bottom:15px;">📋 Current Menu</h3>
+        <div id="menuContent"></div>
       </div>
     </div>
 
@@ -118,7 +100,6 @@
     );
 
     let menuData = null;
-    let isEditMode = true;
 
     // ===== LOAD DATA =====
     async function loadData() {
@@ -130,32 +111,57 @@
       
       if (data) {
         menuData = data.data;
-        updateUI();
+        displayMenu();
       }
     }
 
-    // ===== UPDATE UI =====
-    function updateUI() {
+    // ===== DISPLAY MENU =====
+    function displayMenu() {
       if (!menuData) return;
       
+      // Update hotel fields
       document.getElementById('hotelName').innerText = menuData.hotel.name;
       document.getElementById('hotelLocation').innerText = menuData.hotel.location;
       document.getElementById('hotelTagline').innerText = menuData.hotel.tagline;
       document.getElementById('hours').innerText = menuData.hotel.hours;
       document.getElementById('phone').innerText = menuData.hotel.phone;
-      document.getElementById('heartNote').innerText = menuData.hotel.heartNote;
+      
+      // Display menu items
+      let html = '';
+      menuData.categories.forEach(cat => {
+        html += `<h4 style="margin-top:15px;">${cat.title}</h4>`;
+        cat.items.forEach(item => {
+          html += `<div style="display:flex; justify-content:space-between; padding:5px 0;">
+            <span>${item.name} ${item.badge ? `(${item.badge})` : ''}</span>
+            <span>रू${item.price}</span>
+          </div>`;
+        });
+      });
+      document.getElementById('menuContent').innerHTML = html;
     }
 
-    // ===== SAVE DATA =====
-    document.getElementById('saveBtn').onclick = async function() {
+    // ===== TOGGLE EDIT MODE =====
+    window.toggleEditMode = function() {
+      const btn = document.getElementById('editModeBtn');
+      const isActive = btn.classList.contains('active');
+      if (isActive) {
+        btn.innerHTML = '🔒 EDIT OFF';
+        btn.classList.remove('active');
+      } else {
+        btn.innerHTML = '🔓 EDIT ON';
+        btn.classList.add('active');
+      }
+    };
+
+    // ===== SAVE TO CLOUD =====
+    window.saveToCloud = async function() {
       const updatedData = {
         hotel: {
           name: document.getElementById('hotelName').innerText,
           location: document.getElementById('hotelLocation').innerText,
           tagline: document.getElementById('hotelTagline').innerText,
           hours: document.getElementById('hours').innerText,
-          phone: document.getElementById('phone').innerText,
-          heartNote: document.getElementById('heartNote').innerText
+          phone: document.getElementById('phone').innerText
         },
         footer: menuData?.footer || [],
         categories: menuData?.categories || []
@@ -172,13 +178,6 @@
         document.getElementById('syncStatus').innerHTML = '✅ SAVED ' + new Date().toLocaleTimeString();
         alert('✅ Saved to cloud!');
       }
-    };
-
-    // ===== EDIT MODE =====
-    document.getElementById('editModeBtn').onclick = function() {
-      isEditMode = !isEditMode;
-      this.innerHTML = isEditMode ? '🔓 EDIT ON' : '🔒 EDIT OFF';
-      this.classList.toggle('active');
     };
 
     // ===== INIT =====
