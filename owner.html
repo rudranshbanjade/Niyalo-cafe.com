@@ -114,7 +114,8 @@
 
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let menuData = {
+    // Default menu data (only used if NO data exists in Supabase)
+    const DEFAULT_MENU = {
       hotel: {
         name: "Niyalo Cafe",
         location: "Lakeside, Pokhara",
@@ -144,6 +145,7 @@
       ]
     };
 
+    let menuData = JSON.parse(JSON.stringify(DEFAULT_MENU));
     let isEditMode = true;
 
     // ===== LOAD FROM SUPABASE =====
@@ -153,14 +155,19 @@
           .from(TABLE_NAME)
           .select('*')
           .eq('id', 1)
-          .single();
+          .maybeSingle(); // Changed from .single() to .maybeSingle()
 
         if (data) {
           menuData = data.data;
           document.getElementById('syncStatus').innerHTML = '✅ LOADED FROM CLOUD';
+        } else {
+          // No data found, save default to Supabase
+          await saveToSupabase(false);
+          document.getElementById('syncStatus').innerHTML = '✅ DEFAULT SAVED TO CLOUD';
         }
         renderOwnerMenu();
       } catch (error) {
+        console.error('Load error:', error);
         renderOwnerMenu();
       }
     }
@@ -168,16 +175,31 @@
     // ===== SAVE TO SUPABASE =====
     async function saveToSupabase(showAlert = true) {
       // Update menuData from DOM
-      menuData.hotel.name = document.getElementById('hotelName').innerText;
-      menuData.hotel.location = document.getElementById('hotelLocation').innerText;
-      menuData.hotel.tagline = document.getElementById('hotelTagline').innerText;
-      menuData.hotel.hours = document.getElementById('hours').innerText;
-      menuData.hotel.phone = document.getElementById('phone').innerText;
-      menuData.hotel.heartNote = document.getElementById('heartNote').innerText;
+      menuData.hotel.name = document.getElementById('hotelName')?.innerText || menuData.hotel.name;
+      menuData.hotel.location = document.getElementById('hotelLocation')?.innerText || menuData.hotel.location;
+      menuData.hotel.tagline = document.getElementById('hotelTagline')?.innerText || menuData.hotel.tagline;
+      menuData.hotel.hours = document.getElementById('hours')?.innerText || menuData.hotel.hours;
+      menuData.hotel.phone = document.getElementById('phone')?.innerText || menuData.hotel.phone;
+      menuData.hotel.heartNote = document.getElementById('heartNote')?.innerText || menuData.hotel.heartNote;
       
       menuData.footer.forEach(f => {
         const el = document.getElementById(f.id);
         if (el) f.text = el.innerText;
+      });
+
+      // Update categories and items from DOM
+      menuData.categories.forEach(cat => {
+        const titleEl = document.getElementById(cat.id + 'Title');
+        if (titleEl) cat.title = titleEl.innerText;
+        
+        cat.items.forEach(item => {
+          const nameEl = document.getElementById(item.id);
+          if (nameEl) item.name = nameEl.innerText;
+          const descEl = document.getElementById(item.id + 'Desc');
+          if (descEl) item.desc = descEl.innerText;
+          const priceEl = document.getElementById(item.id + 'Price');
+          if (priceEl) item.price = priceEl.innerText;
+        });
       });
 
       try {
@@ -186,8 +208,12 @@
           .upsert({ id: 1, data: menuData });
 
         if (error) throw error;
+        
         document.getElementById('syncStatus').innerHTML = '✅ SAVED ' + new Date().toLocaleTimeString();
         if (showAlert) alert('✅ Saved to cloud!');
+        
+        // Force a reload from Supabase to verify
+        setTimeout(() => loadFromSupabase(), 500);
       } catch (error) {
         alert('❌ Error: ' + error.message);
       }
@@ -290,7 +316,7 @@
       if (confirm('Delete category?')) {
         menuData.categories = menuData.categories.filter(c => c.id !== id);
         renderOwnerMenu();
-        saveToSupabase(false); // 🔥 AUTO-SAVE AFTER DELETE
+        saveToSupabase(false);
       }
     };
     
@@ -300,7 +326,7 @@
       if (cat) {
         cat.items = cat.items.filter(i => i.id !== itemId);
         renderOwnerMenu();
-        saveToSupabase(false); // 🔥 AUTO-SAVE AFTER DELETE
+        saveToSupabase(false);
       }
     };
     
@@ -308,7 +334,7 @@
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       menuData.footer = menuData.footer.filter(f => f.id !== id);
       renderFooter();
-      saveToSupabase(false); // 🔥 AUTO-SAVE AFTER DELETE
+      saveToSupabase(false);
     };
 
     // ===== EVENT LISTENERS =====
@@ -325,18 +351,26 @@
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       const id = 'cat' + Date.now();
       menuData.categories.push({ 
-        id, title: 'New Category', icon: 'utensils', 
-        items: [{ id: id+'_item1', name: 'New Dish', desc: 'description', price: '199', badge: null }] 
+        id, 
+        title: 'New Category', 
+        icon: 'utensils', 
+        items: [{ 
+          id: id + '_item1', 
+          name: 'New Dish', 
+          desc: 'description', 
+          price: '199', 
+          badge: null 
+        }] 
       });
       renderOwnerMenu();
-      saveToSupabase(false); // 🔥 AUTO-SAVE AFTER ADD
+      saveToSupabase(false);
     });
     
     document.getElementById('addFooterBtn').addEventListener('click', function() {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       menuData.footer.push({ id: 'footer'+Date.now(), text: 'new feature' });
       renderFooter();
-      saveToSupabase(false); // 🔥 AUTO-SAVE AFTER ADD
+      saveToSupabase(false);
     });
 
     // ===== AUTO-SAVE ON TEXT EDIT =====
@@ -345,7 +379,7 @@
       editableElements.forEach(el => {
         el.addEventListener('blur', function() {
           if (isEditMode) {
-            saveToSupabase(false); // 🔥 AUTO-SAVE WHEN YOU CLICK AWAY
+            saveToSupabase(false);
           }
         });
       });
@@ -354,7 +388,7 @@
     // ===== INITIALIZE =====
     window.onload = function() {
       loadFromSupabase();
-      setTimeout(setupAutoSave, 1000); // Set up auto-save after menu loads
+      setTimeout(setupAutoSave, 1500);
     };
   </script>
 </body>
