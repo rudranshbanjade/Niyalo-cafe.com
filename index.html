@@ -60,13 +60,12 @@
     // Initialize Supabase (ONCE!)
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    async function loadMenu() {
-      try {
-        const { data, error } = await supabaseClient
-          .from('menu')
-          .select('*')
-          .eq('id', 1)
-          .single();
+    // Use the CORRECT table name
+const { data, error } = await supabaseClient
+  .from('menu') 
+  .select('*')
+  .eq('id', 1)
+  .single();
 
         if (data) {
           const menu = data.data;
@@ -100,6 +99,7 @@
   </script>
 </body>
 </html>
+
 
 
 
