@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* YOUR EXACT STYLES */
+    /* YOUR EXACT UI STYLES - KEEPING THEM THE SAME */
     *{margin:0;padding:0;box-sizing:border-box;}
     body{background:#12100e;font-family:'Plus Jakarta Sans',sans-serif;padding:1.5rem;display:flex;justify-content:center;}
     .owner-container{max-width:1400px;width:100%;}
@@ -22,6 +22,8 @@
     [contenteditable="true"]{outline:none;border-bottom:2px dashed #b18067;background:rgba(255,235,220,0.3);cursor:text;padding:0 4px;}
     .menu-master{background:#fcf7f2;border-radius:48px;padding:1.8rem;}
     .hotel-title{font-family:'Playfair Display',serif;font-size:2.2rem;display:flex;align-items:center;gap:10px;}
+    .hotel-title i{color:#a57159;font-size:2rem;}
+    .contact-bubble{background:#fff1e9;padding:0.7rem 1.5rem;border-radius:60px;display:flex;gap:1.2rem;}
     .category-card{background:white;border-radius:36px;padding:1.5rem;margin-bottom:1.8rem;border:1px solid #efdbd1;}
     .category-header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px dotted #eacbbe;padding-bottom:1rem;margin-bottom:1rem;}
     .category-title{display:flex;align-items:center;gap:10px;}
@@ -112,13 +114,13 @@
   </div>
 
   <script>
-    // CREATE SUPABASE CLIENT - ONLY ONCE!
+    // ===== SUPABASE CONFIG =====
     const supabaseClient = window.supabase.createClient(
       'https://outxrzhbocyvopmivzzf.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dHhyemhib2N5dm9wbWl2enpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNTU1NDgsImV4cCI6MjA4NjYzMTU0OH0.apOAqrdlz3WBo9Aht3xzHc-XBkInHSQVfHu3NRuCxNc'
     );
 
-    // DEFAULT MENU DATA
+    // ===== DEFAULT MENU =====
     const DEFAULT_MENU = {
       hotel: {
         name: "Niyalo Cafe",
@@ -155,11 +157,11 @@
     // ===== LOAD DATA =====
     async function loadData() {
       try {
-        const { data, error } = await supabaseClient
+        const { data } = await supabaseClient
           .from('menus')
           .select('*')
           .eq('id', 1)
-          .maybeSingle();
+          .single();
 
         if (data && data.data) {
           menuData = data.data;
@@ -180,7 +182,7 @@
       document.getElementById('hours').innerText = menuData.hotel.hours;
       document.getElementById('phone').innerText = menuData.hotel.phone;
       document.getElementById('heartNote').innerText = menuData.hotel.heartNote;
-      
+
       renderCategories();
       renderFooter();
     }
@@ -188,58 +190,106 @@
     // ===== RENDER CATEGORIES =====
     function renderCategories() {
       const container = document.getElementById('categoriesContainer');
-      if (!container) return;
-      
       container.innerHTML = '';
-      
+
       menuData.categories.forEach(cat => {
-        let catHtml = `
-          <div class="category-card">
-            <div class="category-header">
-              <div class="category-title">
-                <i class="fas fa-${cat.icon}"></i>
-                <h3><span contenteditable="${isEditMode}" id="${cat.id}Title">${cat.title}</span></h3>
-              </div>
-              <button class="delete-cat-btn" onclick="deleteCategory('${cat.id}')">🗑️ DELETE</button>
-            </div>
+        const card = document.createElement('div');
+        card.className = 'category-card';
+
+        // Category Header
+        const header = document.createElement('div');
+        header.className = 'category-header';
+        header.innerHTML = `
+          <div class="category-title">
+            <i class="fas fa-${cat.icon}"></i>
+            <h3><span contenteditable="true" id="${cat.id}Title">${cat.title}</span></h3>
+          </div>
+          <button class="delete-cat-btn" onclick="deleteCategory('${cat.id}')">🗑️ DELETE</button>
         `;
-        
+        card.appendChild(header);
+
+        // Items
         cat.items.forEach(item => {
-          catHtml += `
-            <div class="menu-row">
-              <div style="flex:1">
-                <div class="item-name">
-                  <span contenteditable="${isEditMode}" id="${item.id}">${item.name}</span>
-                  ${item.badge ? `<span style="background:#e7d2c5;border-radius:60px;padding:0.2rem 1rem;margin-left:8px;font-size:0.7rem;">
-                    <span contenteditable="${isEditMode}" id="${item.id}Badge">${item.badge}</span>
-                  </span>` : ''}
-                </div>
-                <div class="item-desc"><span contenteditable="${isEditMode}" id="${item.id}Desc">${item.desc}</span></div>
-              </div>
-              <span class="price-tag"><span contenteditable="${isEditMode}" id="${item.id}Price">${item.price}</span></span>
-            </div>
-          `;
+          const row = document.createElement('div');
+          row.className = 'menu-row';
+
+          const leftDiv = document.createElement('div');
+          leftDiv.style.flex = '1';
+
+          const nameDiv = document.createElement('div');
+          nameDiv.className = 'item-name';
+          nameDiv.innerHTML = `<span contenteditable="true" id="${item.id}">${item.name}</span>`;
+
+          if (item.badge) {
+            const badgeSpan = document.createElement('span');
+            badgeSpan.style.cssText = 'background:#e7d2c5;border-radius:60px;padding:0.2rem 1rem;margin-left:8px;font-size:0.7rem;';
+            badgeSpan.innerHTML = `
+              <span contenteditable="true" id="${item.id}Badge">${item.badge}</span>
+              <button class="delete-btn" style="width:24px;height:24px;margin-left:6px;" onclick="deleteBadge('${item.id}')">×</button>
+            `;
+            nameDiv.appendChild(badgeSpan);
+          } else {
+            const addBtn = document.createElement('button');
+            addBtn.className = 'add-badge-btn';
+            addBtn.style.cssText = 'background:#9f7e6b;color:white;border:none;border-radius:40px;padding:0.2rem 1rem;margin-left:8px;font-size:0.7rem;cursor:pointer;';
+            addBtn.innerHTML = '🏷️ ADD BADGE';
+            addBtn.onclick = (e) => { e.stopPropagation(); addBadgeToItem(item.id); };
+            nameDiv.appendChild(addBtn);
+          }
+
+          const descDiv = document.createElement('div');
+          descDiv.className = 'item-desc';
+          descDiv.innerHTML = `<span contenteditable="true" id="${item.id}Desc">${item.desc}</span>`;
+
+          leftDiv.appendChild(nameDiv);
+          leftDiv.appendChild(descDiv);
+
+          const rightDiv = document.createElement('div');
+          rightDiv.style.display = 'flex';
+          rightDiv.style.alignItems = 'center';
+          rightDiv.style.gap = '8px';
+
+          const priceSpan = document.createElement('span');
+          priceSpan.className = 'price-tag';
+          priceSpan.innerHTML = `<span contenteditable="true" id="${item.id}Price">${item.price}</span>`;
+
+          const delBtn = document.createElement('button');
+          delBtn.className = 'delete-btn';
+          delBtn.innerHTML = '🗑️';
+          delBtn.onclick = () => deleteMenuItem(cat.id, item.id);
+
+          rightDiv.appendChild(priceSpan);
+          rightDiv.appendChild(delBtn);
+
+          row.appendChild(leftDiv);
+          row.appendChild(rightDiv);
+          card.appendChild(row);
         });
-        
-        catHtml += `<button class="add-item-btn" onclick="addNewItem('${cat.id}')">➕ ADD NEW ITEM</button></div>`;
-        container.innerHTML += catHtml;
+
+        // Add Item button
+        const addItemBtn = document.createElement('button');
+        addItemBtn.className = 'add-item-btn';
+        addItemBtn.innerHTML = '➕ ADD NEW ITEM';
+        addItemBtn.onclick = () => addNewItem(cat.id);
+        card.appendChild(addItemBtn);
+
+        container.appendChild(card);
       });
     }
 
     // ===== RENDER FOOTER =====
     function renderFooter() {
       const container = document.getElementById('footerBadgesContainer');
-      if (!container) return;
-      
       container.innerHTML = '';
       menuData.footer.forEach(f => {
-        container.innerHTML += `
-          <span class="footer-badge">
-            <i class="fas fa-heart" style="color:#a5664a;"></i>
-            <span contenteditable="${isEditMode}" id="${f.id}">${f.text}</span>
-            <button class="delete-btn" style="width:24px;height:24px;" onclick="deleteFooterItem('${f.id}')">×</button>
-          </span>
+        const badge = document.createElement('span');
+        badge.className = 'footer-badge';
+        badge.innerHTML = `
+          <i class="fas fa-heart" style="color:#a5664a;"></i>
+          <span contenteditable="true" id="${f.id}">${f.text}</span>
+          <button class="delete-btn" style="width:24px;height:24px;" onclick="deleteFooterItem('${f.id}')">×</button>
         `;
+        container.appendChild(badge);
       });
     }
 
@@ -251,47 +301,113 @@
         renderCategories();
       }
     };
-    
+
+    window.deleteMenuItem = function(catId, itemId) {
+      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      const cat = menuData.categories.find(c => c.id === catId);
+      if (cat) {
+        cat.items = cat.items.filter(i => i.id !== itemId);
+        renderCategories();
+      }
+    };
+
+    window.deleteBadge = function(itemId) {
+      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      menuData.categories.forEach(c => c.items.forEach(i => { if (i.id === itemId) i.badge = null; }));
+      renderCategories();
+    };
+
     window.deleteFooterItem = function(id) {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       menuData.footer = menuData.footer.filter(f => f.id !== id);
       renderFooter();
     };
 
+    // ===== ADD FUNCTIONS =====
+    window.addNewCategory = function() {
+      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      const id = 'cat' + Date.now();
+      menuData.categories.push({
+        id,
+        title: 'New Category',
+        icon: 'utensils',
+        items: []
+      });
+      renderCategories();
+    };
+
     window.addNewItem = function(catId) {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       const cat = menuData.categories.find(c => c.id === catId);
       if (cat) {
-        cat.items.push({ 
-          id: catId + '_item' + Date.now(), 
-          name: 'New Item', 
-          desc: 'item description', 
-          price: '199', 
-          badge: null 
+        cat.items.push({
+          id: catId + '_item' + Date.now(),
+          name: 'New Item',
+          desc: 'item description',
+          price: '199',
+          badge: null
         });
         renderCategories();
       }
     };
 
-    // ===== SAVE TO SUPABASE =====
+    window.addBadgeToItem = function(itemId) {
+      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      const text = prompt('Badge text:');
+      if (text && text.trim()) {
+        menuData.categories.forEach(c => c.items.forEach(i => { if (i.id === itemId) i.badge = text.trim(); }));
+        renderCategories();
+      }
+    };
+
+    // ===== SAVE TO SUPABASE (FIXED TO SAVE EVERYTHING) =====
     window.saveToSupabase = async function() {
-      // Update data from DOM
+      document.getElementById('syncStatus').innerHTML = '⏳ SAVING...';
+
+      // Update hotel data from DOM
       menuData.hotel.name = document.getElementById('hotelName').innerText;
       menuData.hotel.location = document.getElementById('hotelLocation').innerText;
       menuData.hotel.tagline = document.getElementById('hotelTagline').innerText;
       menuData.hotel.hours = document.getElementById('hours').innerText;
       menuData.hotel.phone = document.getElementById('phone').innerText;
       menuData.hotel.heartNote = document.getElementById('heartNote').innerText;
-      
+
+      // Update footer from DOM
+      menuData.footer.forEach(f => {
+        const el = document.getElementById(f.id);
+        if (el) f.text = el.innerText;
+      });
+
+      // Update categories and items from DOM
+      menuData.categories.forEach(cat => {
+        const titleEl = document.getElementById(cat.id + 'Title');
+        if (titleEl) cat.title = titleEl.innerText;
+
+        cat.items.forEach(item => {
+          const nameEl = document.getElementById(item.id);
+          if (nameEl) item.name = nameEl.innerText;
+
+          const descEl = document.getElementById(item.id + 'Desc');
+          if (descEl) item.desc = descEl.innerText;
+
+          const priceEl = document.getElementById(item.id + 'Price');
+          if (priceEl) item.price = priceEl.innerText;
+
+          const badgeEl = document.getElementById(item.id + 'Badge');
+          if (badgeEl) item.badge = badgeEl.innerText;
+        });
+      });
+
       const { error } = await supabaseClient
         .from('menus')
         .upsert({ id: 1, data: menuData });
-      
+
       if (error) {
-        alert('❌ Error: ' + error.message);
+        document.getElementById('syncStatus').innerHTML = '❌ ERROR';
+        alert('Error: ' + error.message);
       } else {
         document.getElementById('syncStatus').innerHTML = '✅ SAVED ' + new Date().toLocaleTimeString();
-        alert('✅ Saved to cloud!');
+        alert('✅ All changes saved to cloud!');
       }
     };
 
@@ -300,23 +416,15 @@
       isEditMode = !isEditMode;
       this.innerHTML = isEditMode ? '🔓 EDIT ON' : '🔒 EDIT OFF';
       this.classList.toggle('active');
-      renderAll();
     });
 
     document.getElementById('saveBtn').addEventListener('click', saveToSupabase);
-    
+
     document.getElementById('addCategoryBtn').addEventListener('click', function() {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
-      const id = 'cat' + Date.now();
-      menuData.categories.push({ 
-        id, 
-        title: 'New Category', 
-        icon: 'utensils', 
-        items: [] 
-      });
-      renderCategories();
+      addNewCategory();
     });
-    
+
     document.getElementById('addFooterBtn').addEventListener('click', function() {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       menuData.footer.push({ id: 'footer'+Date.now(), text: 'new feature' });
