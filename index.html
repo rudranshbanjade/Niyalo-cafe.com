@@ -2,132 +2,679 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Niyalo Cafe · Digital Menu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Niyalo · Order Online</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* YOUR EXACT GUEST STYLES */
-    *{margin:0;padding:0;box-sizing:border-box;}
-    body{background:#fcf3ec;font-family:'Plus Jakarta Sans',sans-serif;padding:1rem;display:flex;justify-content:center;}
-    .container{max-width:1300px;width:100%;}
-    .header{background:#dac1b3;border-radius:40px 40px 20px 20px;padding:0.8rem 1.2rem;margin-bottom:1.2rem;display:flex;justify-content:space-between;align-items:center;border-bottom:4px solid #b18067;}
-    .qr-badge{background:#765b4e;color:white;padding:0.4rem 1.2rem;border-radius:40px;}
-    .live-badge{background:#2d5a4b;color:white;padding:0.4rem 1.2rem;border-radius:40px;display:flex;align-items:center;gap:6px;}
-    .menu-card{background:white;border-radius:36px;padding:1.5rem;}
-    .hotel-section{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;margin-bottom:1.5rem;border-bottom:2px dashed #dbb9a8;padding-bottom:1.2rem;}
-    .hotel-name{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:#35271f;display:flex;align-items:center;gap:8px;}
-    .hotel-name i{color:#b18067;}
-    .hotel-tagline{display:flex;align-items:center;gap:8px;color:#6b5548;font-size:0.85rem;margin-top:4px;}
-    .contact-info{background:#fff9f2;padding:0.6rem 1.2rem;border-radius:50px;display:flex;flex-wrap:wrap;gap:1rem;}
-    .category{background:#fffcf7;border-radius:28px;padding:1.2rem;margin-bottom:1.2rem;border:1px solid #f0ddd2;}
-    .category-title{display:flex;align-items:center;gap:8px;border-bottom:2px dotted #eacec2;padding-bottom:0.8rem;margin-bottom:0.8rem;}
-    .category-title i{font-size:1.6rem;color:#aa7862;}
-    .category-title h2{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:600;color:#3d2c24;}
-    .item{display:flex;justify-content:space-between;align-items:baseline;padding:0.6rem 0;border-bottom:1px dashed #efd9cf;}
-    .item-name{font-weight:700;font-size:1rem;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
-    .item-desc{font-size:0.75rem;color:#6b5246;}
-    .price{font-weight:800;font-size:1.1rem;background:#ffefe7;padding:0.15rem 1rem;border-radius:40px;color:#5c3d33;}
-    .price:before{content:"रू";margin-right:3px;}
-    .badge{background:#e7d2c5;border-radius:40px;padding:0.15rem 0.8rem;font-size:0.55rem;font-weight:700;color:#4d352c;}
-    .footer{background:#fdf3ed;border-radius:40px;padding:1.2rem;margin-top:1.5rem;text-align:center;}
-    .footer-badges{display:flex;flex-wrap:wrap;justify-content:center;gap:0.7rem;margin-bottom:0.8rem;}
-    .footer-badge{background:#e7d2c5;border-radius:40px;padding:0.25rem 1rem;display:inline-flex;align-items:center;gap:6px;font-size:0.75rem;}
-    .pulse{width:8px;height:8px;background:#b3f0d0;border-radius:50%;animation:pulse 1.5s infinite;}
-    @keyframes pulse{0%{opacity:0.6}100%{opacity:1;transform:scale(1.2);}}
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #fcf3ec;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      padding: 1rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      max-width: 1300px;
+      width: 100%;
+    }
+
+    /* Header */
+    .header {
+      background: #dac1b3;
+      border-radius: 40px 40px 20px 20px;
+      padding: 0.8rem 1.2rem;
+      margin-bottom: 1.2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 4px solid #b18067;
+    }
+
+    .qr-badge {
+      background: #765b4e;
+      color: white;
+      padding: 0.4rem 1.2rem;
+      border-radius: 40px;
+      font-weight: 700;
+      font-size: 0.8rem;
+    }
+
+    .live-badge {
+      background: #2d5a4b;
+      color: white;
+      padding: 0.4rem 1.2rem;
+      border-radius: 40px;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pulse {
+      width: 8px;
+      height: 8px;
+      background: #b3f0d0;
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.6; transform: scale(1); }
+      100% { opacity: 1; transform: scale(1.2); }
+    }
+
+    /* Store Status */
+    .store-status {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: white;
+      border-radius: 60px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .status-badge {
+      padding: 0.6rem 1.5rem;
+      border-radius: 60px;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .status-open {
+      background: #27ae60;
+      color: white;
+    }
+
+    .status-closed {
+      background: #c0392b;
+      color: white;
+    }
+
+    .status-paused {
+      background: #f39c12;
+      color: white;
+    }
+
+    /* Menu Card */
+    .menu-card {
+      background: white;
+      border-radius: 36px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .hotel-info {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      border-bottom: 2px dashed #dbb9a8;
+      padding-bottom: 1.2rem;
+    }
+
+    .hotel-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #35271f;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hotel-name i {
+      color: #b18067;
+    }
+
+    .contact-info {
+      background: #fff9f2;
+      padding: 0.6rem 1.2rem;
+      border-radius: 50px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    /* Categories */
+    .category {
+      background: #fffcf7;
+      border-radius: 28px;
+      padding: 1.2rem;
+      margin-bottom: 1.2rem;
+      border: 1px solid #f0ddd2;
+    }
+
+    .category-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 2px dotted #eacec2;
+      padding-bottom: 0.8rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .category-title i {
+      font-size: 1.6rem;
+      color: #aa7862;
+    }
+
+    .category-title h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #3d2c24;
+    }
+
+    /* Menu Items */
+    .item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.8rem 0;
+      border-bottom: 1px dashed #efd9cf;
+    }
+
+    .item-info {
+      flex: 1;
+    }
+
+    .item-name {
+      font-weight: 700;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .item-desc {
+      font-size: 0.8rem;
+      color: #6b5246;
+      margin-top: 2px;
+    }
+
+    .price {
+      font-weight: 800;
+      font-size: 1.2rem;
+      background: #ffefe7;
+      padding: 0.2rem 1.2rem;
+      border-radius: 60px;
+      color: #5c3d33;
+      white-space: nowrap;
+      margin: 0 1rem;
+    }
+
+    .price:before {
+      content: "रू";
+      margin-right: 3px;
+    }
+
+    .badge {
+      background: #e7d2c5;
+      border-radius: 60px;
+      padding: 0.2rem 1rem;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .out-of-stock-badge {
+      background: #7f8c8d;
+      color: white;
+      border-radius: 60px;
+      padding: 0.2rem 1rem;
+      font-size: 0.65rem;
+      font-weight: 700;
+    }
+
+    .add-to-cart {
+      background: #2c5f4b;
+      color: white;
+      border: none;
+      border-radius: 60px;
+      padding: 0.5rem 1.5rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .add-to-cart:hover {
+      background: #1e4a3a;
+      transform: scale(1.02);
+    }
+
+    .add-to-cart:disabled {
+      background: #95a5a6;
+      cursor: not-allowed;
+    }
+
+    /* Cart Section */
+    .cart-section {
+      background: #fff1e9;
+      border-radius: 36px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.8rem 0;
+      border-bottom: 1px dashed #dbb9a8;
+    }
+
+    .cart-item-name {
+      font-weight: 600;
+    }
+
+    .cart-item-price {
+      font-weight: 700;
+      color: #5c3d33;
+    }
+
+    .cart-quantity {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .quantity-btn {
+      background: #b18067;
+      color: white;
+      border: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .cart-total {
+      font-size: 1.4rem;
+      font-weight: 800;
+      text-align: right;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 2px solid #b18067;
+    }
+
+    /* Checkout Form */
+    .checkout-form {
+      margin-top: 1.5rem;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 1rem;
+      margin: 0.5rem 0;
+      border: 2px solid #e0cbba;
+      border-radius: 60px;
+      font-size: 1rem;
+    }
+
+    .whatsapp-btn {
+      background: #25D366;
+      color: white;
+      border: none;
+      border-radius: 60px;
+      padding: 1.2rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+      width: 100%;
+      cursor: pointer;
+      margin: 1rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .whatsapp-btn:hover {
+      background: #128C7E;
+    }
+
+    .whatsapp-btn:disabled {
+      background: #95a5a6;
+      cursor: not-allowed;
+    }
+
+    /* Payment QR */
+    .payment-qr {
+      text-align: center;
+      margin: 1.5rem 0;
+      padding: 1.5rem;
+      background: white;
+      border-radius: 36px;
+    }
+
+    .payment-qr img {
+      max-width: 200px;
+      border-radius: 20px;
+      margin-top: 1rem;
+    }
+
+    /* Footer */
+    .footer-note {
+      text-align: center;
+      margin-top: 2rem;
+      color: #8b6f63;
+      font-size: 0.8rem;
+    }
   </style>
 </head>
 <body>
   <div class="container">
+    <!-- Header -->
     <div class="header">
-      <span class="qr-badge"><i class="fas fa-qrcode"></i> NIYALO CAFE</span>
-      <span class="live-badge"><span class="pulse"></span> LIVE</span>
+      <span class="qr-badge"><i class="fas fa-qrcode"></i> NIYALO</span>
+      <span class="live-badge"><span class="pulse"></span> ORDER ONLINE</span>
     </div>
-    
-    <div class="menu-card" id="menuContent">
-      <div style="text-align:center;padding:2rem;">
-        <i class="fas fa-spinner fa-spin"></i>
-        <p>Loading menu...</p>
+
+    <!-- Store Status -->
+    <div class="store-status" id="storeStatus"></div>
+
+    <!-- Menu Card -->
+    <div class="menu-card">
+      <div id="hotelInfo"></div>
+      <div id="categoriesContainer"></div>
+    </div>
+
+    <!-- Cart Section -->
+    <div class="cart-section" id="cartSection" style="display: none;">
+      <h3 style="margin-bottom: 1rem;">🛒 Your Cart</h3>
+      <div id="cartItems"></div>
+      <div class="cart-total" id="cartTotal">Total: रू0</div>
+      
+      <div class="checkout-form">
+        <input type="text" id="customerName" class="form-input" placeholder="Your Full Name *" required>
+        <input type="tel" id="customerPhone" class="form-input" placeholder="Phone Number *" required>
+        <input type="time" id="pickupTime" class="form-input" value="18:00" required>
+        
+        <button id="whatsappBtn" class="whatsapp-btn">
+          <i class="fab fa-whatsapp"></i> SEND ORDER TO WHATSAPP
+        </button>
       </div>
+    </div>
+
+    <!-- Payment QR -->
+    <div class="payment-qr" id="paymentQrContainer" style="display: none;">
+      <p>💳 Scan to pay online</p>
+      <img id="paymentQrImage" src="" alt="Payment QR Code">
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-note">
+      <i class="fas fa-leaf"></i> fresh · local · handmade · नियालो
     </div>
   </div>
 
   <script>
-    // CREATE SUPABASE CLIENT - ONLY ONCE!
+    // ===== SUPABASE CONFIG =====
     const supabaseClient = window.supabase.createClient(
       'https://outxrzhbocyvopmivzzf.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dHhyemhib2N5dm9wbWl2enpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNTU1NDgsImV4cCI6MjA4NjYzMTU0OH0.apOAqrdlz3WBo9Aht3xzHc-XBkInHSQVfHu3NRuCxNc'
     );
 
-    async function loadMenu() {
+    // ===== STATE =====
+    let menuData = null;
+    let storeSettings = {
+      isOpen: true,
+      ordersPaused: false,
+      paymentQrUrl: null,
+      ownerPhone: "977981234567" // Default owner WhatsApp number
+    };
+    let cart = [];
+
+    // ===== LOAD ALL DATA =====
+    async function loadAllData() {
       try {
-        const { data, error } = await supabaseClient
+        // Load menu
+        const { data: menuData_ } = await supabaseClient
           .from('menus')
           .select('*')
           .eq('id', 1)
           .single();
-
-        if (error) {
-          console.log('Error loading menu:', error);
-          document.getElementById('menuContent').innerHTML = '<p>Error loading menu. Please try again.</p>';
-          return;
+        
+        if (menuData_?.data) {
+          menuData = menuData_.data;
         }
 
-        if (data && data.data) {
-          const menu = data.data;
-          let html = `
-            <div class="hotel-section">
-              <div>
-                <div class="hotel-name">
-                  <i class="fas fa-leaf"></i> <span>${menu.hotel.name}</span> <i class="fas fa-mug-hot"></i>
-                </div>
-                <div class="hotel-tagline">
-                  <i class="fas fa-map-pin"></i> ${menu.hotel.location}
-                  <span style="margin:0 4px;">•</span>
-                  <i class="fas fa-seedling"></i> ${menu.hotel.tagline}
-                </div>
-              </div>
-              <div class="contact-info">
-                <div><i class="fas fa-clock"></i> ${menu.hotel.hours}</div>
-                <div><i class="fas fa-phone-alt"></i> ${menu.hotel.phone}</div>
-              </div>
-            </div>
-          `;
-          
-          if (menu.categories && menu.categories.length > 0) {
-            menu.categories.forEach(cat => {
-              html += `<div class="category"><div class="category-title"><i class="fas fa-${cat.icon}"></i><h2>${cat.title}</h2></div>`;
-              if (cat.items && cat.items.length > 0) {
-                cat.items.forEach(item => {
-                  html += `<div class="item"><div><div class="item-name">${item.name}${item.badge ? `<span class="badge">${item.badge}</span>` : ''}</div><div class="item-desc">${item.desc}</div></div><span class="price">${item.price}</span></div>`;
-                });
-              }
-              html += `</div>`;
-            });
-          }
-          
-          if (menu.footer && menu.footer.length > 0) {
-            html += `<div class="footer"><div class="footer-badges">`;
-            menu.footer.forEach(f => {
-              html += `<span class="footer-badge"><i class="fas fa-heart"></i> ${f.text}</span>`;
-            });
-            html += `</div><div><i class="fas fa-heart" style="color:#c2714b;"></i> ${menu.hotel.heartNote} <i class="fas fa-heart" style="color:#c2714b;"></i></div></div>`;
-          }
-          
-          document.getElementById('menuContent').innerHTML = html;
-        } else {
-          document.getElementById('menuContent').innerHTML = '<p>No menu data found.</p>';
+        // Load settings
+        const { data: settingsData } = await supabaseClient
+          .from('settings')
+          .select('*')
+          .eq('id', 1)
+          .single();
+        
+        if (settingsData?.data) {
+          storeSettings = { ...storeSettings, ...settingsData.data };
         }
-      } catch (err) {
-        console.error('Error:', err);
-        document.getElementById('menuContent').innerHTML = '<p>Error loading menu. Please try again.</p>';
+
+        renderAll();
+      } catch (error) {
+        console.log('Error loading data:', error);
       }
     }
 
-    // Load immediately and refresh every 2 seconds
-    loadMenu();
-    setInterval(loadMenu, 2000);
+    // ===== RENDER ALL =====
+    function renderAll() {
+      renderStoreStatus();
+      renderHotelInfo();
+      renderMenu();
+      renderPaymentQr();
+    }
+
+    // ===== RENDER STORE STATUS =====
+    function renderStoreStatus() {
+      const statusDiv = document.getElementById('storeStatus');
+      let statusHtml = '';
+      
+      if (!storeSettings.isOpen) {
+        statusHtml = '<span class="status-badge status-closed">🔴 STORE CLOSED</span>';
+      } else if (storeSettings.ordersPaused) {
+        statusHtml = '<span class="status-badge status-paused">🟡 ORDERS PAUSED</span>';
+      } else {
+        statusHtml = '<span class="status-badge status-open">🟢 OPEN FOR ORDERS</span>';
+      }
+      
+      statusDiv.innerHTML = statusHtml;
+    }
+
+    // ===== RENDER HOTEL INFO =====
+    function renderHotelInfo() {
+      if (!menuData) return;
+      
+      const html = `
+        <div class="hotel-info">
+          <div>
+            <div class="hotel-name">
+              <i class="fas fa-leaf"></i>
+              <span>${menuData.hotel?.name || 'Niyalo Cafe'}</span>
+              <i class="fas fa-mug-hot"></i>
+            </div>
+          </div>
+          <div class="contact-info">
+            <div><i class="fas fa-clock"></i> ${menuData.hotel?.hours || '7:00–22:00'}</div>
+            <div><i class="fas fa-phone-alt"></i> ${menuData.hotel?.phone || '+977 981-234567'}</div>
+          </div>
+        </div>
+      `;
+      document.getElementById('hotelInfo').innerHTML = html;
+    }
+
+    // ===== RENDER MENU =====
+    function renderMenu() {
+      if (!menuData?.categories) return;
+      
+      const container = document.getElementById('categoriesContainer');
+      container.innerHTML = '';
+      
+      menuData.categories.forEach(cat => {
+        let catHtml = `
+          <div class="category">
+            <div class="category-title">
+              <i class="fas fa-${cat.icon}"></i>
+              <h2>${cat.title}</h2>
+            </div>
+        `;
+        
+        cat.items.forEach(item => {
+          const isOutOfStock = item.outOfStock || false;
+          const canOrder = storeSettings.isOpen && !storeSettings.ordersPaused && !isOutOfStock;
+          
+          catHtml += `
+            <div class="item">
+              <div class="item-info">
+                <div class="item-name">
+                  ${item.name}
+                  ${item.badge ? `<span class="badge">${item.badge}</span>` : ''}
+                  ${isOutOfStock ? '<span class="out-of-stock-badge">Out of Stock</span>' : ''}
+                </div>
+                <div class="item-desc">${item.desc}</div>
+              </div>
+              <span class="price">${item.price}</span>
+              ${canOrder ? 
+                `<button class="add-to-cart" onclick="addToCart('${item.id}', '${item.name}', ${item.price})">Add</button>` : 
+                `<button class="add-to-cart" disabled>${!storeSettings.isOpen ? 'Closed' : storeSettings.ordersPaused ? 'Paused' : 'Sold Out'}</button>`
+              }
+            </div>
+          `;
+        });
+        
+        catHtml += `</div>`;
+        container.innerHTML += catHtml;
+      });
+    }
+
+    // ===== RENDER PAYMENT QR =====
+    function renderPaymentQr() {
+      const container = document.getElementById('paymentQrContainer');
+      const img = document.getElementById('paymentQrImage');
+      
+      if (storeSettings.paymentQrUrl) {
+        img.src = storeSettings.paymentQrUrl;
+        container.style.display = 'block';
+      } else {
+        container.style.display = 'none';
+      }
+    }
+
+    // ===== CART FUNCTIONS =====
+    window.addToCart = function(id, name, price) {
+      const existingItem = cart.find(item => item.id === id);
+      if (existingItem) {
+        existingItem.quantity++;
+      } else {
+        cart.push({ id, name, price, quantity: 1 });
+      }
+      renderCart();
+    };
+
+    window.updateQuantity = function(id, change) {
+      const item = cart.find(item => item.id === id);
+      if (item) {
+        item.quantity += change;
+        if (item.quantity <= 0) {
+          cart = cart.filter(i => i.id !== id);
+        }
+      }
+      renderCart();
+    };
+
+    function renderCart() {
+      const cartSection = document.getElementById('cartSection');
+      const cartItemsDiv = document.getElementById('cartItems');
+      const cartTotalDiv = document.getElementById('cartTotal');
+      
+      if (cart.length === 0) {
+        cartSection.style.display = 'none';
+        return;
+      }
+      
+      cartSection.style.display = 'block';
+      
+      let itemsHtml = '';
+      let total = 0;
+      
+      cart.forEach(item => {
+        total += item.price * item.quantity;
+        itemsHtml += `
+          <div class="cart-item">
+            <div>
+              <span class="cart-item-name">${item.name}</span>
+              <span class="cart-item-price"> रू${item.price}</span>
+            </div>
+            <div class="cart-quantity">
+              <button class="quantity-btn" onclick="updateQuantity('${item.id}', -1)">-</button>
+              <span>${item.quantity}</span>
+              <button class="quantity-btn" onclick="updateQuantity('${item.id}', 1)">+</button>
+            </div>
+          </div>
+        `;
+      });
+      
+      cartItemsDiv.innerHTML = itemsHtml;
+      cartTotalDiv.innerHTML = `Total: रू${total}`;
+    }
+
+    // ===== WHATSAPP ORDER =====
+    document.getElementById('whatsappBtn').addEventListener('click', function() {
+      const name = document.getElementById('customerName').value.trim();
+      const phone = document.getElementById('customerPhone').value.trim();
+      const time = document.getElementById('pickupTime').value;
+      
+      if (!name || !phone || !time) {
+        alert('Please fill all fields');
+        return;
+      }
+      
+      if (cart.length === 0) {
+        alert('Your cart is empty');
+        return;
+      }
+      
+      // Generate order number
+      const orderNumber = Math.floor(Math.random() * 1000);
+      
+      // Build order message
+      let message = `🆕 *Order #${orderNumber}*\n\n`;
+      
+      cart.forEach(item => {
+        message += `${item.quantity}x ${item.name} - रू${item.price * item.quantity}\n`;
+      });
+      
+      const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      message += `\n*Total*: रू${total}`;
+      message += `\n*Pickup Time*: ${time}`;
+      message += `\n*Name*: ${name}`;
+      message += `\n*Phone*: ${phone}`;
+      
+      // Open WhatsApp
+      const whatsappUrl = `https://wa.me/${storeSettings.ownerPhone}?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+      
+      // Clear cart after order
+      cart = [];
+      renderCart();
+    });
+
+    // ===== INIT =====
+    loadAllData();
+    setInterval(loadAllData, 5000); // Refresh every 5 seconds
   </script>
 </body>
 </html>
