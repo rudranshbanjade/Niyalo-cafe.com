@@ -82,6 +82,7 @@
       border-radius: 60px;
       align-items: center;
       justify-content: center;
+      flex-wrap: wrap;
     }
 
     .status-badge {
@@ -104,6 +105,11 @@
     .status-paused {
       background: #f39c12;
       color: white;
+    }
+
+    .status-message {
+      font-size: 0.9rem;
+      color: #666;
     }
 
     /* Menu Card */
@@ -324,6 +330,50 @@
       border: 2px solid #e0cbba;
       border-radius: 60px;
       font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #b18067;
+    }
+
+    .phone-input-container {
+      position: relative;
+      margin: 0.5rem 0;
+    }
+
+    .phone-error {
+      color: #c0392b;
+      font-size: 0.75rem;
+      margin-top: 0.3rem;
+      padding: 0.5rem;
+      background: #fdeaea;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .phone-error i {
+      font-size: 0.8rem;
+    }
+
+    .preparation-note {
+      background: #fff3e0;
+      border-radius: 20px;
+      padding: 0.8rem;
+      margin: 1rem 0;
+      font-size: 0.85rem;
+      color: #b18067;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-left: 4px solid #b18067;
+    }
+
+    .preparation-note i {
+      font-size: 1rem;
     }
 
     .whatsapp-btn {
@@ -341,6 +391,7 @@
       align-items: center;
       justify-content: center;
       gap: 1rem;
+      transition: background 0.3s;
     }
 
     .whatsapp-btn:hover {
@@ -374,6 +425,31 @@
       color: #8b6f63;
       font-size: 0.8rem;
     }
+
+    /* Paused Message */
+    .paused-message {
+      background: #fef9e7;
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+      text-align: center;
+      border: 2px solid #f39c12;
+    }
+
+    .paused-message i {
+      font-size: 2rem;
+      color: #f39c12;
+      margin-bottom: 0.5rem;
+    }
+
+    .paused-message h3 {
+      color: #f39c12;
+      margin-bottom: 0.5rem;
+    }
+
+    .paused-message p {
+      color: #666;
+    }
   </style>
 </head>
 <body>
@@ -387,6 +463,9 @@
     <!-- Store Status -->
     <div class="store-status" id="storeStatus"></div>
 
+    <!-- Paused Message (shown when orders paused) -->
+    <div id="pausedMessageContainer"></div>
+
     <!-- Menu Card -->
     <div class="menu-card">
       <div id="hotelInfo"></div>
@@ -395,30 +474,40 @@
 
     <!-- Cart Section -->
     <div class="cart-section" id="cartSection" style="display: none;">
-      <h3 style="margin-bottom: 1rem;">🛒 Your Cart</h3>
+      <h3 style="margin-bottom: 1rem;">🛒 तपाईंको कार्ट (Your Cart)</h3>
       <div id="cartItems"></div>
-      <div class="cart-total" id="cartTotal">Total: रू0</div>
+      <div class="cart-total" id="cartTotal">जम्मा (Total): रू0</div>
+      
+      <!-- Preparation Note -->
+      <div class="preparation-note">
+        <i class="fas fa-clock"></i>
+        <span>✅ पुष्टि पछि मात्र तयारी सुरु हुन्छ | Preparation begins after confirmation</span>
+      </div>
       
       <div class="checkout-form">
-        <input type="text" id="customerName" class="form-input" placeholder="Your Full Name *" required>
-        <input type="tel" id="customerPhone" class="form-input" placeholder="Phone Number *" required>
+        <input type="text" id="customerName" class="form-input" placeholder="तपाईंको नाम (Your Name) *" required>
+        
+        <div class="phone-input-container">
+          <input type="tel" id="customerPhone" class="form-input" placeholder="फोन नम्बर (Phone) *" required>
+        </div>
+        
         <input type="time" id="pickupTime" class="form-input" value="18:00" required>
         
-        <button id="whatsappBtn" class="whatsapp-btn">
-          <i class="fab fa-whatsapp"></i> SEND ORDER TO WHATSAPP
+        <button id="whatsappBtn" class="whatsapp-btn" disabled>
+          <i class="fab fa-whatsapp"></i> अर्डर पठाउनुहोस् (SEND ORDER)
         </button>
       </div>
     </div>
 
     <!-- Payment QR -->
     <div class="payment-qr" id="paymentQrContainer" style="display: none;">
-      <p>💳 Scan to pay online</p>
+      <p>💳 स्क्यान गरेर भुक्तानी गर्नुहोस् (Scan to pay online)</p>
       <img id="paymentQrImage" src="" alt="Payment QR Code">
     </div>
 
     <!-- Footer -->
     <div class="footer-note">
-      <i class="fas fa-leaf"></i> fresh · local · handmade · नियालो
+      <i class="fas fa-leaf"></i> ताजा · स्थानीय · हातले बनेको · नियालो
     </div>
   </div>
 
@@ -435,7 +524,7 @@
       isOpen: true,
       ordersPaused: false,
       paymentQrUrl: null,
-      ownerPhone: "977981234567" // Default owner WhatsApp number
+      ownerPhone: "977981234567"
     };
     let cart = [];
 
@@ -473,9 +562,11 @@
     // ===== RENDER ALL =====
     function renderAll() {
       renderStoreStatus();
+      renderPausedMessage();
       renderHotelInfo();
       renderMenu();
       renderPaymentQr();
+      updateWhatsAppButton();
     }
 
     // ===== RENDER STORE STATUS =====
@@ -484,14 +575,32 @@
       let statusHtml = '';
       
       if (!storeSettings.isOpen) {
-        statusHtml = '<span class="status-badge status-closed">🔴 STORE CLOSED</span>';
+        statusHtml = '<span class="status-badge status-closed">🔴 पसल बन्द छ (STORE CLOSED)</span>';
       } else if (storeSettings.ordersPaused) {
-        statusHtml = '<span class="status-badge status-paused">🟡 ORDERS PAUSED</span>';
+        statusHtml = '<span class="status-badge status-paused">🟡 अर्डर रोकिएको छ (ORDERS PAUSED)</span>';
       } else {
-        statusHtml = '<span class="status-badge status-open">🟢 OPEN FOR ORDERS</span>';
+        statusHtml = '<span class="status-badge status-open">🟢 अर्डर खुला छ (OPEN FOR ORDERS)</span>';
       }
       
       statusDiv.innerHTML = statusHtml;
+    }
+
+    // ===== RENDER PAUSED MESSAGE =====
+    function renderPausedMessage() {
+      const container = document.getElementById('pausedMessageContainer');
+      
+      if (storeSettings.ordersPaused) {
+        container.innerHTML = `
+          <div class="paused-message">
+            <i class="fas fa-pause-circle"></i>
+            <h3>⏸️ अर्डर रोकिएको छ</h3>
+            <p>कृपया २० मिनेट पछि पुन: प्रयास गर्नुहोस्।</p>
+            <p style="font-size:0.8rem; margin-top:0.5rem;">Orders temporarily paused. Try again in 20 min.</p>
+          </div>
+        `;
+      } else {
+        container.innerHTML = '';
+      }
     }
 
     // ===== RENDER HOTEL INFO =====
@@ -542,14 +651,14 @@
                 <div class="item-name">
                   ${item.name}
                   ${item.badge ? `<span class="badge">${item.badge}</span>` : ''}
-                  ${isOutOfStock ? '<span class="out-of-stock-badge">Out of Stock</span>' : ''}
+                  ${isOutOfStock ? '<span class="out-of-stock-badge">सकियो (Out of Stock)</span>' : ''}
                 </div>
                 <div class="item-desc">${item.desc}</div>
               </div>
               <span class="price">${item.price}</span>
               ${canOrder ? 
-                `<button class="add-to-cart" onclick="addToCart('${item.id}', '${item.name}', ${item.price})">Add</button>` : 
-                `<button class="add-to-cart" disabled>${!storeSettings.isOpen ? 'Closed' : storeSettings.ordersPaused ? 'Paused' : 'Sold Out'}</button>`
+                `<button class="add-to-cart" onclick="addToCart('${item.id}', '${item.name}', ${item.price})">थप्नुहोस् (Add)</button>` : 
+                `<button class="add-to-cart" disabled>${!storeSettings.isOpen ? 'बन्द छ (Closed)' : storeSettings.ordersPaused ? 'रोकियो (Paused)' : 'सकियो (Sold Out)'}</button>`
               }
             </div>
           `;
@@ -571,6 +680,12 @@
       } else {
         container.style.display = 'none';
       }
+    }
+
+    // ===== UPDATE WHATSAPP BUTTON =====
+    function updateWhatsAppButton() {
+      const btn = document.getElementById('whatsappBtn');
+      btn.disabled = !storeSettings.isOpen || storeSettings.ordersPaused;
     }
 
     // ===== CART FUNCTIONS =====
@@ -600,7 +715,7 @@
       const cartItemsDiv = document.getElementById('cartItems');
       const cartTotalDiv = document.getElementById('cartTotal');
       
-      if (cart.length === 0) {
+      if (cart.length === 0 || !storeSettings.isOpen || storeSettings.ordersPaused) {
         cartSection.style.display = 'none';
         return;
       }
@@ -628,40 +743,105 @@
       });
       
       cartItemsDiv.innerHTML = itemsHtml;
-      cartTotalDiv.innerHTML = `Total: रू${total}`;
+      cartTotalDiv.innerHTML = `जम्मा (Total): रू${total}`;
     }
 
-    // ===== WHATSAPP ORDER =====
+    // ===== PHONE VALIDATION =====
+    document.getElementById('customerPhone').addEventListener('input', function(e) {
+      const phone = e.target.value;
+      const phoneRegex = /^(98|97)\d{8}$/; // Starts with 97 or 98, exactly 10 digits
+      const errorContainer = this.parentNode;
+      const existingError = document.getElementById('phoneError');
+      
+      // Remove existing error
+      if (existingError) existingError.remove();
+      
+      // Remove red border
+      this.style.borderColor = '#e0cbba';
+      
+      if (phone.length > 0) {
+        if (!phoneRegex.test(phone)) {
+          // Add red border
+          this.style.borderColor = '#c0392b';
+          
+          // Add error message
+          const errorDiv = document.createElement('div');
+          errorDiv.id = 'phoneError';
+          errorDiv.className = 'phone-error';
+          errorDiv.innerHTML = `
+            <i class="fas fa-exclamation-circle"></i>
+            <span>❌ अमान्य फोन नम्बर! ९७ वा ९८ बाट सुरु हुनुपर्छ र १० अंकको हुनुपर्छ (Invalid phone! Must be 10 digits starting with 97 or 98)</span>
+          `;
+          errorContainer.appendChild(errorDiv);
+        } else {
+          // Green border for valid
+          this.style.borderColor = '#27ae60';
+        }
+      }
+    });
+
+    // ===== WHATSAPP ORDER WITH VALIDATION =====
     document.getElementById('whatsappBtn').addEventListener('click', function() {
       const name = document.getElementById('customerName').value.trim();
       const phone = document.getElementById('customerPhone').value.trim();
       const time = document.getElementById('pickupTime').value;
       
+      // Remove any existing error
+      const existingError = document.getElementById('phoneError');
+      if (existingError) existingError.remove();
+      
+      // Check if empty
       if (!name || !phone || !time) {
-        alert('Please fill all fields');
+        alert('कृपया सबै फिल्ड भर्नुहोस् (Please fill all fields)');
         return;
       }
       
+      // Phone validation
+      const phoneRegex = /^(98|97)\d{8}$/;
+      const phoneInput = document.getElementById('customerPhone');
+      
+      if (!phoneRegex.test(phone)) {
+        // Show error
+        const errorDiv = document.createElement('div');
+        errorDiv.id = 'phoneError';
+        errorDiv.className = 'phone-error';
+        errorDiv.innerHTML = `
+          <i class="fas fa-exclamation-circle"></i>
+          <span>❌ अमान्य फोन नम्बर! ९७ वा ९८ बाट सुरु हुनुपर्छ र १० अंकको हुनुपर्छ (Invalid phone! Must be 10 digits starting with 97 or 98)</span>
+        `;
+        phoneInput.parentNode.appendChild(errorDiv);
+        phoneInput.style.borderColor = '#c0392b';
+        phoneInput.focus();
+        return;
+      }
+      
+      // Remove red border if previously invalid
+      document.getElementById('customerPhone').style.borderColor = '#e0cbba';
+      
       if (cart.length === 0) {
-        alert('Your cart is empty');
+        alert('तपाईंको कार्ट खाली छ (Your cart is empty)');
         return;
       }
       
       // Generate order number
       const orderNumber = Math.floor(Math.random() * 1000);
       
-      // Build order message
-      let message = `🆕 *Order #${orderNumber}*\n\n`;
+      // Build order message in Nepali + English
+      let message = `🆕 *नयाँ अर्डर #${orderNumber}*\n\n`;
+      message += `*तपाईंको अर्डर (Your Order):*\n`;
       
       cart.forEach(item => {
         message += `${item.quantity}x ${item.name} - रू${item.price * item.quantity}\n`;
       });
       
       const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-      message += `\n*Total*: रू${total}`;
-      message += `\n*Pickup Time*: ${time}`;
-      message += `\n*Name*: ${name}`;
-      message += `\n*Phone*: ${phone}`;
+      message += `\n*जम्मा (Total)*: रू${total}`;
+      message += `\n*लिने समय (Pickup)*: ${time}`;
+      message += `\n*नाम (Name)*: ${name}`;
+      message += `\n*फोन (Phone)*: ${phone}`;
+      
+      // Add preparation note
+      message += `\n\n✅ पुष्टि पछि मात्र तयारी सुरु हुन्छ | Preparation begins after confirmation`;
       
       // Open WhatsApp
       const whatsappUrl = `https://wa.me/${storeSettings.ownerPhone}?text=${encodeURIComponent(message)}`;
