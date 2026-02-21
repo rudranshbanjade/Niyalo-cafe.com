@@ -8,7 +8,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* YOUR ORIGINAL STYLES - KEEP THEM EXACTLY */
     *{margin:0;padding:0;box-sizing:border-box;}
     body{background:#12100e;font-family:'Plus Jakarta Sans',sans-serif;padding:1.5rem;display:flex;justify-content:center;}
     .owner-container{max-width:1400px;width:100%;}
@@ -20,7 +19,6 @@
     .save-btn{background:#27ae60;color:white;padding:0.6rem 1.8rem;border-radius:60px;cursor:pointer;border:none;font-weight:600;}
     .guest-link{background:#5f4a3d;color:white;padding:0.6rem 1.5rem;border-radius:60px;text-decoration:none;}
     
-    /* Store Controls Button - NEW */
     .controls-toggle-btn {
       background: #8e6b4f;
       color: white;
@@ -36,7 +34,6 @@
       width: fit-content;
     }
     
-    /* Store Controls Panel - NEW */
     .store-controls-panel {
       background: #fcf7f2;
       border-radius: 48px;
@@ -127,7 +124,6 @@
       font-weight: 600;
     }
     
-    /* YOUR ORIGINAL MENU EDITOR STYLES - KEEP EXACTLY */
     [contenteditable="true"]{outline:none;border-bottom:2px dashed #b18067;background:rgba(255,235,220,0.3);cursor:text;padding:0 4px;}
     .menu-master{background:#fcf7f2;border-radius:48px;padding:1.8rem;}
     .hotel-title{font-family:'Playfair Display',serif;font-size:2.2rem;display:flex;align-items:center;gap:10px;}
@@ -158,7 +154,6 @@
 </head>
 <body>
   <div class="owner-container">
-    <!-- Header -->
     <div class="owner-header">
       <div class="logo-text">
         <h1><i class="fas fa-crown" style="color:#c49a6c;"></i> Niyalo · Owner</h1>
@@ -170,16 +165,13 @@
       </div>
     </div>
 
-    <!-- Store Controls Toggle Button (SMALL) -->
     <button class="controls-toggle-btn" id="toggleControlsBtn">
       <i class="fas fa-cog"></i> STORE CONTROLS <i class="fas fa-chevron-down" id="controlsChevron"></i>
     </button>
 
-    <!-- Store Controls Panel (HIDDEN by default) -->
     <div class="store-controls-panel" id="storeControlsPanel">
       <h3 style="margin-bottom: 1.5rem;">⚙️ Store Settings</h3>
       
-      <!-- Open/Close Toggle -->
       <div class="control-row">
         <div style="flex:1">
           <strong>Store Status</strong>
@@ -192,7 +184,6 @@
         <span id="storeStatusText">Open</span>
       </div>
 
-      <!-- Pause Orders Toggle -->
       <div class="control-row">
         <div style="flex:1">
           <strong>Pause Orders</strong>
@@ -205,7 +196,6 @@
         <span id="pauseStatusText">Active</span>
       </div>
 
-      <!-- Owner WhatsApp Number -->
       <div class="control-row">
         <div style="flex:1">
           <strong>WhatsApp Number</strong>
@@ -214,7 +204,6 @@
         <input type="text" id="ownerPhone" value="977981234567" style="padding:0.5rem; border-radius:60px; border:1px solid #ccc; width:200px;">
       </div>
 
-      <!-- Payment QR Upload -->
       <div class="qr-upload">
         <strong>Payment QR Code</strong>
         <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">Upload a QR code for online payments</p>
@@ -230,9 +219,7 @@
       </div>
     </div>
 
-    <!-- MENU EDITOR - YOUR ORIGINAL FULL EDITOR -->
     <div class="menu-master" id="masterMenu">
-      <!-- HOTEL INFO -->
       <div style="display:flex;flex-wrap:wrap;justify-content:space-between;margin-bottom:2rem;">
         <div>
           <div class="hotel-title">
@@ -254,15 +241,12 @@
         </div>
       </div>
 
-      <!-- CATEGORIES CONTAINER -->
       <div id="categoriesContainer"></div>
 
-      <!-- ADD CATEGORY BUTTON -->
       <div style="text-align:center;">
         <button class="add-category-btn" id="addCategoryBtn">➕ ADD NEW CATEGORY</button>
       </div>
 
-      <!-- FOOTER EDITOR -->
       <div class="footer-editor">
         <div style="text-align:center;margin-bottom:1rem;">
           <span style="background:#ab8c7a;color:white;padding:0.3rem 1.5rem;border-radius:60px;">❤️ FOOTER BADGES</span>
@@ -279,20 +263,17 @@
       </div>
     </div>
 
-    <!-- Sync Status -->
     <div class="sync-status">
       <div class="sync-pulse" id="syncStatus">🟢 READY</div>
     </div>
   </div>
 
   <script>
-    // ===== SUPABASE CONFIG =====
     const supabaseClient = window.supabase.createClient(
       'https://outxrzhbocyvopmivzzf.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dHhyemhib2N5dm9wbWl2enpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNTU1NDgsImV4cCI6MjA4NjYzMTU0OH0.apOAqrdlz3WBo9Aht3xzHc-XBkInHSQVfHu3NRuCxNc'
     );
 
-    // ===== DEFAULT MENU =====
     const DEFAULT_MENU = {
       hotel: {
         name: "Niyalo Cafe",
@@ -332,21 +313,14 @@
     };
     let isEditMode = true;
 
-    // ===== TOGGLE CONTROLS PANEL =====
     document.getElementById('toggleControlsBtn').addEventListener('click', function() {
       const panel = document.getElementById('storeControlsPanel');
       const chevron = document.getElementById('controlsChevron');
       panel.classList.toggle('show');
-      if (panel.classList.contains('show')) {
-        chevron.className = 'fas fa-chevron-up';
-      } else {
-        chevron.className = 'fas fa-chevron-down';
-      }
+      chevron.className = panel.classList.contains('show') ? 'fas fa-chevron-up' : 'fas fa-chevron-down';
     });
 
-    // ===== LOAD ALL DATA =====
     async function loadAllData() {
-      // Load menu
       try {
         const { data } = await supabaseClient
           .from('menus')
@@ -356,7 +330,6 @@
         if (data?.data) menuData = data.data;
       } catch(e) {}
 
-      // Load settings
       try {
         const { data } = await supabaseClient
           .from('settings')
@@ -370,7 +343,6 @@
       updateSettingsUI();
     }
 
-    // ===== UPDATE SETTINGS UI =====
     function updateSettingsUI() {
       document.getElementById('storeOpenToggle').checked = storeSettings.isOpen;
       document.getElementById('pauseOrdersToggle').checked = storeSettings.ordersPaused;
@@ -387,9 +359,7 @@
       }
     }
 
-    // ===== RENDER ALL =====
     function renderAll() {
-      // Update hotel fields
       document.getElementById('hotelName').innerText = menuData.hotel.name;
       document.getElementById('hotelLocation').innerText = menuData.hotel.location;
       document.getElementById('hotelTagline').innerText = menuData.hotel.tagline;
@@ -401,7 +371,6 @@
       renderFooter();
     }
 
-    // ===== RENDER CATEGORIES =====
     function renderCategories() {
       const container = document.getElementById('categoriesContainer');
       container.innerHTML = '';
@@ -415,9 +384,9 @@
         header.innerHTML = `
           <div class="category-title">
             <i class="fas fa-${cat.icon}"></i>
-            <h3><span contenteditable="true" id="${cat.id}Title">${cat.title}</span></h3>
+            <h3><span ${isEditMode ? 'contenteditable="true"' : ''} id="${cat.id}Title">${cat.title}</span></h3>
           </div>
-          <button class="delete-cat-btn" onclick="deleteCategory('${cat.id}')">🗑️ DELETE</button>
+          ${isEditMode ? `<button class="delete-cat-btn" onclick="deleteCategory('${cat.id}')">🗑️ DELETE</button>` : ''}
         `;
         card.appendChild(header);
 
@@ -430,17 +399,17 @@
 
           const nameDiv = document.createElement('div');
           nameDiv.className = 'item-name';
-          nameDiv.innerHTML = `<span contenteditable="true" id="${item.id}">${item.name}</span>`;
+          nameDiv.innerHTML = `<span ${isEditMode ? 'contenteditable="true"' : ''} id="${item.id}">${item.name}</span>`;
 
           if (item.badge) {
             const badgeSpan = document.createElement('span');
             badgeSpan.style.cssText = 'background:#e7d2c5;border-radius:60px;padding:0.2rem 1rem;margin-left:8px;font-size:0.7rem;';
             badgeSpan.innerHTML = `
-              <span contenteditable="true" id="${item.id}Badge">${item.badge}</span>
-              <button class="delete-btn" style="width:24px;height:24px;margin-left:6px;" onclick="deleteBadge('${item.id}')">×</button>
+              <span ${isEditMode ? 'contenteditable="true"' : ''} id="${item.id}Badge">${item.badge}</span>
+              ${isEditMode ? `<button class="delete-btn" style="width:24px;height:24px;margin-left:6px;" onclick="deleteBadge('${item.id}')">×</button>` : ''}
             `;
             nameDiv.appendChild(badgeSpan);
-          } else {
+          } else if (isEditMode) {
             const addBtn = document.createElement('button');
             addBtn.className = 'add-badge-btn';
             addBtn.style.cssText = 'background:#9f7e6b;color:white;border:none;border-radius:40px;padding:0.2rem 1rem;margin-left:8px;font-size:0.7rem;cursor:pointer;';
@@ -451,7 +420,7 @@
 
           const descDiv = document.createElement('div');
           descDiv.className = 'item-desc';
-          descDiv.innerHTML = `<span contenteditable="true" id="${item.id}Desc">${item.desc}</span>`;
+          descDiv.innerHTML = `<span ${isEditMode ? 'contenteditable="true"' : ''} id="${item.id}Desc">${item.desc}</span>`;
 
           leftDiv.appendChild(nameDiv);
           leftDiv.appendChild(descDiv);
@@ -463,48 +432,50 @@
 
           const priceSpan = document.createElement('span');
           priceSpan.className = 'price-tag';
-          priceSpan.innerHTML = `<span contenteditable="true" id="${item.id}Price">${item.price}</span>`;
+          priceSpan.innerHTML = `<span ${isEditMode ? 'contenteditable="true"' : ''} id="${item.id}Price">${item.price}</span>`;
 
-          const delBtn = document.createElement('button');
-          delBtn.className = 'delete-btn';
-          delBtn.innerHTML = '🗑️';
-          delBtn.onclick = () => deleteMenuItem(cat.id, item.id);
+          if (isEditMode) {
+            const delBtn = document.createElement('button');
+            delBtn.className = 'delete-btn';
+            delBtn.innerHTML = '🗑️';
+            delBtn.onclick = () => deleteMenuItem(cat.id, item.id);
+            rightDiv.appendChild(delBtn);
+          }
 
           rightDiv.appendChild(priceSpan);
-          rightDiv.appendChild(delBtn);
-
           row.appendChild(leftDiv);
           row.appendChild(rightDiv);
           card.appendChild(row);
         });
 
-        const addBtn = document.createElement('button');
-        addBtn.className = 'add-item-btn';
-        addBtn.innerHTML = '➕ ADD NEW ITEM';
-        addBtn.onclick = () => addNewItem(cat.id);
-        card.appendChild(addBtn);
+        if (isEditMode) {
+          const addBtn = document.createElement('button');
+          addBtn.className = 'add-item-btn';
+          addBtn.innerHTML = '➕ ADD NEW ITEM';
+          addBtn.onclick = () => addNewItem(cat.id);
+          card.appendChild(addBtn);
+        }
 
         container.appendChild(card);
       });
     }
 
-    // ===== RENDER FOOTER =====
     function renderFooter() {
       const container = document.getElementById('footerBadgesContainer');
       container.innerHTML = '';
+      
       menuData.footer.forEach(f => {
         const badge = document.createElement('span');
         badge.className = 'footer-badge';
         badge.innerHTML = `
           <i class="fas fa-heart" style="color:#a5664a;"></i>
-          <span contenteditable="true" id="${f.id}">${f.text}</span>
-          <button class="delete-btn" style="width:24px;height:24px;" onclick="deleteFooterItem('${f.id}')">×</button>
+          <span ${isEditMode ? 'contenteditable="true"' : ''} id="${f.id}">${f.text}</span>
+          ${isEditMode ? `<button class="delete-btn" style="width:24px;height:24px;" onclick="deleteFooterItem('${f.id}')">×</button>` : ''}
         `;
         container.appendChild(badge);
       });
     }
 
-    // ===== DELETE FUNCTIONS =====
     window.deleteCategory = function(id) {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       if (confirm('Delete category?')) {
@@ -534,7 +505,6 @@
       renderFooter();
     };
 
-    // ===== ADD FUNCTIONS =====
     window.addNewCategory = function() {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       const id = 'cat' + Date.now();
@@ -566,9 +536,7 @@
       }
     };
 
-    // ===== SAVE MENU TO SUPABASE =====
     window.saveMenuToSupabase = async function() {
-      // Update hotel data from DOM
       menuData.hotel.name = document.getElementById('hotelName').innerText;
       menuData.hotel.location = document.getElementById('hotelLocation').innerText;
       menuData.hotel.tagline = document.getElementById('hotelTagline').innerText;
@@ -607,7 +575,6 @@
       }
     };
 
-    // ===== SAVE SETTINGS TO SUPABASE =====
     async function saveSettings() {
       storeSettings.isOpen = document.getElementById('storeOpenToggle').checked;
       storeSettings.ordersPaused = document.getElementById('pauseOrdersToggle').checked;
@@ -625,7 +592,6 @@
       }
     }
 
-    // ===== QR CODE UPLOAD =====
     document.getElementById('uploadQrBtn').addEventListener('click', () => {
       document.getElementById('qrUpload').click();
     });
@@ -647,23 +613,26 @@
       await saveSettings();
     });
 
-    // ===== BUTTON HANDLERS =====
     document.getElementById('editModeBtn').addEventListener('click', function() {
       isEditMode = !isEditMode;
       this.innerHTML = isEditMode ? '🔓 EDIT ON' : '🔒 EDIT OFF';
       this.classList.toggle('active');
+      renderCategories();
+      renderFooter();
     });
 
     document.getElementById('saveBtn').addEventListener('click', saveMenuToSupabase);
     document.getElementById('saveSettingsBtn').addEventListener('click', saveSettings);
-    document.getElementById('addCategoryBtn').addEventListener('click', addNewCategory);
+    document.getElementById('addCategoryBtn').addEventListener('click', function() {
+      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      addNewCategory();
+    });
     document.getElementById('addFooterBtn').addEventListener('click', function() {
       if (!isEditMode) return alert('Turn ON Edit Mode first');
       menuData.footer.push({ id: 'footer' + Date.now(), text: 'new feature' });
       renderFooter();
     });
 
-    // ===== INIT =====
     loadAllData();
   </script>
 </body>
