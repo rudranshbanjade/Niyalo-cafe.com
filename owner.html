@@ -124,11 +124,46 @@
       font-weight: 600;
     }
     
+    .hotel-info {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      border-bottom: 3px dashed #d4b19b;
+      padding-bottom: 1.5rem;
+    }
+    
+    .hotel-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .hotel-title i {
+      color: #a57159;
+      font-size: 2rem;
+    }
+    
+    .hotel-details {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+      color: #5f4a3d;
+    }
+    
+    .hotel-contact {
+      background: #fff1e9;
+      padding: 0.7rem 1.5rem;
+      border-radius: 60px;
+      display: flex;
+      gap: 1.2rem;
+    }
+    
     [contenteditable="true"]{outline:none;border-bottom:2px dashed #b18067;background:rgba(255,235,220,0.3);cursor:text;padding:0 4px;}
     .menu-master{background:#fcf7f2;border-radius:48px;padding:1.8rem;}
-    .hotel-title{font-family:'Playfair Display',serif;font-size:2.2rem;display:flex;align-items:center;gap:10px;}
-    .hotel-title i{color:#a57159;font-size:2rem;}
-    .contact-bubble{background:#fff1e9;padding:0.7rem 1.5rem;border-radius:60px;display:flex;gap:1.2rem;}
     .category-card{background:white;border-radius:36px;padding:1.5rem;margin-bottom:1.8rem;border:1px solid #efdbd1;}
     .category-header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px dotted #eacbbe;padding-bottom:1rem;margin-bottom:1rem;}
     .category-title{display:flex;align-items:center;gap:10px;}
@@ -148,8 +183,11 @@
     .footer-badge{background:#e7d2c5;border-radius:60px;padding:0.3rem 1.2rem;display:inline-flex;align-items:center;gap:8px;}
     .sync-status{display:flex;justify-content:flex-end;margin-top:1rem;}
     .sync-pulse{background:#2d5a4b;color:white;padding:0.6rem 1.8rem;border-radius:60px;}
-    .editing-disabled [contenteditable="true"]{border-bottom:none!important;background:transparent!important;cursor:default!important;pointer-events:none!important;}
-    .editing-disabled .delete-btn,.editing-disabled .delete-cat-btn,.editing-disabled .add-item-btn,.editing-disabled .add-category-btn,.editing-disabled .add-footer-btn{display:none!important;}
+    
+    .hotel-info span[contenteditable="true"] {
+      border-bottom: 2px dashed #b18067;
+      background: rgba(255,235,220,0.3);
+    }
   </style>
 </head>
 <body>
@@ -220,24 +258,25 @@
     </div>
 
     <div class="menu-master" id="masterMenu">
-      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;margin-bottom:2rem;">
+      <!-- HOTEL INFO - EDIT MODE CONTROLLED -->
+      <div class="hotel-info">
         <div>
           <div class="hotel-title">
             <i class="fas fa-leaf"></i>
-            <span contenteditable="true" id="hotelName">Niyalo Cafe</span>
+            <span id="hotelName" class="editable-field">Niyalo Cafe</span>
             <i class="fas fa-mug-hot"></i>
           </div>
-          <div style="display:flex;gap:8px;margin-top:6px;">
+          <div class="hotel-details">
             <i class="fas fa-map-pin"></i>
-            <span contenteditable="true" id="hotelLocation">Lakeside, Pokhara</span>
+            <span id="hotelLocation" class="editable-field">Kalkhanagar, Butwal</span>
             <span>•</span>
             <i class="fas fa-seedling"></i>
-            <span contenteditable="true" id="hotelTagline">homemade · local love</span>
+            <span id="hotelTagline" class="editable-field">handmade · local love</span>
           </div>
         </div>
-        <div style="background:#fff1e9;padding:0.7rem 1.5rem;border-radius:60px;display:flex;gap:1.2rem;">
-          <span><i class="fas fa-clock"></i> <span contenteditable="true" id="hours">7:00–22:00 daily</span></span>
-          <span><i class="fas fa-phone-alt"></i> <span contenteditable="true" id="phone">+977 981-234567</span></span>
+        <div class="hotel-contact">
+          <span><i class="fas fa-clock"></i> <span id="hours" class="editable-field">7:00–22:00 daily</span></span>
+          <span><i class="fas fa-phone-alt"></i> <span id="phone" class="editable-field">+977 976-6794282</span></span>
         </div>
       </div>
 
@@ -257,7 +296,7 @@
         </div>
         <div style="text-align:center;margin-top:1.5rem;">
           <i class="fas fa-heart" style="color:#c2714b;"></i>
-          <span contenteditable="true" id="heartNote">order at counter · everything made to share</span>
+          <span id="heartNote" class="editable-field">order at counter · everything made to share</span>
           <i class="fas fa-heart" style="color:#c2714b;"></i>
         </div>
       </div>
@@ -277,10 +316,10 @@
     const DEFAULT_MENU = {
       hotel: {
         name: "Niyalo Cafe",
-        location: "Lakeside, Pokhara",
-        tagline: "homemade · local love",
+        location: "Kalkhanagar, Butwal",
+        tagline: "handmade · local love",
         hours: "7:00–22:00 daily",
-        phone: "+977 981-234567",
+        phone: "+977 976-6794282",
         heartNote: "order at counter · everything made to share"
       },
       footer: [
@@ -290,8 +329,8 @@
       ],
       categories: [
         { id: "cat1", title: "all-day breakfast", icon: "sunrise", items: [
-          { id: "item1_1", name: "Niyalo Shakshuka", desc: "poached eggs · spiced tomato · feta", price: "590", badge: null },
-          { id: "item1_2", name: "Cardamom French Toast", desc: "brioche · orange · maple", price: "520", badge: null },
+          { id: "item1_1", name: "Egg - Roll.", desc: "poached eggs · spiced tomato · feta", price: "590", badge: null },
+          { id: "item1_2", name: "Hehe", desc: "brioche · orange · maple", price: "520", badge: null },
           { id: "item1_3", name: "Avocado Garden Toast", desc: "sourdough · za'atar · radish", price: "580", badge: "vegan" },
           { id: "item1_4", name: "House Granola Pot", desc: "yoghurt · berries · honey", price: "420", badge: null }
         ]},
@@ -312,6 +351,18 @@
       paymentQrUrl: null
     };
     let isEditMode = true;
+
+    // Function to update contenteditable on all editable fields
+    function updateEditMode() {
+      const editableFields = document.querySelectorAll('.editable-field');
+      editableFields.forEach(field => {
+        if (isEditMode) {
+          field.setAttribute('contenteditable', 'true');
+        } else {
+          field.removeAttribute('contenteditable');
+        }
+      });
+    }
 
     document.getElementById('toggleControlsBtn').addEventListener('click', function() {
       const panel = document.getElementById('storeControlsPanel');
@@ -341,6 +392,7 @@
 
       renderAll();
       updateSettingsUI();
+      updateEditMode();
     }
 
     function updateSettingsUI() {
@@ -384,7 +436,7 @@
         header.innerHTML = `
           <div class="category-title">
             <i class="fas fa-${cat.icon}"></i>
-            <h3><span ${isEditMode ? 'contenteditable="true"' : ''} id="${cat.id}Title">${cat.title}</span></h3>
+            <h3><span ${isEditMode ? 'contenteditable="true"' : ''} class="editable-field" id="${cat.id}Title">${cat.title}</span></h3>
           </div>
           ${isEditMode ? `<button class="delete-cat-btn" onclick="deleteCategory('${cat.id}')">🗑️ DELETE</button>` : ''}
         `;
@@ -399,13 +451,13 @@
 
           const nameDiv = document.createElement('div');
           nameDiv.className = 'item-name';
-          nameDiv.innerHTML = `<span ${isEditMode ? 'contenteditable="true"' : ''} id="${item.id}">${item.name}</span>`;
+          nameDiv.innerHTML = `<span ${isEditMode ? 'contenteditable="true"' : ''} class="editable-field" id="${item.id}">${item.name}</span>`;
 
           if (item.badge) {
             const badgeSpan = document.createElement('span');
             badgeSpan.style.cssText = 'background:#e7d2c5;border-radius:60px;padding:0.2rem 1rem;margin-left:8px;font-size:0.7rem;';
             badgeSpan.innerHTML = `
-              <span ${isEditMode ? 'contenteditable="true"' : ''} id="${item.id}Badge">${item.badge}</span>
+              <span ${isEditMode ? 'contenteditable="true"' : ''} class="editable-field" id="${item.id}Badge">${item.badge}</span>
               ${isEditMode ? `<button class="delete-btn" style="width:24px;height:24px;margin-left:6px;" onclick="deleteBadge('${item.id}')">×</button>` : ''}
             `;
             nameDiv.appendChild(badgeSpan);
@@ -420,7 +472,7 @@
 
           const descDiv = document.createElement('div');
           descDiv.className = 'item-desc';
-          descDiv.innerHTML = `<span ${isEditMode ? 'contenteditable="true"' : ''} id="${item.id}Desc">${item.desc}</span>`;
+          descDiv.innerHTML = `<span ${isEditMode ? 'contenteditable="true"' : ''} class="editable-field" id="${item.id}Desc">${item.desc}</span>`;
 
           leftDiv.appendChild(nameDiv);
           leftDiv.appendChild(descDiv);
@@ -432,7 +484,7 @@
 
           const priceSpan = document.createElement('span');
           priceSpan.className = 'price-tag';
-          priceSpan.innerHTML = `<span ${isEditMode ? 'contenteditable="true"' : ''} id="${item.id}Price">${item.price}</span>`;
+          priceSpan.innerHTML = `<span ${isEditMode ? 'contenteditable="true"' : ''} class="editable-field" id="${item.id}Price">${item.price}</span>`;
 
           if (isEditMode) {
             const delBtn = document.createElement('button');
@@ -469,7 +521,7 @@
         badge.className = 'footer-badge';
         badge.innerHTML = `
           <i class="fas fa-heart" style="color:#a5664a;"></i>
-          <span ${isEditMode ? 'contenteditable="true"' : ''} id="${f.id}">${f.text}</span>
+          <span ${isEditMode ? 'contenteditable="true"' : ''} class="editable-field" id="${f.id}">${f.text}</span>
           ${isEditMode ? `<button class="delete-btn" style="width:24px;height:24px;" onclick="deleteFooterItem('${f.id}')">×</button>` : ''}
         `;
         container.appendChild(badge);
@@ -619,6 +671,7 @@
       this.classList.toggle('active');
       renderCategories();
       renderFooter();
+      updateEditMode();
     });
 
     document.getElementById('saveBtn').addEventListener('click', saveMenuToSupabase);
