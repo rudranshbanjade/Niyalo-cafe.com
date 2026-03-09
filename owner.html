@@ -101,21 +101,54 @@
       transform: translateX(26px);
     }
     
-    .qr-upload {
+    .qr-upload, .logo-upload {
       background: white;
       border-radius: 20px;
       padding: 1rem;
       margin-top: 1rem;
     }
     
-    .qr-preview {
+    .qr-preview, .logo-preview {
       max-width: 150px;
       border-radius: 10px;
       margin: 1rem 0;
     }
     
+    .logo-preview {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #27ae60;
+    }
+    
+    .logo-placeholder {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #2d2d2d;
+      border: 3px dashed #27ae60;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #27ae60;
+      font-size: 2rem;
+      margin: 1rem 0;
+    }
+    
     .upload-btn {
       background: #8e6b4f;
+      color: white;
+      border: none;
+      border-radius: 60px;
+      padding: 0.8rem 2rem;
+      cursor: pointer;
+      font-weight: 600;
+      margin-right: 0.5rem;
+    }
+    
+    .remove-btn {
+      background: #c0392b;
       color: white;
       border: none;
       border-radius: 60px;
@@ -162,77 +195,6 @@
       gap: 1.2rem;
     }
     
-    /* ===== LOGO STYLES - BLACK & GREEN THEME ===== */
-    .logo-upload-section {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-      margin-bottom: 1.5rem;
-      padding: 1rem;
-      background: #1a1a1a;
-      border-radius: 60px;
-    }
-    
-    .logo-preview-container {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    
-    .logo-preview {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 3px solid #27ae60;
-      background: #2d2d2d;
-    }
-    
-    .logo-preview-placeholder {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: #2d2d2d;
-      border: 3px dashed #27ae60;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #27ae60;
-      font-size: 1.5rem;
-    }
-    
-    .logo-controls {
-      display: flex;
-      gap: 0.8rem;
-    }
-    
-    .logo-upload-btn {
-      background: #27ae60;
-      color: white;
-      border: none;
-      border-radius: 60px;
-      padding: 0.6rem 1.5rem;
-      cursor: pointer;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    
-    .logo-remove-btn {
-      background: #c0392b;
-      color: white;
-      border: none;
-      border-radius: 60px;
-      padding: 0.6rem 1.5rem;
-      cursor: pointer;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    /* ===== END LOGO STYLES ===== */
-    
     [contenteditable="true"]{outline:none;border-bottom:2px dashed #b18067;background:rgba(255,235,220,0.3);cursor:text;padding:0 4px;}
     .menu-master{background:#fcf7f2;border-radius:48px;padding:1.8rem;}
     .category-card{background:white;border-radius:36px;padding:1.5rem;margin-bottom:1.8rem;border:1px solid #efdbd1;}
@@ -258,6 +220,44 @@
     .hotel-info span[contenteditable="true"] {
       border-bottom: 2px dashed #b18067;
       background: rgba(255,235,220,0.3);
+    }
+    
+    /* Notification Popup */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 1rem 2rem;
+      border-radius: 60px;
+      background: #2c5f4b;
+      color: white;
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      z-index: 1000;
+      animation: slideIn 0.3s ease;
+    }
+
+    .notification.success {
+      background: #27ae60;
+    }
+
+    .notification.error {
+      background: #c0392b;
+    }
+
+    .notification.info {
+      background: #f39c12;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
     }
   </style>
 </head>
@@ -313,6 +313,23 @@
         <input type="text" id="ownerPhone" value="977981234567" style="padding:0.5rem; border-radius:60px; border:1px solid #ccc; width:200px;">
       </div>
 
+      <!-- LOGO UPLOAD SECTION - MOVED UNDER STORE CONTROLS -->
+      <div class="logo-upload">
+        <strong>Restaurant Logo</strong>
+        <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">Upload your restaurant logo (black & green theme)</p>
+        
+        <div id="logoPreviewArea">
+          <img id="logoPreview" class="logo-preview" src="" alt="Logo" style="display: none;">
+          <div id="logoPlaceholder" class="logo-placeholder" style="display: flex;">
+            <i class="fas fa-utensils"></i>
+          </div>
+        </div>
+        
+        <input type="file" id="logoUpload" accept="image/*" style="display: none;">
+        <button id="uploadLogoBtn" class="upload-btn">📤 Upload Logo</button>
+        <button id="removeLogoBtn" class="remove-btn" style="display: none;">🗑️ Remove</button>
+      </div>
+
       <div class="qr-upload">
         <strong>Payment QR Code</strong>
         <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">Upload a QR code for online payments</p>
@@ -329,28 +346,6 @@
     </div>
 
     <div class="menu-master" id="masterMenu">
-      <!-- LOGO SECTION - Black & Green Theme -->
-      <div class="logo-upload-section">
-        <div class="logo-preview-container">
-          <div id="logoPreviewContainer">
-            <img id="logoPreview" class="logo-preview" src="" alt="Logo" style="display: none;">
-            <div id="logoPlaceholder" class="logo-preview-placeholder">
-              <i class="fas fa-utensils"></i>
-            </div>
-          </div>
-          <span style="color: white; font-weight: 600;">Restaurant Logo</span>
-        </div>
-        <div class="logo-controls">
-          <input type="file" id="logoUpload" accept="image/*" style="display: none;">
-          <button id="uploadLogoBtn" class="logo-upload-btn">
-            <i class="fas fa-upload"></i> Upload Logo
-          </button>
-          <button id="removeLogoBtn" class="logo-remove-btn" style="display: none;">
-            <i class="fas fa-trash"></i> Remove
-          </button>
-        </div>
-      </div>
-
       <!-- HOTEL INFO - EDIT MODE CONTROLLED -->
       <div class="hotel-info">
         <div>
@@ -406,6 +401,18 @@
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dHhyemhib2N5dm9wbWl2enpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNTU1NDgsImV4cCI6MjA4NjYzMTU0OH0.apOAqrdlz3WBo9Aht3xzHc-XBkInHSQVfHu3NRuCxNc'
     );
 
+    // ===== NOTIFICATION FUNCTION =====
+    function showNotification(message, type = 'success') {
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.innerHTML = message;
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+    }
+
     const DEFAULT_MENU = {
       hotel: {
         name: "Niyalo Cafe",
@@ -456,6 +463,7 @@
           field.removeAttribute('contenteditable');
         }
       });
+      showNotification(isEditMode ? '🔓 Edit Mode ON' : '🔒 Edit Mode OFF', 'info');
     }
 
     // ===== LOGO FUNCTIONS =====
@@ -468,7 +476,7 @@
         logoPreview.src = menuData.hotel.logoUrl;
         logoPreview.style.display = 'block';
         logoPlaceholder.style.display = 'none';
-        removeBtn.style.display = 'flex';
+        removeBtn.style.display = 'inline-block';
       } else {
         logoPreview.style.display = 'none';
         logoPlaceholder.style.display = 'flex';
@@ -488,6 +496,7 @@
       reader.onload = async (event) => {
         menuData.hotel.logoUrl = event.target.result;
         updateLogoDisplay();
+        showNotification('✅ Logo uploaded successfully', 'success');
       };
       reader.readAsDataURL(file);
     });
@@ -495,6 +504,7 @@
     document.getElementById('removeLogoBtn').addEventListener('click', async () => {
       menuData.hotel.logoUrl = null;
       updateLogoDisplay();
+      showNotification('🗑️ Logo removed', 'info');
     });
 
     document.getElementById('toggleControlsBtn').addEventListener('click', function() {
@@ -527,6 +537,7 @@
       updateSettingsUI();
       updateEditMode();
       updateLogoDisplay();
+      showNotification('✅ Data loaded from cloud', 'success');
     }
 
     function updateSettingsUI() {
@@ -663,43 +674,66 @@
     }
 
     window.deleteCategory = function(id) {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      if (!isEditMode) {
+        showNotification('❌ Turn ON Edit Mode first', 'error');
+        return;
+      }
       if (confirm('Delete category?')) {
         menuData.categories = menuData.categories.filter(c => c.id !== id);
         renderCategories();
+        showNotification('🗑️ Category deleted', 'info');
       }
     };
 
     window.deleteMenuItem = function(catId, itemId) {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      if (!isEditMode) {
+        showNotification('❌ Turn ON Edit Mode first', 'error');
+        return;
+      }
       const cat = menuData.categories.find(c => c.id === catId);
       if (cat) {
         cat.items = cat.items.filter(i => i.id !== itemId);
         renderCategories();
+        showNotification('🗑️ Item deleted', 'info');
       }
     };
 
     window.deleteBadge = function(itemId) {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      if (!isEditMode) {
+        showNotification('❌ Turn ON Edit Mode first', 'error');
+        return;
+      }
       menuData.categories.forEach(c => c.items.forEach(i => { if (i.id === itemId) i.badge = null; }));
       renderCategories();
+      showNotification('🏷️ Badge removed', 'info');
     };
 
     window.deleteFooterItem = function(id) {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      if (!isEditMode) {
+        showNotification('❌ Turn ON Edit Mode first', 'error');
+        return;
+      }
       menuData.footer = menuData.footer.filter(f => f.id !== id);
       renderFooter();
+      showNotification('❤️ Footer badge removed', 'info');
     };
 
     window.addNewCategory = function() {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      if (!isEditMode) {
+        showNotification('❌ Turn ON Edit Mode first', 'error');
+        return;
+      }
       const id = 'cat' + Date.now();
       menuData.categories.push({ id, title: 'New Category', icon: 'utensils', items: [] });
       renderCategories();
+      showNotification('✅ New category added', 'success');
     };
 
     window.addNewItem = function(catId) {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      if (!isEditMode) {
+        showNotification('❌ Turn ON Edit Mode first', 'error');
+        return;
+      }
       const cat = menuData.categories.find(c => c.id === catId);
       if (cat) {
         cat.items.push({
@@ -710,15 +744,20 @@
           badge: null
         });
         renderCategories();
+        showNotification('✅ New item added', 'success');
       }
     };
 
     window.addBadgeToItem = function(itemId) {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      if (!isEditMode) {
+        showNotification('❌ Turn ON Edit Mode first', 'error');
+        return;
+      }
       const text = prompt('Badge text:');
       if (text && text.trim()) {
         menuData.categories.forEach(c => c.items.forEach(i => { if (i.id === itemId) i.badge = text.trim(); }));
         renderCategories();
+        showNotification('🏷️ Badge added', 'success');
       }
     };
 
@@ -729,7 +768,6 @@
       menuData.hotel.hours = document.getElementById('hours').innerText;
       menuData.hotel.phone = document.getElementById('phone').innerText;
       menuData.hotel.heartNote = document.getElementById('heartNote').innerText;
-      // Logo URL is already in menuData.hotel.logoUrl
 
       menuData.footer.forEach(f => {
         const el = document.getElementById(f.id);
@@ -756,9 +794,10 @@
         .upsert({ id: 1, data: menuData });
 
       if (error) {
-        alert('Error saving menu: ' + error.message);
+        showNotification('❌ Error saving menu: ' + error.message, 'error');
       } else {
         document.getElementById('syncStatus').innerHTML = '✅ MENU SAVED ' + new Date().toLocaleTimeString();
+        showNotification('✅ Menu saved to cloud!', 'success');
       }
     };
 
@@ -772,10 +811,11 @@
         .upsert({ id: 1, data: storeSettings });
 
       if (error) {
-        alert('Error saving settings: ' + error.message);
+        showNotification('❌ Error saving settings: ' + error.message, 'error');
       } else {
         document.getElementById('syncStatus').innerHTML = '✅ SETTINGS SAVED ' + new Date().toLocaleTimeString();
         updateSettingsUI();
+        showNotification('✅ Settings saved to cloud!', 'success');
       }
     }
 
@@ -791,6 +831,7 @@
       reader.onload = async (event) => {
         storeSettings.paymentQrUrl = event.target.result;
         await saveSettings();
+        showNotification('✅ QR code uploaded', 'success');
       };
       reader.readAsDataURL(file);
     });
@@ -798,6 +839,7 @@
     document.getElementById('removeQrBtn').addEventListener('click', async () => {
       storeSettings.paymentQrUrl = null;
       await saveSettings();
+      showNotification('🗑️ QR code removed', 'info');
     });
 
     document.getElementById('editModeBtn').addEventListener('click', function() {
@@ -812,13 +854,20 @@
     document.getElementById('saveBtn').addEventListener('click', saveMenuToSupabase);
     document.getElementById('saveSettingsBtn').addEventListener('click', saveSettings);
     document.getElementById('addCategoryBtn').addEventListener('click', function() {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      if (!isEditMode) {
+        showNotification('❌ Turn ON Edit Mode first', 'error');
+        return;
+      }
       addNewCategory();
     });
     document.getElementById('addFooterBtn').addEventListener('click', function() {
-      if (!isEditMode) return alert('Turn ON Edit Mode first');
+      if (!isEditMode) {
+        showNotification('❌ Turn ON Edit Mode first', 'error');
+        return;
+      }
       menuData.footer.push({ id: 'footer' + Date.now(), text: 'new feature' });
       renderFooter();
+      showNotification('✅ Footer badge added', 'success');
     });
 
     loadAllData();
