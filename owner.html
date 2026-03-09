@@ -162,6 +162,77 @@
       gap: 1.2rem;
     }
     
+    /* ===== LOGO STYLES - BLACK & GREEN THEME ===== */
+    .logo-upload-section {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: #1a1a1a;
+      border-radius: 60px;
+    }
+    
+    .logo-preview-container {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .logo-preview {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #27ae60;
+      background: #2d2d2d;
+    }
+    
+    .logo-preview-placeholder {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #2d2d2d;
+      border: 3px dashed #27ae60;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #27ae60;
+      font-size: 1.5rem;
+    }
+    
+    .logo-controls {
+      display: flex;
+      gap: 0.8rem;
+    }
+    
+    .logo-upload-btn {
+      background: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 60px;
+      padding: 0.6rem 1.5rem;
+      cursor: pointer;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .logo-remove-btn {
+      background: #c0392b;
+      color: white;
+      border: none;
+      border-radius: 60px;
+      padding: 0.6rem 1.5rem;
+      cursor: pointer;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    /* ===== END LOGO STYLES ===== */
+    
     [contenteditable="true"]{outline:none;border-bottom:2px dashed #b18067;background:rgba(255,235,220,0.3);cursor:text;padding:0 4px;}
     .menu-master{background:#fcf7f2;border-radius:48px;padding:1.8rem;}
     .category-card{background:white;border-radius:36px;padding:1.5rem;margin-bottom:1.8rem;border:1px solid #efdbd1;}
@@ -258,6 +329,28 @@
     </div>
 
     <div class="menu-master" id="masterMenu">
+      <!-- LOGO SECTION - Black & Green Theme -->
+      <div class="logo-upload-section">
+        <div class="logo-preview-container">
+          <div id="logoPreviewContainer">
+            <img id="logoPreview" class="logo-preview" src="" alt="Logo" style="display: none;">
+            <div id="logoPlaceholder" class="logo-preview-placeholder">
+              <i class="fas fa-utensils"></i>
+            </div>
+          </div>
+          <span style="color: white; font-weight: 600;">Restaurant Logo</span>
+        </div>
+        <div class="logo-controls">
+          <input type="file" id="logoUpload" accept="image/*" style="display: none;">
+          <button id="uploadLogoBtn" class="logo-upload-btn">
+            <i class="fas fa-upload"></i> Upload Logo
+          </button>
+          <button id="removeLogoBtn" class="logo-remove-btn" style="display: none;">
+            <i class="fas fa-trash"></i> Remove
+          </button>
+        </div>
+      </div>
+
       <!-- HOTEL INFO - EDIT MODE CONTROLLED -->
       <div class="hotel-info">
         <div>
@@ -320,7 +413,8 @@
         tagline: "handmade · local love",
         hours: "7:00–22:00 daily",
         phone: "+977 976-6794282",
-        heartNote: "order at counter · everything made to share"
+        heartNote: "order at counter · everything made to share",
+        logoUrl: null
       },
       footer: [
         { id: "footer1", text: "house-baked daily" },
@@ -364,6 +458,45 @@
       });
     }
 
+    // ===== LOGO FUNCTIONS =====
+    function updateLogoDisplay() {
+      const logoPreview = document.getElementById('logoPreview');
+      const logoPlaceholder = document.getElementById('logoPlaceholder');
+      const removeBtn = document.getElementById('removeLogoBtn');
+      
+      if (menuData.hotel.logoUrl) {
+        logoPreview.src = menuData.hotel.logoUrl;
+        logoPreview.style.display = 'block';
+        logoPlaceholder.style.display = 'none';
+        removeBtn.style.display = 'flex';
+      } else {
+        logoPreview.style.display = 'none';
+        logoPlaceholder.style.display = 'flex';
+        removeBtn.style.display = 'none';
+      }
+    }
+
+    document.getElementById('uploadLogoBtn').addEventListener('click', () => {
+      document.getElementById('logoUpload').click();
+    });
+
+    document.getElementById('logoUpload').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        menuData.hotel.logoUrl = event.target.result;
+        updateLogoDisplay();
+      };
+      reader.readAsDataURL(file);
+    });
+
+    document.getElementById('removeLogoBtn').addEventListener('click', async () => {
+      menuData.hotel.logoUrl = null;
+      updateLogoDisplay();
+    });
+
     document.getElementById('toggleControlsBtn').addEventListener('click', function() {
       const panel = document.getElementById('storeControlsPanel');
       const chevron = document.getElementById('controlsChevron');
@@ -393,6 +526,7 @@
       renderAll();
       updateSettingsUI();
       updateEditMode();
+      updateLogoDisplay();
     }
 
     function updateSettingsUI() {
@@ -595,6 +729,7 @@
       menuData.hotel.hours = document.getElementById('hours').innerText;
       menuData.hotel.phone = document.getElementById('phone').innerText;
       menuData.hotel.heartNote = document.getElementById('heartNote').innerText;
+      // Logo URL is already in menuData.hotel.logoUrl
 
       menuData.footer.forEach(f => {
         const el = document.getElementById(f.id);
