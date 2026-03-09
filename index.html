@@ -72,6 +72,51 @@
       100% { opacity: 1; transform: scale(1.2); }
     }
 
+    /* ===== LOGO DISPLAY - BLACK & GREEN THEME ===== */
+    .logo-display {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: #1a1a1a;
+      border-radius: 60px;
+      color: white;
+    }
+    
+    .logo-image {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #27ae60;
+      background: #2d2d2d;
+    }
+    
+    .logo-placeholder {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: #2d2d2d;
+      border: 3px dashed #27ae60;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #27ae60;
+      font-size: 2rem;
+    }
+    
+    .restaurant-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: white;
+    }
+    
+    .restaurant-name span {
+      color: #27ae60;
+    }
+    /* ===== END LOGO STYLES ===== */
+
     /* Store Status */
     .store-status {
       display: flex;
@@ -350,7 +395,7 @@
       gap: 0.5rem;
     }
 
-    /* NEW: Service Type Selector */
+    /* Service Type Selector */
     .service-type {
       display: flex;
       gap: 1rem;
@@ -472,6 +517,44 @@
       color: #f39c12;
       margin-bottom: 0.5rem;
     }
+
+    /* Notification Popup */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 1rem 2rem;
+      border-radius: 60px;
+      background: #2c5f4b;
+      color: white;
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      z-index: 1000;
+      animation: slideIn 0.3s ease;
+    }
+
+    .notification.success {
+      background: #27ae60;
+    }
+
+    .notification.error {
+      background: #c0392b;
+    }
+
+    .notification.info {
+      background: #f39c12;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
   </style>
 </head>
 <body>
@@ -480,6 +563,19 @@
     <div class="header">
       <span class="qr-badge"><i class="fas fa-qrcode"></i> NIYALO</span>
       <span class="live-badge"><span class="pulse"></span> ORDER ONLINE</span>
+    </div>
+
+    <!-- Logo Display Section -->
+    <div class="logo-display" id="logoDisplay">
+      <div id="logoContainer">
+        <img id="logoImage" class="logo-image" src="" alt="Restaurant Logo" style="display: none;">
+        <div id="logoPlaceholder" class="logo-placeholder">
+          <i class="fas fa-utensils"></i>
+        </div>
+      </div>
+      <div class="restaurant-name">
+        <span id="displayHotelName">Niyalo</span> Cafe
+      </div>
     </div>
 
     <!-- Store Status -->
@@ -500,7 +596,7 @@
       <div id="cartItems"></div>
       <div class="cart-total" id="cartTotal">Total: रू0</div>
       
-      <!-- NEW: Service Type Selection -->
+      <!-- Service Type Selection -->
       <div class="service-type" id="serviceType">
         <div class="service-option selected" data-type="dine-in" onclick="selectService('dine-in')">
           <i class="fas fa-chair"></i> Dine In
@@ -513,7 +609,7 @@
         </div>
       </div>
 
-      <!-- NEW: Table Number Input (only for dine-in) -->
+      <!-- Table Number Input (only for dine-in) -->
       <div class="table-number-input" id="tableNumberContainer">
         <input type="text" id="tableNumber" class="form-input" placeholder="Table Number (e.g., 5, 12, VIP)" maxlength="10">
       </div>
@@ -565,19 +661,29 @@
       ownerPhone: "977981234567"
     };
     let cart = [];
-    let selectedService = 'dine-in'; // Default: dine-in
+    let selectedService = 'dine-in';
+
+    // ===== NOTIFICATION FUNCTION =====
+    function showNotification(message, type = 'success') {
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.innerHTML = message;
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+    }
 
     // ===== SERVICE TYPE SELECTION =====
     window.selectService = function(type) {
       selectedService = type;
       
-      // Update UI
       document.querySelectorAll('.service-option').forEach(opt => {
         opt.classList.remove('selected');
       });
       document.querySelector(`.service-option[data-type="${type}"]`).classList.add('selected');
       
-      // Show/hide table number input
       const tableContainer = document.getElementById('tableNumberContainer');
       if (type === 'dine-in') {
         tableContainer.classList.add('show');
@@ -585,6 +691,26 @@
         tableContainer.classList.remove('show');
       }
     };
+
+    // ===== UPDATE LOGO DISPLAY =====
+    function updateLogoDisplay() {
+      const logoImage = document.getElementById('logoImage');
+      const logoPlaceholder = document.getElementById('logoPlaceholder');
+      const displayHotelName = document.getElementById('displayHotelName');
+      
+      if (menuData?.hotel?.logoUrl) {
+        logoImage.src = menuData.hotel.logoUrl;
+        logoImage.style.display = 'block';
+        logoPlaceholder.style.display = 'none';
+      } else {
+        logoImage.style.display = 'none';
+        logoPlaceholder.style.display = 'flex';
+      }
+      
+      if (menuData?.hotel?.name) {
+        displayHotelName.innerText = menuData.hotel.name.split(' ')[0] || 'Niyalo';
+      }
+    }
 
     async function loadAllData() {
       try {
@@ -609,6 +735,7 @@
         }
 
         renderAll();
+        updateLogoDisplay();
       } catch (error) {
         console.log('Error loading data:', error);
       }
@@ -743,6 +870,7 @@
         cart.push({ id, name, price, quantity: 1 });
       }
       renderCart();
+      showNotification(`✅ ${name} added to cart`, 'success');
     };
 
     window.updateQuantity = function(id, change) {
@@ -751,6 +879,7 @@
         item.quantity += change;
         if (item.quantity <= 0) {
           cart = cart.filter(i => i.id !== id);
+          showNotification(`❌ ${item.name} removed from cart`, 'info');
         }
       }
       renderCart();
@@ -829,13 +958,12 @@
       if (existingError) existingError.remove();
       
       if (!name || !phone || !time) {
-        alert('Please fill all fields');
+        showNotification('Please fill all fields', 'error');
         return;
       }
       
-      // Validate table number for dine-in
       if (selectedService === 'dine-in' && !tableNumber) {
-        alert('Please enter table number for dine-in');
+        showNotification('Please enter table number for dine-in', 'error');
         return;
       }
       
@@ -859,7 +987,7 @@
       phoneInput.style.borderColor = '#e0cbba';
       
       if (cart.length === 0) {
-        alert('Your cart is empty');
+        showNotification('Your cart is empty', 'error');
         return;
       }
       
@@ -888,6 +1016,8 @@
       const whatsappUrl = `https://wa.me/${storeSettings.ownerPhone}?text=${encodeURIComponent(message)}`;
       window.open(whatsappUrl, '_blank');
       
+      showNotification('✅ Order sent to WhatsApp!', 'success');
+      
       cart = [];
       renderCart();
     });
@@ -895,8 +1025,6 @@
     // ===== INIT =====
     loadAllData();
     setInterval(loadAllData, 5000);
-    
-    // Initialize service type UI
     window.selectService('dine-in');
   </script>
 </body>
