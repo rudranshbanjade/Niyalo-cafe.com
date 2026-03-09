@@ -350,6 +350,45 @@
       gap: 0.5rem;
     }
 
+    /* NEW: Service Type Selector */
+    .service-type {
+      display: flex;
+      gap: 1rem;
+      margin: 1rem 0;
+      padding: 0.5rem;
+      background: white;
+      border-radius: 60px;
+      border: 2px solid #e0cbba;
+    }
+
+    .service-option {
+      flex: 1;
+      text-align: center;
+      padding: 0.8rem;
+      border-radius: 60px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .service-option.selected {
+      background: #2c5f4b;
+      color: white;
+    }
+
+    .service-option i {
+      margin-right: 0.5rem;
+    }
+
+    .table-number-input {
+      margin: 0.5rem 0;
+      display: none;
+    }
+
+    .table-number-input.show {
+      display: block;
+    }
+
     .preparation-note {
       background: #fff3e0;
       border-radius: 20px;
@@ -461,6 +500,24 @@
       <div id="cartItems"></div>
       <div class="cart-total" id="cartTotal">Total: रू0</div>
       
+      <!-- NEW: Service Type Selection -->
+      <div class="service-type" id="serviceType">
+        <div class="service-option selected" data-type="dine-in" onclick="selectService('dine-in')">
+          <i class="fas fa-chair"></i> Dine In
+        </div>
+        <div class="service-option" data-type="delivery" onclick="selectService('delivery')">
+          <i class="fas fa-motorcycle"></i> Delivery
+        </div>
+        <div class="service-option" data-type="takeaway" onclick="selectService('takeaway')">
+          <i class="fas fa-shopping-bag"></i> Takeaway
+        </div>
+      </div>
+
+      <!-- NEW: Table Number Input (only for dine-in) -->
+      <div class="table-number-input" id="tableNumberContainer">
+        <input type="text" id="tableNumber" class="form-input" placeholder="Table Number (e.g., 5, 12, VIP)" maxlength="10">
+      </div>
+      
       <!-- Preparation Note -->
       <div class="preparation-note">
         <i class="fas fa-clock"></i>
@@ -495,13 +552,11 @@
   </div>
 
   <script>
-    // ===== SUPABASE CONFIG =====
     const supabaseClient = window.supabase.createClient(
       'https://outxrzhbocyvopmivzzf.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dHhyemhib2N5dm9wbWl2enpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNTU1NDgsImV4cCI6MjA4NjYzMTU0OH0.apOAqrdlz3WBo9Aht3xzHc-XBkInHSQVfHu3NRuCxNc'
     );
 
-    // ===== STATE =====
     let menuData = null;
     let storeSettings = {
       isOpen: true,
@@ -510,11 +565,29 @@
       ownerPhone: "977981234567"
     };
     let cart = [];
+    let selectedService = 'dine-in'; // Default: dine-in
 
-    // ===== LOAD ALL DATA =====
+    // ===== SERVICE TYPE SELECTION =====
+    window.selectService = function(type) {
+      selectedService = type;
+      
+      // Update UI
+      document.querySelectorAll('.service-option').forEach(opt => {
+        opt.classList.remove('selected');
+      });
+      document.querySelector(`.service-option[data-type="${type}"]`).classList.add('selected');
+      
+      // Show/hide table number input
+      const tableContainer = document.getElementById('tableNumberContainer');
+      if (type === 'dine-in') {
+        tableContainer.classList.add('show');
+      } else {
+        tableContainer.classList.remove('show');
+      }
+    };
+
     async function loadAllData() {
       try {
-        // Load menu
         const { data: menuData_ } = await supabaseClient
           .from('menus')
           .select('*')
@@ -525,7 +598,6 @@
           menuData = menuData_.data;
         }
 
-        // Load settings
         const { data: settingsData } = await supabaseClient
           .from('settings')
           .select('*')
@@ -542,7 +614,6 @@
       }
     }
 
-    // ===== RENDER ALL =====
     function renderAll() {
       renderStoreStatus();
       renderPausedMessage();
@@ -552,7 +623,6 @@
       updateWhatsAppButton();
     }
 
-    // ===== RENDER STORE STATUS =====
     function renderStoreStatus() {
       const statusDiv = document.getElementById('storeStatus');
       let statusHtml = '';
@@ -568,7 +638,6 @@
       statusDiv.innerHTML = statusHtml;
     }
 
-    // ===== RENDER PAUSED MESSAGE =====
     function renderPausedMessage() {
       const container = document.getElementById('pausedMessageContainer');
       
@@ -585,7 +654,6 @@
       }
     }
 
-    // ===== RENDER HOTEL INFO =====
     function renderHotelInfo() {
       if (!menuData) return;
       
@@ -607,7 +675,6 @@
       document.getElementById('hotelInfo').innerHTML = html;
     }
 
-    // ===== RENDER MENU =====
     function renderMenu() {
       if (!menuData?.categories) return;
       
@@ -651,7 +718,6 @@
       });
     }
 
-    // ===== RENDER PAYMENT QR =====
     function renderPaymentQr() {
       const container = document.getElementById('paymentQrContainer');
       const img = document.getElementById('paymentQrImage');
@@ -664,13 +730,11 @@
       }
     }
 
-    // ===== UPDATE WHATSAPP BUTTON =====
     function updateWhatsAppButton() {
       const btn = document.getElementById('whatsappBtn');
       btn.disabled = !storeSettings.isOpen || storeSettings.ordersPaused;
     }
 
-    // ===== CART FUNCTIONS =====
     window.addToCart = function(id, name, price) {
       const existingItem = cart.find(item => item.id === id);
       if (existingItem) {
@@ -731,7 +795,7 @@
     // ===== PHONE VALIDATION =====
     document.getElementById('customerPhone').addEventListener('input', function(e) {
       const phone = e.target.value;
-      const phoneRegex = /^(98|97)\d{8}$/; // Starts with 97 or 98, exactly 10 digits
+      const phoneRegex = /^(98|97)\d{8}$/;
       const errorContainer = this.parentNode;
       const existingError = document.getElementById('phoneError');
       
@@ -759,12 +823,19 @@
       const name = document.getElementById('customerName').value.trim();
       const phone = document.getElementById('customerPhone').value.trim();
       const time = document.getElementById('pickupTime').value;
+      const tableNumber = document.getElementById('tableNumber').value.trim();
       
       const existingError = document.getElementById('phoneError');
       if (existingError) existingError.remove();
       
       if (!name || !phone || !time) {
         alert('Please fill all fields');
+        return;
+      }
+      
+      // Validate table number for dine-in
+      if (selectedService === 'dine-in' && !tableNumber) {
+        alert('Please enter table number for dine-in');
         return;
       }
       
@@ -795,6 +866,12 @@
       const orderNumber = Math.floor(Math.random() * 1000);
       
       let message = `🆕 *New Order #${orderNumber}*\n\n`;
+      message += `*Service Type:* ${selectedService === 'dine-in' ? 'Dine In' : selectedService === 'delivery' ? 'Delivery' : 'Takeaway'}\n`;
+      
+      if (selectedService === 'dine-in') {
+        message += `*Table:* ${tableNumber}\n`;
+      }
+      
       message += `*Your Order:*\n`;
       
       cart.forEach(item => {
@@ -818,6 +895,9 @@
     // ===== INIT =====
     loadAllData();
     setInterval(loadAllData, 5000);
+    
+    // Initialize service type UI
+    window.selectService('dine-in');
   </script>
 </body>
 </html>
