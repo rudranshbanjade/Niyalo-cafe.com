@@ -72,16 +72,20 @@
       100% { opacity: 1; transform: scale(1.2); }
     }
 
-    /* ===== LOGO DISPLAY - BLACK & GREEN THEME ===== */
-    .logo-display {
+    /* ===== LOGO & INFO SECTION - BLACK & GREEN THEME ===== */
+    .restaurant-header {
       display: flex;
       align-items: center;
       gap: 1.5rem;
       margin-bottom: 1.5rem;
-      padding: 1rem;
+      padding: 1rem 1.5rem;
       background: #1a1a1a;
       border-radius: 60px;
       color: white;
+    }
+    
+    .logo-container {
+      flex-shrink: 0;
     }
     
     .logo-image {
@@ -106,16 +110,33 @@
       font-size: 2rem;
     }
     
+    .restaurant-details {
+      flex: 1;
+    }
+    
     .restaurant-name {
-      font-size: 1.5rem;
+      font-size: 1.8rem;
       font-weight: 700;
       color: white;
+      margin-bottom: 0.3rem;
     }
     
     .restaurant-name span {
       color: #27ae60;
     }
-    /* ===== END LOGO STYLES ===== */
+    
+    .restaurant-contact {
+      display: flex;
+      gap: 1.5rem;
+      color: #ccc;
+      font-size: 0.9rem;
+    }
+    
+    .restaurant-contact i {
+      color: #27ae60;
+      margin-right: 0.3rem;
+    }
+    /* ===== END LOGO & INFO SECTION ===== */
 
     /* Store Status */
     .store-status {
@@ -158,39 +179,6 @@
       border-radius: 36px;
       padding: 1.5rem;
       margin-bottom: 1.5rem;
-    }
-
-    .hotel-info {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-      border-bottom: 2px dashed #dbb9a8;
-      padding-bottom: 1.2rem;
-    }
-
-    .hotel-name {
-      font-family: 'Playfair Display', serif;
-      font-size: 2rem;
-      font-weight: 700;
-      color: #35271f;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .hotel-name i {
-      color: #b18067;
-    }
-
-    .contact-info {
-      background: #fff9f2;
-      padding: 0.6rem 1.2rem;
-      border-radius: 50px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
     }
 
     /* Categories */
@@ -395,7 +383,6 @@
       gap: 0.5rem;
     }
 
-    /* Service Type Selector */
     .service-type {
       display: flex;
       gap: 1rem;
@@ -565,16 +552,20 @@
       <span class="live-badge"><span class="pulse"></span> ORDER ONLINE</span>
     </div>
 
-    <!-- Logo Display Section -->
-    <div class="logo-display" id="logoDisplay">
-      <div id="logoContainer">
+    <!-- Logo & Info Section - Black & Green Theme -->
+    <div class="restaurant-header" id="restaurantHeader">
+      <div class="logo-container">
         <img id="logoImage" class="logo-image" src="" alt="Restaurant Logo" style="display: none;">
         <div id="logoPlaceholder" class="logo-placeholder">
           <i class="fas fa-utensils"></i>
         </div>
       </div>
-      <div class="restaurant-name">
-        <span id="displayHotelName">Niyalo</span> Cafe
+      <div class="restaurant-details">
+        <div class="restaurant-name" id="restaurantName">Niyalo Cafe</div>
+        <div class="restaurant-contact" id="restaurantContact">
+          <span><i class="fas fa-clock"></i> <span id="displayHours">7:00–22:00</span></span>
+          <span><i class="fas fa-phone-alt"></i> <span id="displayPhone">+977 981-234567</span></span>
+        </div>
       </div>
     </div>
 
@@ -586,7 +577,6 @@
 
     <!-- Menu Card -->
     <div class="menu-card">
-      <div id="hotelInfo"></div>
       <div id="categoriesContainer"></div>
     </div>
 
@@ -692,11 +682,13 @@
       }
     };
 
-    // ===== UPDATE LOGO DISPLAY =====
-    function updateLogoDisplay() {
+    // ===== UPDATE LOGO & INFO DISPLAY =====
+    function updateRestaurantDisplay() {
       const logoImage = document.getElementById('logoImage');
       const logoPlaceholder = document.getElementById('logoPlaceholder');
-      const displayHotelName = document.getElementById('displayHotelName');
+      const restaurantName = document.getElementById('restaurantName');
+      const displayHours = document.getElementById('displayHours');
+      const displayPhone = document.getElementById('displayPhone');
       
       if (menuData?.hotel?.logoUrl) {
         logoImage.src = menuData.hotel.logoUrl;
@@ -708,7 +700,15 @@
       }
       
       if (menuData?.hotel?.name) {
-        displayHotelName.innerText = menuData.hotel.name.split(' ')[0] || 'Niyalo';
+        restaurantName.innerText = menuData.hotel.name;
+      }
+      
+      if (menuData?.hotel?.hours) {
+        displayHours.innerText = menuData.hotel.hours;
+      }
+      
+      if (menuData?.hotel?.phone) {
+        displayPhone.innerText = menuData.hotel.phone;
       }
     }
 
@@ -735,7 +735,7 @@
         }
 
         renderAll();
-        updateLogoDisplay();
+        updateRestaurantDisplay();
       } catch (error) {
         console.log('Error loading data:', error);
       }
@@ -744,7 +744,6 @@
     function renderAll() {
       renderStoreStatus();
       renderPausedMessage();
-      renderHotelInfo();
       renderMenu();
       renderPaymentQr();
       updateWhatsAppButton();
@@ -779,27 +778,6 @@
       } else {
         container.innerHTML = '';
       }
-    }
-
-    function renderHotelInfo() {
-      if (!menuData) return;
-      
-      const html = `
-        <div class="hotel-info">
-          <div>
-            <div class="hotel-name">
-              <i class="fas fa-leaf"></i>
-              <span>${menuData.hotel?.name || 'Niyalo Cafe'}</span>
-              <i class="fas fa-mug-hot"></i>
-            </div>
-          </div>
-          <div class="contact-info">
-            <div><i class="fas fa-clock"></i> ${menuData.hotel?.hours || '7:00–22:00'}</div>
-            <div><i class="fas fa-phone-alt"></i> ${menuData.hotel?.phone || '+977 981-234567'}</div>
-          </div>
-        </div>
-      `;
-      document.getElementById('hotelInfo').innerHTML = html;
     }
 
     function renderMenu() {
