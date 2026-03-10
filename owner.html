@@ -160,6 +160,7 @@
       cursor: pointer;
       border: none;
       font-weight: 600;
+      transition: 0.3s;
     }
     
     .edit-mode-btn.active {
@@ -174,6 +175,11 @@
       cursor: pointer;
       border: none;
       font-weight: 600;
+      transition: 0.3s;
+    }
+    
+    .save-btn:hover {
+      background: #2ecc71;
     }
     
     .guest-link {
@@ -182,6 +188,7 @@
       padding: 0.6rem 1.5rem;
       border-radius: 60px;
       text-decoration: none;
+      font-weight: 600;
     }
     
     .controls-toggle-btn {
@@ -324,6 +331,11 @@
       padding: 1.5rem;
       margin-bottom: 1.8rem;
       border: 1px solid #efdbd1;
+      transition: 0.3s;
+    }
+    
+    .category-card:hover {
+      border-color: #c49a6c;
     }
     
     .category-header {
@@ -395,6 +407,28 @@
       width: 30px;
       height: 30px;
       cursor: pointer;
+      margin-left: 8px;
+      transition: 0.3s;
+    }
+    
+    .delete-btn:hover {
+      background: #e74c3c;
+      transform: scale(1.1);
+    }
+    
+    .delete-cat-btn {
+      background: #c0392b;
+      color: white;
+      border: none;
+      border-radius: 40px;
+      padding: 0.4rem 1.2rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+    
+    .delete-cat-btn:hover {
+      background: #e74c3c;
     }
     
     .add-item-btn {
@@ -405,6 +439,12 @@
       padding: 0.5rem 1.5rem;
       margin-top: 0.8rem;
       cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+    
+    .add-item-btn:hover {
+      background: #1e4a3a;
     }
     
     .add-category-btn {
@@ -416,6 +456,11 @@
       font-size: 1rem;
       cursor: pointer;
       margin: 1rem 0;
+      transition: 0.3s;
+    }
+    
+    .add-category-btn:hover {
+      background: #a8846a;
     }
     
     .add-footer-btn {
@@ -425,6 +470,12 @@
       border-radius: 60px;
       padding: 0.5rem 1.5rem;
       cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+    
+    .add-footer-btn:hover {
+      background: #a8846a;
     }
     
     .footer-editor {
@@ -464,7 +515,7 @@
       border-radius: 60px;
     }
     
-    /* NEW: Footer Controls */
+    /* Footer Controls */
     .footer-controls {
       display: flex;
       justify-content: space-between;
@@ -487,6 +538,11 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
+      transition: 0.3s;
+    }
+    
+    .add-owner-btn:hover {
+      background: #a8846a;
     }
     
     .logout-footer-btn {
@@ -500,9 +556,14 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
+      transition: 0.3s;
     }
     
-    /* NEW: Add Owner Form (Hidden by default) */
+    .logout-footer-btn:hover {
+      background: #e74c3c;
+    }
+    
+    /* Add Owner Form */
     .add-owner-form {
       background: #fcf7f2;
       border-radius: 48px;
@@ -524,18 +585,42 @@
       margin-bottom: 1rem;
     }
     
+    .add-owner-form input {
+      width: 100%;
+      padding: 0.8rem;
+      border: 2px solid #e0cbba;
+      border-radius: 60px;
+      font-size: 1rem;
+    }
+    
+    .add-owner-form button {
+      margin-top: 0.5rem;
+    }
+    
+    .cancel-btn {
+      background: #7f8c8d;
+      color: white;
+      border: none;
+      border-radius: 60px;
+      padding: 0.8rem;
+      width: 100%;
+      cursor: pointer;
+      font-weight: 600;
+      margin-top: 0.5rem;
+    }
+    
     .notification {
       position: fixed;
       top: 20px;
       right: 20px;
       padding: 1rem 2rem;
       border-radius: 60px;
-      background: #2c5f4b;
       color: white;
       font-weight: 600;
       box-shadow: 0 4px 15px rgba(0,0,0,0.2);
       z-index: 1000;
       animation: slideIn 0.3s ease;
+      pointer-events: none;
     }
     
     .notification.success { background: #27ae60; }
@@ -545,6 +630,25 @@
     @keyframes slideIn {
       from { transform: translateX(100%); opacity: 0; }
       to { transform: translateX(0); opacity: 1; }
+    }
+    
+    .badge-pill {
+      background: #e7d2c5;
+      border-radius: 60px;
+      padding: 0.2rem 1rem;
+      margin-left: 8px;
+      font-size: 0.7rem;
+    }
+    
+    .add-badge-btn {
+      background: #9f7e6b;
+      color: white;
+      border: none;
+      border-radius: 40px;
+      padding: 0.2rem 1rem;
+      margin-left: 8px;
+      font-size: 0.7rem;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -583,7 +687,7 @@
         <a href="#" id="showRegister">First time? Create Owner Account</a>
       </div>
 
-      <!-- REGISTER FORM (Hidden by default) -->
+      <!-- REGISTER FORM -->
       <div id="registerSection" class="register-form" style="display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px dashed #e0cbba;">
         <h3 style="margin-bottom: 1rem;">Create First Owner Account</h3>
         
@@ -617,7 +721,7 @@
       </div>
     </div>
 
-    <!-- OWNER PANEL (Hidden by default) -->
+    <!-- OWNER PANEL -->
     <div id="ownerPanel" class="owner-container" style="display: none;">
       <div class="owner-header">
         <div class="logo-text">
@@ -708,7 +812,9 @@
         </div>
       </div>
 
+      <!-- MENU EDITOR SECTION -->
       <div class="menu-master" id="masterMenu">
+        <!-- HOTEL INFO -->
         <div class="hotel-info">
           <div>
             <div class="hotel-title">
@@ -730,12 +836,15 @@
           </div>
         </div>
 
+        <!-- CATEGORIES CONTAINER -->
         <div id="categoriesContainer"></div>
 
+        <!-- ADD CATEGORY BUTTON -->
         <div style="text-align:center;">
           <button class="add-category-btn" id="addCategoryBtn">➕ ADD NEW CATEGORY</button>
         </div>
 
+        <!-- FOOTER EDITOR -->
         <div class="footer-editor">
           <div style="text-align:center;margin-bottom:1rem;">
             <span style="background:#ab8c7a;color:white;padding:0.3rem 1.5rem;border-radius:60px;">❤️ FOOTER BADGES</span>
@@ -752,7 +861,7 @@
         </div>
       </div>
 
-      <!-- Footer Controls: Add Owner Button + Logout -->
+      <!-- Footer Controls -->
       <div class="footer-controls">
         <button id="showAddOwnerBtn" class="add-owner-btn">
           <i class="fas fa-user-plus"></i> ADD NEW OWNER
@@ -762,19 +871,19 @@
         </button>
       </div>
 
-      <!-- Add Owner Form (Hidden by default) -->
+      <!-- Add Owner Form -->
       <div id="addOwnerForm" class="add-owner-form">
         <h3>➕ Add Another Owner</h3>
         <div class="form-group">
-          <input type="email" id="newOwnerEmail" class="form-input" placeholder="New owner's email" style="width:100%; padding:0.8rem; border:2px solid #e0cbba; border-radius:60px;">
+          <input type="email" id="newOwnerEmail" placeholder="New owner's email">
         </div>
         <div class="form-group">
-          <input type="password" id="newOwnerPassword" class="form-input" placeholder="Password (min 6 chars)" style="width:100%; padding:0.8rem; border:2px solid #e0cbba; border-radius:60px;">
+          <input type="password" id="newOwnerPassword" placeholder="Password (min 6 chars)">
         </div>
         <button id="addOwnerBtn" class="btn" style="background:#27ae60;">
           <i class="fas fa-user-check"></i> CREATE OWNER
         </button>
-        <button id="cancelAddOwnerBtn" style="background:#7f8c8d; color:white; border:none; border-radius:60px; padding:0.8rem; width:100%; margin-top:0.5rem; cursor:pointer;">
+        <button id="cancelAddOwnerBtn" class="cancel-btn">
           Cancel
         </button>
       </div>
@@ -791,7 +900,8 @@
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dHhyemhib2N5dm9wbWl2enpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNTU1NDgsImV4cCI6MjA4NjYzMTU0OH0.apOAqrdlz3WBo9Aht3xzHc-XBkInHSQVfHu3NRuCxNc'
     );
 
-    let menuData = {
+    // DEFAULT MENU DATA
+    const DEFAULT_MENU = {
       hotel: {
         name: "Niyalo Cafe",
         location: "Kalkhanagar, Butwal",
@@ -807,15 +917,32 @@
         { id: "footer3", text: "free high-speed wifi" }
       ],
       categories: [
-        { id: "cat1", title: "all-day breakfast", icon: "sunrise", items: [
-          { id: "item1_1", name: "Niyalo Shakshuka", desc: "poached eggs · spiced tomato · feta", price: "590", badge: null },
-          { id: "item1_2", name: "Cardamom French Toast", desc: "brioche · orange · maple", price: "520", badge: null },
-          { id: "item1_3", name: "Avocado Garden Toast", desc: "sourdough · za'atar · radish", price: "580", badge: "vegan" },
-          { id: "item1_4", name: "House Granola Pot", desc: "yoghurt · berries · honey", price: "420", badge: null }
-        ]}
+        { 
+          id: "cat1", 
+          title: "all-day breakfast", 
+          icon: "sunrise", 
+          items: [
+            { id: "item1_1", name: "Niyalo Shakshuka", desc: "poached eggs · spiced tomato · feta", price: "590", badge: null },
+            { id: "item1_2", name: "Cardamom French Toast", desc: "brioche · orange · maple", price: "520", badge: null },
+            { id: "item1_3", name: "Avocado Garden Toast", desc: "sourdough · za'atar · radish", price: "580", badge: "vegan" },
+            { id: "item1_4", name: "House Granola Pot", desc: "yoghurt · berries · honey", price: "420", badge: null }
+          ]
+        },
+        { 
+          id: "cat2", 
+          title: "small plates", 
+          icon: "utensils", 
+          items: [
+            { id: "item2_1", name: "Burnt Eggplant Dip", desc: "smoked paprika · flatbread", price: "450", badge: null },
+            { id: "item2_2", name: "Chili Garlic Prawns", desc: "lemon · parsley · sourdough", price: "690", badge: null },
+            { id: "item2_3", name: "Wild Mushroom Toast", desc: "thyme · truffle oil · pecorino", price: "620", badge: "signature" },
+            { id: "item2_4", name: "Harissa Cauliflower", desc: "tahini · pomegranate · almonds", price: "510", badge: null }
+          ]
+        }
       ]
     };
-    
+
+    let menuData = JSON.parse(JSON.stringify(DEFAULT_MENU));
     let storeSettings = {
       isOpen: true,
       ordersPaused: false,
@@ -825,15 +952,19 @@
     };
     let isEditMode = true;
 
-    function showNotification(message, type) {
+    // ===== NOTIFICATION FUNCTION =====
+    function showNotification(message, type = 'success') {
       const notification = document.createElement('div');
       notification.className = `notification ${type}`;
       notification.innerHTML = message;
       document.body.appendChild(notification);
-      setTimeout(() => notification.remove(), 3000);
+      
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
     }
 
-    // Toggle Add Owner Form
+    // ===== TOGGLE ADD OWNER FORM =====
     document.getElementById('showAddOwnerBtn').addEventListener('click', () => {
       document.getElementById('addOwnerForm').classList.add('show');
     });
@@ -842,15 +973,16 @@
       document.getElementById('addOwnerForm').classList.remove('show');
     });
 
-    // Logout function (both header and footer)
+    // ===== LOGOUT FUNCTION =====
     async function logout() {
       await supabaseClient.auth.signOut();
       checkAuth();
+      showNotification('✅ Logged out successfully', 'info');
     }
 
     document.getElementById('logoutFooterBtn').addEventListener('click', logout);
 
-    // Check auth
+    // ===== CHECK AUTH =====
     async function checkAuth() {
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (session) {
@@ -863,7 +995,7 @@
       }
     }
 
-    // Login
+    // ===== LOGIN =====
     document.getElementById('loginBtn').addEventListener('click', async () => {
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
@@ -876,12 +1008,14 @@
       if (error) {
         errorDiv.innerHTML = '❌ ' + error.message;
         errorDiv.classList.add('show');
+        showNotification('Login failed: ' + error.message, 'error');
       } else {
+        showNotification('✅ Login successful!', 'success');
         checkAuth();
       }
     });
 
-    // Show register form
+    // ===== SHOW REGISTER FORM =====
     document.getElementById('showRegister').addEventListener('click', (e) => {
       e.preventDefault();
       document.getElementById('registerSection').style.display = 'block';
@@ -896,7 +1030,7 @@
       document.querySelector('.register-link').style.display = 'block';
     });
 
-    // Register first owner
+    // ===== REGISTER FIRST OWNER =====
     document.getElementById('registerBtn').addEventListener('click', async () => {
       const name = document.getElementById('regName').value;
       const email = document.getElementById('regEmail').value;
@@ -926,6 +1060,7 @@
       if (error) {
         errorDiv.innerHTML = '❌ ' + error.message;
         errorDiv.classList.add('show');
+        showNotification('Registration failed: ' + error.message, 'error');
       } else {
         showNotification('✅ Account created! You can now login.', 'success');
         document.getElementById('registerSection').style.display = 'none';
@@ -935,7 +1070,7 @@
       }
     });
 
-    // Add another owner
+    // ===== ADD ANOTHER OWNER =====
     document.getElementById('addOwnerBtn').addEventListener('click', async () => {
       const email = document.getElementById('newOwnerEmail').value;
       const password = document.getElementById('newOwnerPassword').value;
@@ -957,41 +1092,43 @@
       }
     });
 
-    // Toggle controls panel
+    // ===== TOGGLE CONTROLS PANEL =====
     document.getElementById('toggleControlsBtn').addEventListener('click', function() {
-      document.getElementById('storeControlsPanel').classList.toggle('show');
+      const panel = document.getElementById('storeControlsPanel');
+      const chevron = document.getElementById('controlsChevron');
+      panel.classList.toggle('show');
+      chevron.className = panel.classList.contains('show') ? 'fas fa-chevron-up' : 'fas fa-chevron-down';
     });
 
-    // Edit mode toggle
+    // ===== EDIT MODE TOGGLE =====
     document.getElementById('editModeBtn').addEventListener('click', function() {
       isEditMode = !isEditMode;
       this.innerHTML = isEditMode ? '🔓 EDIT ON' : '🔒 EDIT OFF';
       this.classList.toggle('active');
+      
+      // Re-render everything with new edit mode
+      renderCategories();
+      renderFooter();
+      showNotification(isEditMode ? '🔓 Edit Mode ON' : '🔒 Edit Mode OFF', 'info');
     });
 
-    // Load all data
+    // ===== LOAD ALL DATA =====
     async function loadAllData() {
       try {
         const { data } = await supabaseClient.from('menus').select('*').eq('id', 1).single();
         if (data?.data) menuData = data.data;
-      } catch(e) {}
+        showNotification('✅ Menu loaded from cloud', 'success');
+      } catch(e) {
+        console.log('Using default menu');
+      }
 
       try {
         const { data } = await supabaseClient.from('settings').select('*').eq('id', 1).single();
         if (data?.data) storeSettings = { ...storeSettings, ...data.data };
       } catch(e) {}
 
-      renderHotelInfo();
+      renderAll();
       updateSettingsUI();
-    }
-
-    function renderHotelInfo() {
-      document.getElementById('hotelName').innerText = menuData.hotel.name;
-      document.getElementById('hotelLocation').innerText = menuData.hotel.location;
-      document.getElementById('hotelTagline').innerText = menuData.hotel.tagline;
-      document.getElementById('hours').innerText = menuData.hotel.hours;
-      document.getElementById('phone').innerText = menuData.hotel.phone;
-      document.getElementById('heartNote').innerText = menuData.hotel.heartNote;
     }
 
     function updateSettingsUI() {
@@ -1001,6 +1138,319 @@
       document.getElementById('deliveryCharge').value = storeSettings.deliveryCharge || 50;
     }
 
+    function renderAll() {
+      document.getElementById('hotelName').innerText = menuData.hotel.name;
+      document.getElementById('hotelLocation').innerText = menuData.hotel.location;
+      document.getElementById('hotelTagline').innerText = menuData.hotel.tagline;
+      document.getElementById('hours').innerText = menuData.hotel.hours;
+      document.getElementById('phone').innerText = menuData.hotel.phone;
+      document.getElementById('heartNote').innerText = menuData.hotel.heartNote;
+
+      renderCategories();
+      renderFooter();
+    }
+
+    // ===== RENDER CATEGORIES =====
+    function renderCategories() {
+      const container = document.getElementById('categoriesContainer');
+      if (!container) return;
+      
+      container.innerHTML = '';
+
+      menuData.categories.forEach(cat => {
+        const card = document.createElement('div');
+        card.className = 'category-card';
+
+        // Category Header
+        const header = document.createElement('div');
+        header.className = 'category-header';
+        header.innerHTML = `
+          <div class="category-title">
+            <i class="fas fa-${cat.icon}"></i>
+            <h3><span ${isEditMode ? 'contenteditable="true"' : ''} class="editable-field" id="${cat.id}Title">${cat.title}</span></h3>
+          </div>
+          ${isEditMode ? `<button class="delete-cat-btn" onclick="deleteCategory('${cat.id}')">🗑️ DELETE</button>` : ''}
+        `;
+        card.appendChild(header);
+
+        // Items
+        cat.items.forEach(item => {
+          const row = document.createElement('div');
+          row.className = 'menu-row';
+
+          const leftDiv = document.createElement('div');
+          leftDiv.style.flex = '1';
+
+          const nameDiv = document.createElement('div');
+          nameDiv.className = 'item-name';
+          nameDiv.innerHTML = `<span ${isEditMode ? 'contenteditable="true"' : ''} class="editable-field" id="${item.id}">${item.name}</span>`;
+
+          // Badge handling
+          if (item.badge) {
+            const badgeSpan = document.createElement('span');
+            badgeSpan.className = 'badge-pill';
+            badgeSpan.innerHTML = `
+              <span ${isEditMode ? 'contenteditable="true"' : ''} id="${item.id}Badge">${item.badge}</span>
+              ${isEditMode ? `<button class="delete-btn" style="width:24px;height:24px;margin-left:6px;" onclick="deleteBadge('${item.id}')">×</button>` : ''}
+            `;
+            nameDiv.appendChild(badgeSpan);
+          } else if (isEditMode) {
+            const addBtn = document.createElement('button');
+            addBtn.className = 'add-badge-btn';
+            addBtn.innerHTML = '🏷️ ADD BADGE';
+            addBtn.onclick = (e) => { e.stopPropagation(); addBadgeToItem(item.id); };
+            nameDiv.appendChild(addBtn);
+          }
+
+          const descDiv = document.createElement('div');
+          descDiv.className = 'item-desc';
+          descDiv.innerHTML = `<span ${isEditMode ? 'contenteditable="true"' : ''} class="editable-field" id="${item.id}Desc">${item.desc}</span>`;
+
+          leftDiv.appendChild(nameDiv);
+          leftDiv.appendChild(descDiv);
+
+          const rightDiv = document.createElement('div');
+          rightDiv.style.display = 'flex';
+          rightDiv.style.alignItems = 'center';
+          rightDiv.style.gap = '8px';
+
+          const priceSpan = document.createElement('span');
+          priceSpan.className = 'price-tag';
+          priceSpan.innerHTML = `<span ${isEditMode ? 'contenteditable="true"' : ''} class="editable-field" id="${item.id}Price">${item.price}</span>`;
+
+          if (isEditMode) {
+            const delBtn = document.createElement('button');
+            delBtn.className = 'delete-btn';
+            delBtn.innerHTML = '🗑️';
+            delBtn.onclick = () => deleteMenuItem(cat.id, item.id);
+            rightDiv.appendChild(delBtn);
+          }
+
+          rightDiv.appendChild(priceSpan);
+          row.appendChild(leftDiv);
+          row.appendChild(rightDiv);
+          card.appendChild(row);
+        });
+
+        // Add Item button (only in edit mode)
+        if (isEditMode) {
+          const addBtn = document.createElement('button');
+          addBtn.className = 'add-item-btn';
+          addBtn.innerHTML = '➕ ADD NEW ITEM';
+          addBtn.onclick = () => addNewItem(cat.id);
+          card.appendChild(addBtn);
+        }
+
+        container.appendChild(card);
+      });
+    }
+
+    // ===== RENDER FOOTER =====
+    function renderFooter() {
+      const container = document.getElementById('footerBadgesContainer');
+      if (!container) return;
+      
+      container.innerHTML = '';
+      
+      menuData.footer.forEach(f => {
+        const badge = document.createElement('span');
+        badge.className = 'footer-badge';
+        badge.innerHTML = `
+          <i class="fas fa-heart" style="color:#a5664a;"></i>
+          <span ${isEditMode ? 'contenteditable="true"' : ''} class="editable-field" id="${f.id}">${f.text}</span>
+          ${isEditMode ? `<button class="delete-btn" style="width:24px;height:24px;" onclick="deleteFooterItem('${f.id}')">×</button>` : ''}
+        `;
+        container.appendChild(badge);
+      });
+    }
+
+    // ===== DELETE FUNCTIONS =====
+    window.deleteCategory = function(id) {
+      if (!isEditMode) {
+        showNotification('❌ Turn ON Edit Mode first', 'error');
+        return;
+      }
+      if (confirm('Delete this category?')) {
+        menuData.categories = menuData.categories.filter(c => c.id !== id);
+        renderCategories();
+        showNotification('🗑️ Category deleted', 'info');
+      }
+    };
+
+    window.deleteMenuItem = function(catId, itemId) {
+      if (!isEditMode) {
+        showNotification('❌ Turn ON Edit Mode first', 'error');
+        return;
+      }
+      const cat = menuData.categories.find(c => c.id === catId);
+      if (cat) {
+        cat.items = cat.items.filter(i => i.id !== itemId);
+        renderCategories();
+        showNotification('🗑️ Item deleted', 'info');
+      }
+    };
+
+    window.deleteBadge = function(itemId) {
+      if (!isEditMode) {
+        showNotification('❌ Turn ON Edit Mode first', 'error');
+        return;
+      }
+      menuData.categories.forEach(c => c.items.forEach(i => { if (i.id === itemId) i.badge = null; }));
+      renderCategories();
+      showNotification('🏷️ Badge removed', 'info');
+    };
+
+    window.deleteFooterItem = function(id) {
+      if (!isEditMode) {
+        showNotification('❌ Turn ON Edit Mode first', 'error');
+        return;
+      }
+      menuData.footer = menuData.footer.filter(f => f.id !== id);
+      renderFooter();
+      showNotification('❤️ Footer badge removed', 'info');
+    };
+
+    // ===== ADD FUNCTIONS =====
+    window.addNewCategory = function() {
+      if (!isEditMode) {
+        showNotification('❌ Turn ON Edit Mode first', 'error');
+        return;
+      }
+      const id = 'cat' + Date.now();
+      menuData.categories.push({ 
+        id, 
+        title: 'New Category', 
+        icon: 'utensils', 
+        items: [] 
+      });
+      renderCategories();
+      showNotification('✅ New category added', 'success');
+    };
+
+    window.addNewItem = function(catId) {
+      if (!isEditMode) {
+        showNotification('❌ Turn ON Edit Mode first', 'error');
+        return;
+      }
+      const cat = menuData.categories.find(c => c.id === catId);
+      if (cat) {
+        cat.items.push({
+          id: catId + '_item' + Date.now(),
+          name: 'New Item',
+          desc: 'item description',
+          price: '199',
+          badge: null
+        });
+        renderCategories();
+        showNotification('✅ New item added', 'success');
+      }
+    };
+
+    window.addBadgeToItem = function(itemId) {
+      if (!isEditMode) {
+        showNotification('❌ Turn ON Edit Mode first', 'error');
+        return;
+      }
+      const text = prompt('Enter badge text:');
+      if (text && text.trim()) {
+        menuData.categories.forEach(c => c.items.forEach(i => { if (i.id === itemId) i.badge = text.trim(); }));
+        renderCategories();
+        showNotification('🏷️ Badge added', 'success');
+      }
+    };
+
+    // ===== SAVE TO SUPABASE =====
+    window.saveMenuToSupabase = async function() {
+      showNotification('⏳ Saving menu...', 'info');
+      
+      // Update hotel data from DOM
+      menuData.hotel.name = document.getElementById('hotelName').innerText;
+      menuData.hotel.location = document.getElementById('hotelLocation').innerText;
+      menuData.hotel.tagline = document.getElementById('hotelTagline').innerText;
+      menuData.hotel.hours = document.getElementById('hours').innerText;
+      menuData.hotel.phone = document.getElementById('phone').innerText;
+      menuData.hotel.heartNote = document.getElementById('heartNote').innerText;
+
+      // Update footer from DOM
+      menuData.footer.forEach(f => {
+        const el = document.getElementById(f.id);
+        if (el) f.text = el.innerText;
+      });
+
+      // Update categories from DOM
+      menuData.categories.forEach(cat => {
+        const titleEl = document.getElementById(cat.id + 'Title');
+        if (titleEl) cat.title = titleEl.innerText;
+        
+        cat.items.forEach(item => {
+          const nameEl = document.getElementById(item.id);
+          if (nameEl) item.name = nameEl.innerText;
+          const descEl = document.getElementById(item.id + 'Desc');
+          if (descEl) item.desc = descEl.innerText;
+          const priceEl = document.getElementById(item.id + 'Price');
+          if (priceEl) item.price = priceEl.innerText;
+          const badgeEl = document.getElementById(item.id + 'Badge');
+          if (badgeEl) item.badge = badgeEl.innerText;
+        });
+      });
+
+      const { error } = await supabaseClient
+        .from('menus')
+        .upsert({ id: 1, data: menuData });
+
+      if (error) {
+        showNotification('❌ Error saving menu: ' + error.message, 'error');
+      } else {
+        document.getElementById('syncStatus').innerHTML = '✅ MENU SAVED ' + new Date().toLocaleTimeString();
+        showNotification('✅ Menu saved to cloud!', 'success');
+      }
+    };
+
+    // ===== SAVE SETTINGS =====
+    async function saveSettings() {
+      showNotification('⏳ Saving settings...', 'info');
+      
+      storeSettings.isOpen = document.getElementById('storeOpenToggle').checked;
+      storeSettings.ordersPaused = document.getElementById('pauseOrdersToggle').checked;
+      storeSettings.ownerPhone = document.getElementById('ownerPhone').value;
+      storeSettings.deliveryCharge = parseInt(document.getElementById('deliveryCharge').value) || 50;
+
+      const { error } = await supabaseClient
+        .from('settings')
+        .upsert({ id: 1, data: storeSettings });
+
+      if (error) {
+        showNotification('❌ Error saving settings: ' + error.message, 'error');
+      } else {
+        document.getElementById('syncStatus').innerHTML = '✅ SETTINGS SAVED ' + new Date().toLocaleTimeString();
+        updateSettingsUI();
+        showNotification('✅ Settings saved to cloud!', 'success');
+      }
+    }
+
+    // ===== EVENT LISTENERS =====
+    document.getElementById('saveBtn').addEventListener('click', saveMenuToSupabase);
+    document.getElementById('saveSettingsBtn').addEventListener('click', saveSettings);
+    
+    document.getElementById('addCategoryBtn').addEventListener('click', function() {
+      if (!isEditMode) {
+        showNotification('❌ Turn ON Edit Mode first', 'error');
+        return;
+      }
+      addNewCategory();
+    });
+    
+    document.getElementById('addFooterBtn').addEventListener('click', function() {
+      if (!isEditMode) {
+        showNotification('❌ Turn ON Edit Mode first', 'error');
+        return;
+      }
+      menuData.footer.push({ id: 'footer' + Date.now(), text: 'new feature' });
+      renderFooter();
+      showNotification('✅ Footer badge added', 'success');
+    });
+
+    // ===== INIT =====
     checkAuth();
   </script>
 </body>
