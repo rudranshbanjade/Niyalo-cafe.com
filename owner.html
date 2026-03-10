@@ -609,6 +609,42 @@
       margin-top: 0.5rem;
     }
     
+    /* Logo and QR Preview Styles */
+    .logo-preview-container, .qr-preview-container {
+      text-align: center;
+      margin: 1rem 0;
+    }
+    
+    .logo-preview, .qr-preview {
+      max-width: 150px;
+      max-height: 150px;
+      border-radius: 10px;
+      border: 3px solid #27ae60;
+      object-fit: cover;
+    }
+    
+    .logo-placeholder, .qr-placeholder {
+      width: 150px;
+      height: 150px;
+      background: #2d2d2d;
+      border: 3px dashed #27ae60;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #27ae60;
+      font-size: 2rem;
+      margin: 0 auto;
+    }
+    
+    .upload-controls {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin: 1rem 0;
+      flex-wrap: wrap;
+    }
+    
     .notification {
       position: fixed;
       top: 20px;
@@ -781,35 +817,46 @@
           <input type="text" id="ownerPhone" value="977981234567" style="padding:0.5rem; border-radius:60px; border:1px solid #ccc; width:200px;">
         </div>
 
-        <div style="background:white; border-radius:20px; padding:1rem; margin-top:1rem;">
-          <strong>Restaurant Logo</strong>
-          <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">Upload your restaurant logo</p>
+        <!-- LOGO UPLOAD SECTION -->
+        <div style="background:white; border-radius:20px; padding:1.5rem; margin-top:1rem;">
+          <strong style="font-size:1.1rem;">🏷️ Restaurant Logo</strong>
+          <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">Upload your restaurant logo (shown on guest page)</p>
           
-          <div id="logoPreviewArea">
-            <img id="logoPreview" style="max-width:80px; border-radius:50%; margin:1rem 0; display:none;" src="" alt="Logo">
-            <div id="logoPlaceholder" style="width:80px; height:80px; border-radius:50%; background:#2d2d2d; border:3px dashed #27ae60; display:flex; align-items:center; justify-content:center; color:#27ae60; font-size:2rem; margin:1rem 0;">
-              <i class="fas fa-utensils"></i>
+          <div id="logoPreviewContainer" class="logo-preview-container">
+            <img id="logoPreview" class="logo-preview" src="" alt="Logo" style="display: none;">
+            <div id="logoPlaceholder" class="logo-placeholder">
+              <i class="fas fa-image"></i>
             </div>
           </div>
           
-          <input type="file" id="logoUpload" accept="image/*" style="display: none;">
-          <button id="uploadLogoBtn" style="background:#8e6b4f; color:white; border:none; border-radius:60px; padding:0.8rem 2rem; cursor:pointer; font-weight:600;">📤 Upload Logo</button>
-          <button id="removeLogoBtn" style="background:#c0392b; color:white; border:none; border-radius:60px; padding:0.8rem 2rem; cursor:pointer; font-weight:600; display:none;">🗑️ Remove</button>
+          <div class="upload-controls">
+            <input type="file" id="logoUpload" accept="image/*" style="display: none;">
+            <button id="uploadLogoBtn" style="background:#8e6b4f; color:white; border:none; border-radius:60px; padding:0.8rem 2rem; cursor:pointer; font-weight:600;">📤 Upload Logo</button>
+            <button id="removeLogoBtn" style="background:#c0392b; color:white; border:none; border-radius:60px; padding:0.8rem 2rem; cursor:pointer; font-weight:600; display:none;">🗑️ Remove</button>
+          </div>
         </div>
 
-        <div style="background:white; border-radius:20px; padding:1rem; margin-top:1rem;">
-          <strong>Payment QR Code</strong>
-          <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">Upload a QR code for online payments</p>
+        <!-- QR CODE UPLOAD SECTION -->
+        <div style="background:white; border-radius:20px; padding:1.5rem; margin-top:1rem;">
+          <strong style="font-size:1.1rem;">💳 Payment QR Code</strong>
+          <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">Upload a QR code for online payments (shown on guest page)</p>
           
-          <div id="qrPreviewArea" style="display: none;">
-            <img id="qrPreview" style="max-width:150px; border-radius:10px; margin:1rem 0;" src="" alt="QR Code">
-            <button id="removeQrBtn" style="background:#c0392b; color:white; border:none; border-radius:60px; padding:0.3rem 1rem; cursor:pointer;">Remove QR</button>
+          <div id="qrPreviewContainer" class="qr-preview-container">
+            <img id="qrPreview" class="qr-preview" src="" alt="QR Code" style="display: none;">
+            <div id="qrPlaceholder" class="qr-placeholder">
+              <i class="fas fa-qrcode"></i>
+            </div>
           </div>
           
-          <input type="file" id="qrUpload" accept="image/*" style="display: none;">
-          <button id="uploadQrBtn" style="background:#8e6b4f; color:white; border:none; border-radius:60px; padding:0.8rem 2rem; cursor:pointer; font-weight:600;">📤 Upload QR Code</button>
-          <button id="saveSettingsBtn" class="save-btn" style="margin-top: 1rem; width: 100%;">💾 SAVE SETTINGS</button>
+          <div class="upload-controls">
+            <input type="file" id="qrUpload" accept="image/*" style="display: none;">
+            <button id="uploadQrBtn" style="background:#8e6b4f; color:white; border:none; border-radius:60px; padding:0.8rem 2rem; cursor:pointer; font-weight:600;">📤 Upload QR Code</button>
+            <button id="removeQrBtn" style="background:#c0392b; color:white; border:none; border-radius:60px; padding:0.8rem 2rem; cursor:pointer; font-weight:600; display:none;">🗑️ Remove</button>
+          </div>
         </div>
+
+        <!-- SAVE SETTINGS BUTTON -->
+        <button id="saveSettingsBtn" class="save-btn" style="margin-top: 1.5rem; width: 100%;">💾 SAVE ALL SETTINGS</button>
       </div>
 
       <!-- MENU EDITOR SECTION -->
@@ -976,6 +1023,88 @@
       });
     }
 
+    // ===== LOGO UPLOAD FUNCTIONS =====
+    function updateLogoDisplay() {
+      const logoPreview = document.getElementById('logoPreview');
+      const logoPlaceholder = document.getElementById('logoPlaceholder');
+      const removeLogoBtn = document.getElementById('removeLogoBtn');
+      
+      if (menuData.hotel.logoUrl) {
+        logoPreview.src = menuData.hotel.logoUrl;
+        logoPreview.style.display = 'block';
+        logoPlaceholder.style.display = 'none';
+        removeLogoBtn.style.display = 'inline-block';
+      } else {
+        logoPreview.style.display = 'none';
+        logoPlaceholder.style.display = 'flex';
+        removeLogoBtn.style.display = 'none';
+      }
+    }
+
+    document.getElementById('uploadLogoBtn').addEventListener('click', () => {
+      document.getElementById('logoUpload').click();
+    });
+
+    document.getElementById('logoUpload').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        menuData.hotel.logoUrl = event.target.result;
+        updateLogoDisplay();
+        showNotification('✅ Logo uploaded successfully', 'success');
+      };
+      reader.readAsDataURL(file);
+    });
+
+    document.getElementById('removeLogoBtn').addEventListener('click', () => {
+      menuData.hotel.logoUrl = null;
+      updateLogoDisplay();
+      showNotification('🗑️ Logo removed', 'info');
+    });
+
+    // ===== QR CODE UPLOAD FUNCTIONS =====
+    function updateQrDisplay() {
+      const qrPreview = document.getElementById('qrPreview');
+      const qrPlaceholder = document.getElementById('qrPlaceholder');
+      const removeQrBtn = document.getElementById('removeQrBtn');
+      
+      if (storeSettings.paymentQrUrl) {
+        qrPreview.src = storeSettings.paymentQrUrl;
+        qrPreview.style.display = 'block';
+        qrPlaceholder.style.display = 'none';
+        removeQrBtn.style.display = 'inline-block';
+      } else {
+        qrPreview.style.display = 'none';
+        qrPlaceholder.style.display = 'flex';
+        removeQrBtn.style.display = 'none';
+      }
+    }
+
+    document.getElementById('uploadQrBtn').addEventListener('click', () => {
+      document.getElementById('qrUpload').click();
+    });
+
+    document.getElementById('qrUpload').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        storeSettings.paymentQrUrl = event.target.result;
+        updateQrDisplay();
+        showNotification('✅ QR code uploaded successfully', 'success');
+      };
+      reader.readAsDataURL(file);
+    });
+
+    document.getElementById('removeQrBtn').addEventListener('click', () => {
+      storeSettings.paymentQrUrl = null;
+      updateQrDisplay();
+      showNotification('🗑️ QR code removed', 'info');
+    });
+
     // ===== TOGGLE ADD OWNER FORM =====
     document.getElementById('showAddOwnerBtn').addEventListener('click', () => {
       document.getElementById('addOwnerForm').classList.add('show');
@@ -1118,10 +1247,7 @@
       this.innerHTML = isEditMode ? '🔓 EDIT ON' : '🔒 EDIT OFF';
       this.classList.toggle('active');
       
-      // Update all editable fields
       updateEditMode();
-      
-      // Re-render everything with new edit mode
       renderCategories();
       renderFooter();
       showNotification(isEditMode ? '🔓 Edit Mode ON' : '🔒 Edit Mode OFF', 'info');
@@ -1145,6 +1271,8 @@
       renderAll();
       updateSettingsUI();
       updateEditMode();
+      updateLogoDisplay();
+      updateQrDisplay();
     }
 
     function updateSettingsUI() {
@@ -1180,7 +1308,6 @@
         const card = document.createElement('div');
         card.className = 'category-card';
 
-        // Category Header
         const header = document.createElement('div');
         header.className = 'category-header';
         header.innerHTML = `
@@ -1192,7 +1319,6 @@
         `;
         card.appendChild(header);
 
-        // Items
         cat.items.forEach(item => {
           const row = document.createElement('div');
           row.className = 'menu-row';
@@ -1204,7 +1330,6 @@
           nameDiv.className = 'item-name';
           nameDiv.innerHTML = `<span ${isEditMode ? 'contenteditable="true"' : ''} class="editable-field" id="${item.id}">${item.name}</span>`;
 
-          // Badge handling
           if (item.badge) {
             const badgeSpan = document.createElement('span');
             badgeSpan.className = 'badge-pill';
@@ -1251,7 +1376,6 @@
           card.appendChild(row);
         });
 
-        // Add Item button (only in edit mode)
         if (isEditMode) {
           const addBtn = document.createElement('button');
           addBtn.className = 'add-item-btn';
@@ -1329,7 +1453,6 @@
       showNotification('❤️ Footer badge removed', 'info');
     };
 
-    // ===== ADD FUNCTIONS =====
     window.addNewCategory = function() {
       if (!isEditMode) {
         showNotification('❌ Turn ON Edit Mode first', 'error');
@@ -1378,11 +1501,10 @@
       }
     };
 
-    // ===== SAVE TO SUPABASE =====
+    // ===== SAVE MENU TO SUPABASE =====
     window.saveMenuToSupabase = async function() {
       showNotification('⏳ Saving menu...', 'info');
       
-      // Update hotel data from DOM
       menuData.hotel.name = document.getElementById('hotelName').innerText;
       menuData.hotel.location = document.getElementById('hotelLocation').innerText;
       menuData.hotel.tagline = document.getElementById('hotelTagline').innerText;
@@ -1390,13 +1512,11 @@
       menuData.hotel.phone = document.getElementById('phone').innerText;
       menuData.hotel.heartNote = document.getElementById('heartNote').innerText;
 
-      // Update footer from DOM
       menuData.footer.forEach(f => {
         const el = document.getElementById(f.id);
         if (el) f.text = el.innerText;
       });
 
-      // Update categories from DOM
       menuData.categories.forEach(cat => {
         const titleEl = document.getElementById(cat.id + 'Title');
         if (titleEl) cat.title = titleEl.innerText;
@@ -1433,6 +1553,7 @@
       storeSettings.ordersPaused = document.getElementById('pauseOrdersToggle').checked;
       storeSettings.ownerPhone = document.getElementById('ownerPhone').value;
       storeSettings.deliveryCharge = parseInt(document.getElementById('deliveryCharge').value) || 50;
+      // paymentQrUrl already updated in QR upload functions
 
       const { error } = await supabaseClient
         .from('settings')
