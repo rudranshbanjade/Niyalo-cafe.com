@@ -814,25 +814,25 @@
 
       <!-- MENU EDITOR SECTION -->
       <div class="menu-master" id="masterMenu">
-        <!-- HOTEL INFO -->
+        <!-- HOTEL INFO - EDITABLE -->
         <div class="hotel-info">
           <div>
             <div class="hotel-title">
               <i class="fas fa-leaf"></i>
-              <span id="hotelName" class="editable-field">Niyalo Cafe</span>
+              <span id="hotelName" class="editable-field" contenteditable="true">Niyalo Cafe</span>
               <i class="fas fa-mug-hot"></i>
             </div>
             <div class="hotel-details">
               <i class="fas fa-map-pin"></i>
-              <span id="hotelLocation" class="editable-field">Kalkhanagar, Butwal</span>
+              <span id="hotelLocation" class="editable-field" contenteditable="true">Kalkhanagar, Butwal</span>
               <span>•</span>
               <i class="fas fa-seedling"></i>
-              <span id="hotelTagline" class="editable-field">handmade · local love</span>
+              <span id="hotelTagline" class="editable-field" contenteditable="true">handmade · local love</span>
             </div>
           </div>
           <div class="hotel-contact">
-            <span><i class="fas fa-clock"></i> <span id="hours" class="editable-field">7:00–22:00 daily</span></span>
-            <span><i class="fas fa-phone-alt"></i> <span id="phone" class="editable-field">+977 9875457844</span></span>
+            <span><i class="fas fa-clock"></i> <span id="hours" class="editable-field" contenteditable="true">7:00–22:00 daily</span></span>
+            <span><i class="fas fa-phone-alt"></i> <span id="phone" class="editable-field" contenteditable="true">+977 9875457844</span></span>
           </div>
         </div>
 
@@ -855,7 +855,7 @@
           </div>
           <div style="text-align:center;margin-top:1.5rem;">
             <i class="fas fa-heart" style="color:#c2714b;"></i>
-            <span id="heartNote" class="editable-field">order at counter · everything made to share</span>
+            <span id="heartNote" class="editable-field" contenteditable="true">order at counter · everything made to share</span>
             <i class="fas fa-heart" style="color:#c2714b;"></i>
           </div>
         </div>
@@ -962,6 +962,18 @@
       setTimeout(() => {
         notification.remove();
       }, 3000);
+    }
+
+    // ===== UPDATE CONTENTEDITABLE BASED ON EDIT MODE =====
+    function updateEditMode() {
+      const editableFields = document.querySelectorAll('.editable-field');
+      editableFields.forEach(field => {
+        if (isEditMode) {
+          field.setAttribute('contenteditable', 'true');
+        } else {
+          field.removeAttribute('contenteditable');
+        }
+      });
     }
 
     // ===== TOGGLE ADD OWNER FORM =====
@@ -1106,6 +1118,9 @@
       this.innerHTML = isEditMode ? '🔓 EDIT ON' : '🔒 EDIT OFF';
       this.classList.toggle('active');
       
+      // Update all editable fields
+      updateEditMode();
+      
       // Re-render everything with new edit mode
       renderCategories();
       renderFooter();
@@ -1129,6 +1144,7 @@
 
       renderAll();
       updateSettingsUI();
+      updateEditMode();
     }
 
     function updateSettingsUI() {
@@ -1136,6 +1152,9 @@
       document.getElementById('pauseOrdersToggle').checked = storeSettings.ordersPaused;
       document.getElementById('ownerPhone').value = storeSettings.ownerPhone;
       document.getElementById('deliveryCharge').value = storeSettings.deliveryCharge || 50;
+      
+      document.getElementById('storeStatusText').textContent = storeSettings.isOpen ? 'Open' : 'Closed';
+      document.getElementById('pauseStatusText').textContent = storeSettings.ordersPaused ? 'Paused' : 'Active';
     }
 
     function renderAll() {
@@ -1407,7 +1426,7 @@
     };
 
     // ===== SAVE SETTINGS =====
-    async function saveSettings() {
+    window.saveSettings = async function() {
       showNotification('⏳ Saving settings...', 'info');
       
       storeSettings.isOpen = document.getElementById('storeOpenToggle').checked;
@@ -1426,7 +1445,7 @@
         updateSettingsUI();
         showNotification('✅ Settings saved to cloud!', 'success');
       }
-    }
+    };
 
     // ===== EVENT LISTENERS =====
     document.getElementById('saveBtn').addEventListener('click', saveMenuToSupabase);
