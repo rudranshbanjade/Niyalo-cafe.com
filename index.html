@@ -119,10 +119,6 @@
       margin-bottom: 0.3rem;
     }
     
-    .restaurant-name span {
-      color: #27ae60;
-    }
-    
     .restaurant-contact {
       display: flex;
       gap: 1.5rem;
@@ -373,7 +369,6 @@
       display: block;
     }
 
-    /* NEW: Address Input - Only for Delivery */
     .address-input {
       margin: 0.5rem 0;
       display: none;
@@ -381,6 +376,15 @@
 
     .address-input.show {
       display: block;
+    }
+
+    /* NEW: Pickup Time Container - Hidden for Dine In */
+    .pickup-time-container {
+      margin: 0.5rem 0;
+    }
+
+    .pickup-time-container.hide {
+      display: none;
     }
 
     .form-input {
@@ -449,17 +453,6 @@
       border: 2px solid #f39c12;
     }
 
-    .paused-message i {
-      font-size: 2rem;
-      color: #f39c12;
-      margin-bottom: 0.5rem;
-    }
-
-    .paused-message h3 {
-      color: #f39c12;
-      margin-bottom: 0.5rem;
-    }
-
     .notification {
       position: fixed;
       top: 20px;
@@ -474,27 +467,13 @@
       animation: slideIn 0.3s ease;
     }
 
-    .notification.success {
-      background: #27ae60;
-    }
-
-    .notification.error {
-      background: #c0392b;
-    }
-
-    .notification.info {
-      background: #f39c12;
-    }
+    .notification.success { background: #27ae60; }
+    .notification.error { background: #c0392b; }
+    .notification.info { background: #f39c12; }
 
     @keyframes slideIn {
-      from {
-        transform: translateX(100%);
-        opacity: 0;
-      }
-      to {
-        transform: translateX(0);
-        opacity: 1;
-      }
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
     }
   </style>
 </head>
@@ -516,7 +495,7 @@
         <div class="restaurant-name" id="restaurantName">Niyalo Cafe</div>
         <div class="restaurant-contact" id="restaurantContact">
           <span><i class="fas fa-clock"></i> <span id="displayHours">7:00–22:00</span></span>
-          <span><i class="fas fa-phone-alt"></i> <span id="displayPhone">+977 981-234567</span></span>
+          <span><i class="fas fa-phone-alt"></i> <span id="displayPhone">+977 9875457844</span></span>
         </div>
       </div>
     </div>
@@ -550,7 +529,7 @@
         <input type="text" id="tableNumber" class="form-input" placeholder="Table Number (e.g., 5, 12, VIP)" maxlength="10">
       </div>
       
-      <!-- NEW: Address Input (only for delivery) -->
+      <!-- Address Input (only for delivery) -->
       <div class="address-input" id="addressContainer">
         <textarea id="deliveryAddress" class="form-input" placeholder="Delivery Address * (e.g., Street, House No., Landmark)" rows="3" style="border-radius: 20px; resize: vertical;"></textarea>
       </div>
@@ -558,7 +537,12 @@
       <div class="checkout-form">
         <input type="text" id="customerName" class="form-input" placeholder="Your Name *" required>
         <input type="tel" id="customerPhone" class="form-input" placeholder="Phone Number *" required>
-        <input type="time" id="pickupTime" class="form-input" value="18:00" required>
+        
+        <!-- NEW: Pickup Time Container (hidden for dine-in) -->
+        <div id="pickupTimeContainer" class="pickup-time-container">
+          <input type="time" id="pickupTime" class="form-input" value="18:00" required>
+        </div>
+        
         <button id="whatsappBtn" class="whatsapp-btn" disabled>
           <i class="fab fa-whatsapp"></i> SEND ORDER TO WHATSAPP
         </button>
@@ -609,9 +593,13 @@
       const tableContainer = document.getElementById('tableNumberContainer');
       tableContainer.classList.toggle('show', type === 'dine-in');
       
-      // NEW: Show/hide address input (only for delivery)
+      // Show/hide address input (only for delivery)
       const addressContainer = document.getElementById('addressContainer');
       addressContainer.classList.toggle('show', type === 'delivery');
+      
+      // NEW: Hide pickup time for dine-in, show for delivery/takeaway
+      const pickupContainer = document.getElementById('pickupTimeContainer');
+      pickupContainer.classList.toggle('hide', type === 'dine-in');
       
       renderCart();
     };
@@ -828,8 +816,14 @@
       const tableNumber = document.getElementById('tableNumber').value.trim();
       const deliveryAddress = document.getElementById('deliveryAddress')?.value.trim() || '';
       
-      if (!name || !phone || !time) {
+      if (!name || !phone) {
         showNotification('Please fill all fields', 'error');
+        return;
+      }
+      
+      // Only validate time for non-dine-in orders
+      if (selectedService !== 'dine-in' && !time) {
+        showNotification('Please select pickup time', 'error');
         return;
       }
       
@@ -878,7 +872,12 @@
       message += `\n*Subtotal*: रू${subtotal}`;
       if (deliveryCharge > 0) message += `\n*Delivery Charge*: रू${deliveryCharge}`;
       message += `\n*Total*: रू${total}`;
-      message += `\n*Pickup Time*: ${time}`;
+      
+      // Only include pickup time for non-dine-in orders
+      if (selectedService !== 'dine-in') {
+        message += `\n*Pickup Time*: ${time}`;
+      }
+      
       message += `\n*Name*: ${name}`;
       message += `\n*Phone*: ${phone}`;
       message += `\n\n✅ Preparation begins after confirmation`;
