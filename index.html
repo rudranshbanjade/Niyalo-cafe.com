@@ -27,7 +27,6 @@
       width: 100%;
     }
 
-    /* Header */
     .header {
       background: #dac1b3;
       border-radius: 40px 40px 20px 20px;
@@ -72,7 +71,6 @@
       100% { opacity: 1; transform: scale(1.2); }
     }
 
-    /* ===== LOGO & INFO SECTION - BLACK & GREEN THEME ===== */
     .restaurant-header {
       display: flex;
       align-items: center;
@@ -136,9 +134,7 @@
       color: #27ae60;
       margin-right: 0.3rem;
     }
-    /* ===== END LOGO & INFO SECTION ===== */
 
-    /* Store Status */
     .store-status {
       display: flex;
       gap: 1rem;
@@ -173,7 +169,6 @@
       color: white;
     }
 
-    /* Menu Card */
     .menu-card {
       background: white;
       border-radius: 36px;
@@ -181,7 +176,6 @@
       margin-bottom: 1.5rem;
     }
 
-    /* Categories */
     .category {
       background: #fffcf7;
       border-radius: 28px;
@@ -211,7 +205,6 @@
       color: #3d2c24;
     }
 
-    /* Menu Items */
     .item {
       display: flex;
       justify-content: space-between;
@@ -295,7 +288,6 @@
       cursor: not-allowed;
     }
 
-    /* Cart Section */
     .cart-section {
       background: #fff1e9;
       border-radius: 36px;
@@ -338,49 +330,9 @@
     }
 
     .cart-total {
-      font-size: 1.4rem;
-      font-weight: 800;
-      text-align: right;
       margin-top: 1rem;
       padding-top: 1rem;
       border-top: 2px solid #b18067;
-    }
-
-    /* Checkout Form */
-    .checkout-form {
-      margin-top: 1.5rem;
-    }
-
-    .form-input {
-      width: 100%;
-      padding: 1rem;
-      margin: 0.5rem 0;
-      border: 2px solid #e0cbba;
-      border-radius: 60px;
-      font-size: 1rem;
-      transition: border-color 0.3s;
-    }
-
-    .form-input:focus {
-      outline: none;
-      border-color: #b18067;
-    }
-
-    .phone-input-container {
-      position: relative;
-      margin: 0.5rem 0;
-    }
-
-    .phone-error {
-      color: #c0392b;
-      font-size: 0.75rem;
-      margin-top: 0.3rem;
-      padding: 0.5rem;
-      background: #fdeaea;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
     }
 
     .service-type {
@@ -421,17 +373,28 @@
       display: block;
     }
 
-    .preparation-note {
-      background: #fff3e0;
-      border-radius: 20px;
-      padding: 0.8rem;
-      margin: 1rem 0;
-      font-size: 0.85rem;
-      color: #b18067;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      border-left: 4px solid #b18067;
+    /* NEW: Address Input - Only for Delivery */
+    .address-input {
+      margin: 0.5rem 0;
+      display: none;
+    }
+
+    .address-input.show {
+      display: block;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 1rem;
+      margin: 0.5rem 0;
+      border: 2px solid #e0cbba;
+      border-radius: 60px;
+      font-size: 1rem;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #27ae60;
     }
 
     .whatsapp-btn {
@@ -445,11 +408,6 @@
       width: 100%;
       cursor: pointer;
       margin: 1rem 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 1rem;
-      transition: background 0.3s;
     }
 
     .whatsapp-btn:hover {
@@ -461,7 +419,6 @@
       cursor: not-allowed;
     }
 
-    /* Payment QR */
     .payment-qr {
       text-align: center;
       margin: 1.5rem 0;
@@ -476,7 +433,6 @@
       margin-top: 1rem;
     }
 
-    /* Footer */
     .footer-note {
       text-align: center;
       margin-top: 2rem;
@@ -484,7 +440,6 @@
       font-size: 0.8rem;
     }
 
-    /* Paused Message */
     .paused-message {
       background: #fef9e7;
       border-radius: 20px;
@@ -505,7 +460,6 @@
       margin-bottom: 0.5rem;
     }
 
-    /* Notification Popup */
     .notification {
       position: fixed;
       top: 20px;
@@ -546,13 +500,11 @@
 </head>
 <body>
   <div class="container">
-    <!-- Header -->
     <div class="header">
       <span class="qr-badge"><i class="fas fa-qrcode"></i> NIYALO</span>
       <span class="live-badge"><span class="pulse"></span> ORDER ONLINE</span>
     </div>
 
-    <!-- Logo & Info Section - Black & Green Theme -->
     <div class="restaurant-header" id="restaurantHeader">
       <div class="logo-container">
         <img id="logoImage" class="logo-image" src="" alt="Restaurant Logo" style="display: none;">
@@ -569,24 +521,18 @@
       </div>
     </div>
 
-    <!-- Store Status -->
     <div class="store-status" id="storeStatus"></div>
-
-    <!-- Paused Message -->
     <div id="pausedMessageContainer"></div>
 
-    <!-- Menu Card -->
     <div class="menu-card">
       <div id="categoriesContainer"></div>
     </div>
 
-    <!-- Cart Section -->
     <div class="cart-section" id="cartSection" style="display: none;">
       <h3 style="margin-bottom: 1rem;">🛒 Your Cart</h3>
       <div id="cartItems"></div>
-      <div class="cart-total" id="cartTotal">Total: रू0</div>
+      <div class="cart-total" id="cartTotal"></div>
       
-      <!-- Service Type Selection -->
       <div class="service-type" id="serviceType">
         <div class="service-option selected" data-type="dine-in" onclick="selectService('dine-in')">
           <i class="fas fa-chair"></i> Dine In
@@ -604,34 +550,26 @@
         <input type="text" id="tableNumber" class="form-input" placeholder="Table Number (e.g., 5, 12, VIP)" maxlength="10">
       </div>
       
-      <!-- Preparation Note -->
-      <div class="preparation-note">
-        <i class="fas fa-clock"></i>
-        <span>✅ Preparation begins after confirmation</span>
+      <!-- NEW: Address Input (only for delivery) -->
+      <div class="address-input" id="addressContainer">
+        <textarea id="deliveryAddress" class="form-input" placeholder="Delivery Address * (e.g., Street, House No., Landmark)" rows="3" style="border-radius: 20px; resize: vertical;"></textarea>
       </div>
       
       <div class="checkout-form">
         <input type="text" id="customerName" class="form-input" placeholder="Your Name *" required>
-        
-        <div class="phone-input-container">
-          <input type="tel" id="customerPhone" class="form-input" placeholder="Phone Number *" required>
-        </div>
-        
+        <input type="tel" id="customerPhone" class="form-input" placeholder="Phone Number *" required>
         <input type="time" id="pickupTime" class="form-input" value="18:00" required>
-        
         <button id="whatsappBtn" class="whatsapp-btn" disabled>
           <i class="fab fa-whatsapp"></i> SEND ORDER TO WHATSAPP
         </button>
       </div>
     </div>
 
-    <!-- Payment QR -->
     <div class="payment-qr" id="paymentQrContainer" style="display: none;">
       <p>💳 Scan to pay online</p>
       <img id="paymentQrImage" src="" alt="Payment QR Code">
     </div>
 
-    <!-- Footer -->
     <div class="footer-note">
       <i class="fas fa-leaf"></i> fresh · local · handmade · नियालो
     </div>
@@ -648,41 +586,67 @@
       isOpen: true,
       ordersPaused: false,
       paymentQrUrl: null,
-      ownerPhone: "977981234567"
+      ownerPhone: "977981234567",
+      deliveryCharge: 50
     };
     let cart = [];
     let selectedService = 'dine-in';
 
-    // ===== NOTIFICATION FUNCTION =====
-    function showNotification(message, type = 'success') {
+    function showNotification(message, type) {
       const notification = document.createElement('div');
       notification.className = `notification ${type}`;
       notification.innerHTML = message;
       document.body.appendChild(notification);
-      
-      setTimeout(() => {
-        notification.remove();
-      }, 3000);
+      setTimeout(() => notification.remove(), 3000);
     }
 
-    // ===== SERVICE TYPE SELECTION =====
     window.selectService = function(type) {
       selectedService = type;
-      
-      document.querySelectorAll('.service-option').forEach(opt => {
-        opt.classList.remove('selected');
-      });
+      document.querySelectorAll('.service-option').forEach(opt => opt.classList.remove('selected'));
       document.querySelector(`.service-option[data-type="${type}"]`).classList.add('selected');
       
+      // Show/hide table number input (only for dine-in)
       const tableContainer = document.getElementById('tableNumberContainer');
-      if (type === 'dine-in') {
-        tableContainer.classList.add('show');
-      } else {
-        tableContainer.classList.remove('show');
-      }
+      tableContainer.classList.toggle('show', type === 'dine-in');
+      
+      // NEW: Show/hide address input (only for delivery)
+      const addressContainer = document.getElementById('addressContainer');
+      addressContainer.classList.toggle('show', type === 'delivery');
+      
+      renderCart();
     };
 
-    // ===== UPDATE LOGO & INFO DISPLAY =====
+    async function loadAllData() {
+      try {
+        const { data: menuData_ } = await supabaseClient
+          .from('menus')
+          .select('*')
+          .eq('id', 1)
+          .single();
+        if (menuData_?.data) menuData = menuData_.data;
+      } catch(e) {}
+
+      try {
+        const { data: settingsData } = await supabaseClient
+          .from('settings')
+          .select('*')
+          .eq('id', 1)
+          .single();
+        if (settingsData?.data) storeSettings = { ...storeSettings, ...settingsData.data };
+      } catch(e) {}
+
+      renderAll();
+    }
+
+    function renderAll() {
+      renderStoreStatus();
+      renderPausedMessage();
+      renderMenu();
+      renderPaymentQr();
+      updateRestaurantDisplay();
+      updateWhatsAppButton();
+    }
+
     function updateRestaurantDisplay() {
       const logoImage = document.getElementById('logoImage');
       const logoPlaceholder = document.getElementById('logoPlaceholder');
@@ -699,60 +663,14 @@
         logoPlaceholder.style.display = 'flex';
       }
       
-      if (menuData?.hotel?.name) {
-        restaurantName.innerText = menuData.hotel.name;
-      }
-      
-      if (menuData?.hotel?.hours) {
-        displayHours.innerText = menuData.hotel.hours;
-      }
-      
-      if (menuData?.hotel?.phone) {
-        displayPhone.innerText = menuData.hotel.phone;
-      }
-    }
-
-    async function loadAllData() {
-      try {
-        const { data: menuData_ } = await supabaseClient
-          .from('menus')
-          .select('*')
-          .eq('id', 1)
-          .single();
-        
-        if (menuData_?.data) {
-          menuData = menuData_.data;
-        }
-
-        const { data: settingsData } = await supabaseClient
-          .from('settings')
-          .select('*')
-          .eq('id', 1)
-          .single();
-        
-        if (settingsData?.data) {
-          storeSettings = { ...storeSettings, ...settingsData.data };
-        }
-
-        renderAll();
-        updateRestaurantDisplay();
-      } catch (error) {
-        console.log('Error loading data:', error);
-      }
-    }
-
-    function renderAll() {
-      renderStoreStatus();
-      renderPausedMessage();
-      renderMenu();
-      renderPaymentQr();
-      updateWhatsAppButton();
+      if (menuData?.hotel?.name) restaurantName.innerText = menuData.hotel.name;
+      if (menuData?.hotel?.hours) displayHours.innerText = menuData.hotel.hours;
+      if (menuData?.hotel?.phone) displayPhone.innerText = menuData.hotel.phone;
     }
 
     function renderStoreStatus() {
       const statusDiv = document.getElementById('storeStatus');
       let statusHtml = '';
-      
       if (!storeSettings.isOpen) {
         statusHtml = '<span class="status-badge status-closed">🔴 STORE CLOSED</span>';
       } else if (storeSettings.ordersPaused) {
@@ -760,13 +678,11 @@
       } else {
         statusHtml = '<span class="status-badge status-open">🟢 OPEN FOR ORDERS</span>';
       }
-      
       statusDiv.innerHTML = statusHtml;
     }
 
     function renderPausedMessage() {
       const container = document.getElementById('pausedMessageContainer');
-      
       if (storeSettings.ordersPaused) {
         container.innerHTML = `
           <div class="paused-message">
@@ -782,19 +698,11 @@
 
     function renderMenu() {
       if (!menuData?.categories) return;
-      
       const container = document.getElementById('categoriesContainer');
       container.innerHTML = '';
       
       menuData.categories.forEach(cat => {
-        let catHtml = `
-          <div class="category">
-            <div class="category-title">
-              <i class="fas fa-${cat.icon}"></i>
-              <h2>${cat.title}</h2>
-            </div>
-        `;
-        
+        let catHtml = `<div class="category"><div class="category-title"><i class="fas fa-${cat.icon}"></i><h2>${cat.title}</h2></div>`;
         cat.items.forEach(item => {
           const isOutOfStock = item.outOfStock || false;
           const canOrder = storeSettings.isOpen && !storeSettings.ordersPaused && !isOutOfStock;
@@ -803,21 +711,15 @@
             <div class="item">
               <div class="item-info">
                 <div class="item-name">
-                  ${item.name}
-                  ${item.badge ? `<span class="badge">${item.badge}</span>` : ''}
-                  ${isOutOfStock ? '<span class="out-of-stock-badge">Out of Stock</span>' : ''}
+                  ${item.name} ${item.badge ? `<span class="badge">${item.badge}</span>` : ''} ${isOutOfStock ? '<span class="out-of-stock-badge">Out of Stock</span>' : ''}
                 </div>
                 <div class="item-desc">${item.desc}</div>
               </div>
               <span class="price">${item.price}</span>
-              ${canOrder ? 
-                `<button class="add-to-cart" onclick="addToCart('${item.id}', '${item.name}', ${item.price})">Add</button>` : 
-                `<button class="add-to-cart" disabled>${!storeSettings.isOpen ? 'Closed' : storeSettings.ordersPaused ? 'Paused' : 'Sold Out'}</button>`
-              }
+              ${canOrder ? `<button class="add-to-cart" onclick="addToCart('${item.id}', '${item.name}', ${item.price})">Add</button>` : `<button class="add-to-cart" disabled>${!storeSettings.isOpen ? 'Closed' : storeSettings.ordersPaused ? 'Paused' : 'Sold Out'}</button>`}
             </div>
           `;
         });
-        
         catHtml += `</div>`;
         container.innerHTML += catHtml;
       });
@@ -826,7 +728,6 @@
     function renderPaymentQr() {
       const container = document.getElementById('paymentQrContainer');
       const img = document.getElementById('paymentQrImage');
-      
       if (storeSettings.paymentQrUrl) {
         img.src = storeSettings.paymentQrUrl;
         container.style.display = 'block';
@@ -836,8 +737,7 @@
     }
 
     function updateWhatsAppButton() {
-      const btn = document.getElementById('whatsappBtn');
-      btn.disabled = !storeSettings.isOpen || storeSettings.ordersPaused;
+      document.getElementById('whatsappBtn').disabled = !storeSettings.isOpen || storeSettings.ordersPaused;
     }
 
     window.addToCart = function(id, name, price) {
@@ -876,16 +776,13 @@
       cartSection.style.display = 'block';
       
       let itemsHtml = '';
-      let total = 0;
+      let subtotal = 0;
       
       cart.forEach(item => {
-        total += item.price * item.quantity;
+        subtotal += item.price * item.quantity;
         itemsHtml += `
           <div class="cart-item">
-            <div>
-              <span class="cart-item-name">${item.name}</span>
-              <span class="cart-item-price"> रू${item.price}</span>
-            </div>
+            <div><span class="cart-item-name">${item.name}</span> <span class="cart-item-price">रू${item.price}</span></div>
             <div class="cart-quantity">
               <button class="quantity-btn" onclick="updateQuantity('${item.id}', -1)">-</button>
               <span>${item.quantity}</span>
@@ -895,45 +792,41 @@
         `;
       });
       
+      let deliveryCharge = 0;
+      if (selectedService === 'delivery') {
+        deliveryCharge = storeSettings.deliveryCharge || 50;
+      }
+      
+      const total = subtotal + deliveryCharge;
+      
       cartItemsDiv.innerHTML = itemsHtml;
-      cartTotalDiv.innerHTML = `Total: रू${total}`;
+      cartTotalDiv.innerHTML = `
+        <div>Subtotal: रू${subtotal}</div>
+        ${deliveryCharge > 0 ? `<div>Delivery Charge: रू${deliveryCharge}</div>` : ''}
+        <div style="font-size:1.4rem; margin-top:0.5rem;">Total: रू${total}</div>
+      `;
     }
 
-    // ===== PHONE VALIDATION =====
+    // Phone validation
     document.getElementById('customerPhone').addEventListener('input', function(e) {
       const phone = e.target.value;
       const phoneRegex = /^(98|97)\d{8}$/;
-      const errorContainer = this.parentNode;
-      const existingError = document.getElementById('phoneError');
-      
-      if (existingError) existingError.remove();
-      this.style.borderColor = '#e0cbba';
-      
       if (phone.length > 0 && !phoneRegex.test(phone)) {
         this.style.borderColor = '#c0392b';
-        
-        const errorDiv = document.createElement('div');
-        errorDiv.id = 'phoneError';
-        errorDiv.className = 'phone-error';
-        errorDiv.innerHTML = `
-          <i class="fas fa-exclamation-circle"></i>
-          <span>❌ Invalid phone number! Must be 10 digits starting with 97 or 98 (e.g., 9812345678)</span>
-        `;
-        errorContainer.appendChild(errorDiv);
       } else if (phoneRegex.test(phone)) {
         this.style.borderColor = '#27ae60';
+      } else {
+        this.style.borderColor = '#e0cbba';
       }
     });
 
-    // ===== WHATSAPP ORDER WITH VALIDATION =====
+    // WhatsApp order
     document.getElementById('whatsappBtn').addEventListener('click', function() {
       const name = document.getElementById('customerName').value.trim();
       const phone = document.getElementById('customerPhone').value.trim();
       const time = document.getElementById('pickupTime').value;
       const tableNumber = document.getElementById('tableNumber').value.trim();
-      
-      const existingError = document.getElementById('phoneError');
-      if (existingError) existingError.remove();
+      const deliveryAddress = document.getElementById('deliveryAddress')?.value.trim() || '';
       
       if (!name || !phone || !time) {
         showNotification('Please fill all fields', 'error');
@@ -945,24 +838,16 @@
         return;
       }
       
-      const phoneRegex = /^(98|97)\d{8}$/;
-      const phoneInput = document.getElementById('customerPhone');
-      
-      if (!phoneRegex.test(phone)) {
-        const errorDiv = document.createElement('div');
-        errorDiv.id = 'phoneError';
-        errorDiv.className = 'phone-error';
-        errorDiv.innerHTML = `
-          <i class="fas fa-exclamation-circle"></i>
-          <span>❌ Invalid phone number! Must be 10 digits starting with 97 or 98 (e.g., 9812345678)</span>
-        `;
-        phoneInput.parentNode.appendChild(errorDiv);
-        phoneInput.style.borderColor = '#c0392b';
-        phoneInput.focus();
+      if (selectedService === 'delivery' && !deliveryAddress) {
+        showNotification('Please enter delivery address', 'error');
         return;
       }
       
-      phoneInput.style.borderColor = '#e0cbba';
+      const phoneRegex = /^(98|97)\d{8}$/;
+      if (!phoneRegex.test(phone)) {
+        showNotification('Invalid phone number! Must be 10 digits starting with 97 or 98', 'error');
+        return;
+      }
       
       if (cart.length === 0) {
         showNotification('Your cart is empty', 'error');
@@ -976,31 +861,35 @@
       
       if (selectedService === 'dine-in') {
         message += `*Table:* ${tableNumber}\n`;
+      } else if (selectedService === 'delivery') {
+        message += `*Delivery Address:* ${deliveryAddress}\n`;
       }
       
       message += `*Your Order:*\n`;
-      
+      let subtotal = 0;
       cart.forEach(item => {
+        subtotal += item.price * item.quantity;
         message += `${item.quantity}x ${item.name} - रू${item.price * item.quantity}\n`;
       });
       
-      const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      let deliveryCharge = selectedService === 'delivery' ? (storeSettings.deliveryCharge || 50) : 0;
+      let total = subtotal + deliveryCharge;
+      
+      message += `\n*Subtotal*: रू${subtotal}`;
+      if (deliveryCharge > 0) message += `\n*Delivery Charge*: रू${deliveryCharge}`;
       message += `\n*Total*: रू${total}`;
       message += `\n*Pickup Time*: ${time}`;
       message += `\n*Name*: ${name}`;
       message += `\n*Phone*: ${phone}`;
       message += `\n\n✅ Preparation begins after confirmation`;
       
-      const whatsappUrl = `https://wa.me/${storeSettings.ownerPhone}?text=${encodeURIComponent(message)}`;
-      window.open(whatsappUrl, '_blank');
-      
-      showNotification('✅ Order sent to WhatsApp!', 'success');
+      window.open(`https://wa.me/${storeSettings.ownerPhone}?text=${encodeURIComponent(message)}`, '_blank');
       
       cart = [];
       renderCart();
+      showNotification('✅ Order sent to WhatsApp!', 'success');
     });
 
-    // ===== INIT =====
     loadAllData();
     setInterval(loadAllData, 5000);
     window.selectService('dine-in');
