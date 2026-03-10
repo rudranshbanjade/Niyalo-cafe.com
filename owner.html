@@ -135,6 +135,8 @@
       justify-content: space-between;
       align-items: center;
       border-bottom: 5px solid #c49a6c;
+      flex-wrap: wrap;
+      gap: 1rem;
     }
     
     .logo-text h1 {
@@ -180,17 +182,6 @@
       padding: 0.6rem 1.5rem;
       border-radius: 60px;
       text-decoration: none;
-    }
-    
-    .logout-btn {
-      background: #c0392b;
-      color: white;
-      padding: 0.6rem 1.5rem;
-      border-radius: 60px;
-      cursor: pointer;
-      border: none;
-      font-weight: 600;
-      margin-left: 0.5rem;
     }
     
     .controls-toggle-btn {
@@ -473,36 +464,19 @@
       border-radius: 60px;
     }
     
-    /* Admin Section */
-    .admin-section {
-      background: #fcf7f2;
-      border-radius: 48px;
-      padding: 1.8rem;
-      margin-top: 2rem;
-    }
-    
-    .admin-section h3 {
-      margin-bottom: 1rem;
-      color: #2b1e19;
-    }
-    
-    .admin-controls {
+    /* NEW: Footer Controls */
+    .footer-controls {
       display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
+      justify-content: space-between;
       align-items: center;
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 2px dashed #d4b19b;
+      flex-wrap: wrap;
+      gap: 1rem;
     }
     
-    .admin-input {
-      flex: 1;
-      padding: 0.8rem 1rem;
-      border: 2px solid #e0cbba;
-      border-radius: 60px;
-      font-size: 1rem;
-      min-width: 200px;
-    }
-    
-    .admin-btn {
+    .add-owner-btn {
       background: #8e6b4f;
       color: white;
       border: none;
@@ -510,6 +484,44 @@
       padding: 0.8rem 1.5rem;
       cursor: pointer;
       font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .logout-footer-btn {
+      background: #c0392b;
+      color: white;
+      border: none;
+      border-radius: 60px;
+      padding: 0.8rem 1.5rem;
+      cursor: pointer;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    /* NEW: Add Owner Form (Hidden by default) */
+    .add-owner-form {
+      background: #fcf7f2;
+      border-radius: 48px;
+      padding: 1.5rem;
+      margin-top: 1rem;
+      display: none;
+    }
+    
+    .add-owner-form.show {
+      display: block;
+    }
+    
+    .add-owner-form h3 {
+      margin-bottom: 1rem;
+      color: #2b1e19;
+    }
+    
+    .add-owner-form .form-group {
+      margin-bottom: 1rem;
     }
     
     .notification {
@@ -518,6 +530,7 @@
       right: 20px;
       padding: 1rem 2rem;
       border-radius: 60px;
+      background: #2c5f4b;
       color: white;
       font-weight: 600;
       box-shadow: 0 4px 15px rgba(0,0,0,0.2);
@@ -525,27 +538,13 @@
       animation: slideIn 0.3s ease;
     }
     
-    .notification.success {
-      background: #27ae60;
-    }
-    
-    .notification.error {
-      background: #c0392b;
-    }
-    
-    .notification.info {
-      background: #f39c12;
-    }
+    .notification.success { background: #27ae60; }
+    .notification.error { background: #c0392b; }
+    .notification.info { background: #f39c12; }
     
     @keyframes slideIn {
       from { transform: translateX(100%); opacity: 0; }
       to { transform: translateX(0); opacity: 1; }
-    }
-    
-    .register-form {
-      margin-top: 1.5rem;
-      padding-top: 1.5rem;
-      border-top: 2px dashed #e0cbba;
     }
   </style>
 </head>
@@ -585,7 +584,7 @@
       </div>
 
       <!-- REGISTER FORM (Hidden by default) -->
-      <div id="registerSection" class="register-form" style="display: none;">
+      <div id="registerSection" class="register-form" style="display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px dashed #e0cbba;">
         <h3 style="margin-bottom: 1rem;">Create First Owner Account</h3>
         
         <div class="form-group">
@@ -628,7 +627,6 @@
           <button id="editModeBtn" class="edit-mode-btn active">🔓 EDIT ON</button>
           <button id="saveBtn" class="save-btn">💾 SAVE TO CLOUD</button>
           <a href="index.html" target="_blank" class="guest-link">👁️ VIEW</a>
-          <button id="logoutBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> LOGOUT</button>
         </div>
       </div>
 
@@ -679,7 +677,7 @@
           <input type="text" id="ownerPhone" value="977981234567" style="padding:0.5rem; border-radius:60px; border:1px solid #ccc; width:200px;">
         </div>
 
-        <div class="logo-upload" style="background:white; border-radius:20px; padding:1rem; margin-top:1rem;">
+        <div style="background:white; border-radius:20px; padding:1rem; margin-top:1rem;">
           <strong>Restaurant Logo</strong>
           <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">Upload your restaurant logo</p>
           
@@ -691,21 +689,21 @@
           </div>
           
           <input type="file" id="logoUpload" accept="image/*" style="display: none;">
-          <button id="uploadLogoBtn" class="admin-btn">📤 Upload Logo</button>
-          <button id="removeLogoBtn" class="admin-btn" style="background:#c0392b; display:none;">🗑️ Remove</button>
+          <button id="uploadLogoBtn" style="background:#8e6b4f; color:white; border:none; border-radius:60px; padding:0.8rem 2rem; cursor:pointer; font-weight:600;">📤 Upload Logo</button>
+          <button id="removeLogoBtn" style="background:#c0392b; color:white; border:none; border-radius:60px; padding:0.8rem 2rem; cursor:pointer; font-weight:600; display:none;">🗑️ Remove</button>
         </div>
 
-        <div class="qr-upload" style="background:white; border-radius:20px; padding:1rem; margin-top:1rem;">
+        <div style="background:white; border-radius:20px; padding:1rem; margin-top:1rem;">
           <strong>Payment QR Code</strong>
           <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">Upload a QR code for online payments</p>
           
           <div id="qrPreviewArea" style="display: none;">
             <img id="qrPreview" style="max-width:150px; border-radius:10px; margin:1rem 0;" src="" alt="QR Code">
-            <button id="removeQrBtn" class="admin-btn" style="background:#c0392b;">Remove QR</button>
+            <button id="removeQrBtn" style="background:#c0392b; color:white; border:none; border-radius:60px; padding:0.3rem 1rem; cursor:pointer;">Remove QR</button>
           </div>
           
           <input type="file" id="qrUpload" accept="image/*" style="display: none;">
-          <button id="uploadQrBtn" class="admin-btn">📤 Upload QR Code</button>
+          <button id="uploadQrBtn" style="background:#8e6b4f; color:white; border:none; border-radius:60px; padding:0.8rem 2rem; cursor:pointer; font-weight:600;">📤 Upload QR Code</button>
           <button id="saveSettingsBtn" class="save-btn" style="margin-top: 1rem; width: 100%;">💾 SAVE SETTINGS</button>
         </div>
       </div>
@@ -728,7 +726,7 @@
           </div>
           <div class="hotel-contact">
             <span><i class="fas fa-clock"></i> <span id="hours" class="editable-field">7:00–22:00 daily</span></span>
-            <span><i class="fas fa-phone-alt"></i> <span id="phone" class="editable-field">+977 976-6794282</span></span>
+            <span><i class="fas fa-phone-alt"></i> <span id="phone" class="editable-field">+977 9875457844</span></span>
           </div>
         </div>
 
@@ -754,17 +752,31 @@
         </div>
       </div>
 
-      <!-- Add New Owner Section (Only visible to logged in owners) -->
-      <div class="admin-section">
-        <h3>👥 Add Another Owner</h3>
-        <p style="color: #666; margin-bottom: 1rem;">Create a new owner account (they can login with email and password)</p>
-        <div class="admin-controls">
-          <input type="email" id="newOwnerEmail" class="admin-input" placeholder="New owner's email">
-          <input type="password" id="newOwnerPassword" class="admin-input" placeholder="Password (min 6 chars)">
-          <button id="addOwnerBtn" class="admin-btn">
-            <i class="fas fa-user-plus"></i> ADD OWNER
-          </button>
+      <!-- Footer Controls: Add Owner Button + Logout -->
+      <div class="footer-controls">
+        <button id="showAddOwnerBtn" class="add-owner-btn">
+          <i class="fas fa-user-plus"></i> ADD NEW OWNER
+        </button>
+        <button id="logoutFooterBtn" class="logout-footer-btn">
+          <i class="fas fa-sign-out-alt"></i> LOGOUT
+        </button>
+      </div>
+
+      <!-- Add Owner Form (Hidden by default) -->
+      <div id="addOwnerForm" class="add-owner-form">
+        <h3>➕ Add Another Owner</h3>
+        <div class="form-group">
+          <input type="email" id="newOwnerEmail" class="form-input" placeholder="New owner's email" style="width:100%; padding:0.8rem; border:2px solid #e0cbba; border-radius:60px;">
         </div>
+        <div class="form-group">
+          <input type="password" id="newOwnerPassword" class="form-input" placeholder="Password (min 6 chars)" style="width:100%; padding:0.8rem; border:2px solid #e0cbba; border-radius:60px;">
+        </div>
+        <button id="addOwnerBtn" class="btn" style="background:#27ae60;">
+          <i class="fas fa-user-check"></i> CREATE OWNER
+        </button>
+        <button id="cancelAddOwnerBtn" style="background:#7f8c8d; color:white; border:none; border-radius:60px; padding:0.8rem; width:100%; margin-top:0.5rem; cursor:pointer;">
+          Cancel
+        </button>
       </div>
 
       <div class="sync-status">
@@ -779,7 +791,31 @@
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dHhyemhib2N5dm9wbWl2enpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNTU1NDgsImV4cCI6MjA4NjYzMTU0OH0.apOAqrdlz3WBo9Aht3xzHc-XBkInHSQVfHu3NRuCxNc'
     );
 
-    let menuData = null;
+    let menuData = {
+      hotel: {
+        name: "Niyalo Cafe",
+        location: "Kalkhanagar, Butwal",
+        tagline: "handmade · local love",
+        hours: "7:00–22:00 daily",
+        phone: "+977 9875457844",
+        heartNote: "order at counter · everything made to share",
+        logoUrl: null
+      },
+      footer: [
+        { id: "footer1", text: "house-baked daily" },
+        { id: "footer2", text: "vegan & gluten-free" },
+        { id: "footer3", text: "free high-speed wifi" }
+      ],
+      categories: [
+        { id: "cat1", title: "all-day breakfast", icon: "sunrise", items: [
+          { id: "item1_1", name: "Niyalo Shakshuka", desc: "poached eggs · spiced tomato · feta", price: "590", badge: null },
+          { id: "item1_2", name: "Cardamom French Toast", desc: "brioche · orange · maple", price: "520", badge: null },
+          { id: "item1_3", name: "Avocado Garden Toast", desc: "sourdough · za'atar · radish", price: "580", badge: "vegan" },
+          { id: "item1_4", name: "House Granola Pot", desc: "yoghurt · berries · honey", price: "420", badge: null }
+        ]}
+      ]
+    };
+    
     let storeSettings = {
       isOpen: true,
       ordersPaused: false,
@@ -789,7 +825,6 @@
     };
     let isEditMode = true;
 
-    // Show notification
     function showNotification(message, type) {
       const notification = document.createElement('div');
       notification.className = `notification ${type}`;
@@ -798,22 +833,24 @@
       setTimeout(() => notification.remove(), 3000);
     }
 
-    // Toggle between login and register forms
-    document.getElementById('showRegister').addEventListener('click', (e) => {
-      e.preventDefault();
-      document.getElementById('registerSection').style.display = 'block';
-      document.querySelector('.login-form').style.display = 'none';
-      document.querySelector('.register-link').style.display = 'none';
+    // Toggle Add Owner Form
+    document.getElementById('showAddOwnerBtn').addEventListener('click', () => {
+      document.getElementById('addOwnerForm').classList.add('show');
     });
 
-    document.getElementById('backToLogin').addEventListener('click', (e) => {
-      e.preventDefault();
-      document.getElementById('registerSection').style.display = 'none';
-      document.querySelector('.login-form').style.display = 'block';
-      document.querySelector('.register-link').style.display = 'block';
+    document.getElementById('cancelAddOwnerBtn').addEventListener('click', () => {
+      document.getElementById('addOwnerForm').classList.remove('show');
     });
 
-    // Check if user is logged in
+    // Logout function (both header and footer)
+    async function logout() {
+      await supabaseClient.auth.signOut();
+      checkAuth();
+    }
+
+    document.getElementById('logoutFooterBtn').addEventListener('click', logout);
+
+    // Check auth
     async function checkAuth() {
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (session) {
@@ -834,9 +871,7 @@
       
       errorDiv.classList.remove('show');
       
-      const { error } = await supabaseClient.auth.signInWithPassword({
-        email, password
-      });
+      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
       
       if (error) {
         errorDiv.innerHTML = '❌ ' + error.message;
@@ -846,7 +881,22 @@
       }
     });
 
-    // Register FIRST owner
+    // Show register form
+    document.getElementById('showRegister').addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById('registerSection').style.display = 'block';
+      document.querySelector('.login-form').style.display = 'none';
+      document.querySelector('.register-link').style.display = 'none';
+    });
+
+    document.getElementById('backToLogin').addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById('registerSection').style.display = 'none';
+      document.querySelector('.login-form').style.display = 'block';
+      document.querySelector('.register-link').style.display = 'block';
+    });
+
+    // Register first owner
     document.getElementById('registerBtn').addEventListener('click', async () => {
       const name = document.getElementById('regName').value;
       const email = document.getElementById('regEmail').value;
@@ -868,18 +918,9 @@
         return;
       }
       
-      if (password.length < 6) {
-        errorDiv.innerHTML = '❌ Password must be at least 6 characters';
-        errorDiv.classList.add('show');
-        return;
-      }
-      
       const { error } = await supabaseClient.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { full_name: name }
-        }
+        email, password,
+        options: { data: { full_name: name } }
       });
       
       if (error) {
@@ -894,7 +935,7 @@
       }
     });
 
-    // Add another owner (only logged in users)
+    // Add another owner
     document.getElementById('addOwnerBtn').addEventListener('click', async () => {
       const email = document.getElementById('newOwnerEmail').value;
       const password = document.getElementById('newOwnerPassword').value;
@@ -904,18 +945,7 @@
         return;
       }
       
-      if (password.length < 6) {
-        showNotification('Password must be at least 6 characters', 'error');
-        return;
-      }
-      
-      const { error } = await supabaseClient.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { role: 'owner' }
-        }
-      });
+      const { error } = await supabaseClient.auth.signUp({ email, password });
       
       if (error) {
         showNotification('Error: ' + error.message, 'error');
@@ -923,37 +953,45 @@
         showNotification('✅ Owner account created!', 'success');
         document.getElementById('newOwnerEmail').value = '';
         document.getElementById('newOwnerPassword').value = '';
+        document.getElementById('addOwnerForm').classList.remove('show');
       }
     });
 
-    // Logout
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      await supabaseClient.auth.signOut();
-      checkAuth();
+    // Toggle controls panel
+    document.getElementById('toggleControlsBtn').addEventListener('click', function() {
+      document.getElementById('storeControlsPanel').classList.toggle('show');
+    });
+
+    // Edit mode toggle
+    document.getElementById('editModeBtn').addEventListener('click', function() {
+      isEditMode = !isEditMode;
+      this.innerHTML = isEditMode ? '🔓 EDIT ON' : '🔒 EDIT OFF';
+      this.classList.toggle('active');
     });
 
     // Load all data
     async function loadAllData() {
       try {
-        const { data } = await supabaseClient
-          .from('menus')
-          .select('*')
-          .eq('id', 1)
-          .single();
+        const { data } = await supabaseClient.from('menus').select('*').eq('id', 1).single();
         if (data?.data) menuData = data.data;
       } catch(e) {}
 
       try {
-        const { data } = await supabaseClient
-          .from('settings')
-          .select('*')
-          .eq('id', 1)
-          .single();
+        const { data } = await supabaseClient.from('settings').select('*').eq('id', 1).single();
         if (data?.data) storeSettings = { ...storeSettings, ...data.data };
       } catch(e) {}
 
-      renderAll();
+      renderHotelInfo();
       updateSettingsUI();
+    }
+
+    function renderHotelInfo() {
+      document.getElementById('hotelName').innerText = menuData.hotel.name;
+      document.getElementById('hotelLocation').innerText = menuData.hotel.location;
+      document.getElementById('hotelTagline').innerText = menuData.hotel.tagline;
+      document.getElementById('hours').innerText = menuData.hotel.hours;
+      document.getElementById('phone').innerText = menuData.hotel.phone;
+      document.getElementById('heartNote').innerText = menuData.hotel.heartNote;
     }
 
     function updateSettingsUI() {
@@ -963,40 +1001,6 @@
       document.getElementById('deliveryCharge').value = storeSettings.deliveryCharge || 50;
     }
 
-    function renderAll() {
-      if (!menuData) return;
-      document.getElementById('hotelName').innerText = menuData.hotel.name;
-      document.getElementById('hotelLocation').innerText = menuData.hotel.location;
-      document.getElementById('hotelTagline').innerText = menuData.hotel.tagline;
-      document.getElementById('hours').innerText = menuData.hotel.hours;
-      document.getElementById('phone').innerText = menuData.hotel.phone;
-      document.getElementById('heartNote').innerText = menuData.hotel.heartNote;
-    }
-
-    // Save settings
-    async function saveSettings() {
-      storeSettings.isOpen = document.getElementById('storeOpenToggle').checked;
-      storeSettings.ordersPaused = document.getElementById('pauseOrdersToggle').checked;
-      storeSettings.ownerPhone = document.getElementById('ownerPhone').value;
-      storeSettings.deliveryCharge = parseInt(document.getElementById('deliveryCharge').value) || 50;
-
-      const { error } = await supabaseClient
-        .from('settings')
-        .upsert({ id: 1, data: storeSettings });
-
-      if (error) {
-        showNotification('Error: ' + error.message, 'error');
-      } else {
-        showNotification('✅ Settings saved!', 'success');
-      }
-    }
-
-    document.getElementById('saveSettingsBtn').addEventListener('click', saveSettings);
-    document.getElementById('toggleControlsBtn').addEventListener('click', function() {
-      document.getElementById('storeControlsPanel').classList.toggle('show');
-    });
-
-    // Check auth on load
     checkAuth();
   </script>
 </body>
