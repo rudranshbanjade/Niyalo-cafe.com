@@ -81,17 +81,6 @@
       font-size: 1rem;
     }
     
-    .register-link {
-      text-align: center;
-      margin-top: 1rem;
-    }
-    
-    .register-link a {
-      color: #27ae60;
-      text-decoration: none;
-      font-weight: 600;
-    }
-    
     .error-message {
       background: #fdeaea;
       color: #c0392b;
@@ -690,7 +679,7 @@
 </head>
 <body>
   <div id="app">
-    <!-- LOGIN VIEW -->
+    <!-- LOGIN VIEW - NO REGISTER LINK -->
     <div id="loginView" class="login-wrapper" style="display: block;">
       <div class="login-header">
         <h1>
@@ -717,43 +706,6 @@
         <button id="loginBtn" class="btn">
           <i class="fas fa-sign-in-alt"></i> LOGIN
         </button>
-      </div>
-
-      <div class="register-link">
-        <a href="#" id="showRegister">First time? Create Owner Account</a>
-      </div>
-
-      <!-- REGISTER FORM -->
-      <div id="registerSection" class="register-form" style="display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px dashed #e0cbba;">
-        <h3 style="margin-bottom: 1rem;">Create First Owner Account</h3>
-        
-        <div class="form-group">
-          <label for="regName">Full Name</label>
-          <input type="text" id="regName" placeholder="Your Name">
-        </div>
-
-        <div class="form-group">
-          <label for="regEmail">Email Address</label>
-          <input type="email" id="regEmail" placeholder="owner@restaurant.com">
-        </div>
-
-        <div class="form-group">
-          <label for="regPassword">Password</label>
-          <input type="password" id="regPassword" placeholder="••••••••">
-        </div>
-
-        <div class="form-group">
-          <label for="regConfirmPassword">Confirm Password</label>
-          <input type="password" id="regConfirmPassword" placeholder="••••••••">
-        </div>
-
-        <button id="registerBtn" class="btn" style="background: #8e6b4f;">
-          <i class="fas fa-user-plus"></i> CREATE ACCOUNT
-        </button>
-        
-        <div style="text-align: center; margin-top: 1rem;">
-          <a href="#" id="backToLogin">← Back to Login</a>
-        </div>
       </div>
     </div>
 
@@ -918,14 +870,17 @@
         </button>
       </div>
 
-      <!-- Add Owner Form -->
+      <!-- Add Owner Form - WITH NAME FIELD -->
       <div id="addOwnerForm" class="add-owner-form">
         <h3>➕ Add Another Owner</h3>
         <div class="form-group">
-          <input type="email" id="newOwnerEmail" placeholder="New owner's email">
+          <input type="text" id="newOwnerName" placeholder="Owner's Full Name" required>
         </div>
         <div class="form-group">
-          <input type="password" id="newOwnerPassword" placeholder="Password (min 6 chars)">
+          <input type="email" id="newOwnerEmail" placeholder="Email address" required>
+        </div>
+        <div class="form-group">
+          <input type="password" id="newOwnerPassword" placeholder="Password (min 6 chars)" required>
         </div>
         <button id="addOwnerBtn" class="btn" style="background:#27ae60;">
           <i class="fas fa-user-check"></i> CREATE OWNER
@@ -1156,77 +1111,32 @@
       }
     });
 
-    // ===== SHOW REGISTER FORM =====
-    document.getElementById('showRegister').addEventListener('click', (e) => {
-      e.preventDefault();
-      document.getElementById('registerSection').style.display = 'block';
-      document.querySelector('.login-form').style.display = 'none';
-      document.querySelector('.register-link').style.display = 'none';
-    });
-
-    document.getElementById('backToLogin').addEventListener('click', (e) => {
-      e.preventDefault();
-      document.getElementById('registerSection').style.display = 'none';
-      document.querySelector('.login-form').style.display = 'block';
-      document.querySelector('.register-link').style.display = 'block';
-    });
-
-    // ===== REGISTER FIRST OWNER =====
-    document.getElementById('registerBtn').addEventListener('click', async () => {
-      const name = document.getElementById('regName').value;
-      const email = document.getElementById('regEmail').value;
-      const password = document.getElementById('regPassword').value;
-      const confirm = document.getElementById('regConfirmPassword').value;
-      const errorDiv = document.getElementById('loginError');
-      
-      errorDiv.classList.remove('show');
+    // ===== ADD ANOTHER OWNER (WITH NAME) =====
+    document.getElementById('addOwnerBtn').addEventListener('click', async () => {
+      const name = document.getElementById('newOwnerName').value;
+      const email = document.getElementById('newOwnerEmail').value;
+      const password = document.getElementById('newOwnerPassword').value;
       
       if (!name || !email || !password) {
-        errorDiv.innerHTML = '❌ Please fill all fields';
-        errorDiv.classList.add('show');
-        return;
-      }
-      
-      if (password !== confirm) {
-        errorDiv.innerHTML = '❌ Passwords do not match';
-        errorDiv.classList.add('show');
+        showNotification('Please fill all fields', 'error');
         return;
       }
       
       const { error } = await supabaseClient.auth.signUp({
-        email, password,
-        options: { data: { full_name: name } }
+        email, 
+        password,
+        options: {
+          data: {
+            full_name: name
+          }
+        }
       });
-      
-      if (error) {
-        errorDiv.innerHTML = '❌ ' + error.message;
-        errorDiv.classList.add('show');
-        showNotification('Registration failed: ' + error.message, 'error');
-      } else {
-        showNotification('✅ Account created! You can now login.', 'success');
-        document.getElementById('registerSection').style.display = 'none';
-        document.querySelector('.login-form').style.display = 'block';
-        document.querySelector('.register-link').style.display = 'block';
-        document.getElementById('email').value = email;
-      }
-    });
-
-    // ===== ADD ANOTHER OWNER =====
-    document.getElementById('addOwnerBtn').addEventListener('click', async () => {
-      const email = document.getElementById('newOwnerEmail').value;
-      const password = document.getElementById('newOwnerPassword').value;
-      
-      if (!email || !password) {
-        showNotification('Please fill both fields', 'error');
-        return;
-      }
-      
-      const { error } = await supabaseClient.auth.signUp({ email, password });
       
       if (error) {
         showNotification('Error: ' + error.message, 'error');
       } else {
         showNotification('✅ Owner account created!', 'success');
+        document.getElementById('newOwnerName').value = '';
         document.getElementById('newOwnerEmail').value = '';
         document.getElementById('newOwnerPassword').value = '';
         document.getElementById('addOwnerForm').classList.remove('show');
@@ -1553,7 +1463,6 @@
       storeSettings.ordersPaused = document.getElementById('pauseOrdersToggle').checked;
       storeSettings.ownerPhone = document.getElementById('ownerPhone').value;
       storeSettings.deliveryCharge = parseInt(document.getElementById('deliveryCharge').value) || 50;
-      // paymentQrUrl already updated in QR upload functions
 
       const { error } = await supabaseClient
         .from('settings')
