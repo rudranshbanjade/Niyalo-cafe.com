@@ -2,313 +2,896 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Boring Edit · Modern Cafe</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Niyalo · Order Online</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #0b0b0b; font-family: 'Inter', sans-serif; color: #eaeaea; }
-    .container { max-width: 1400px; margin: 0 auto; padding: 0 2rem; }
-    .btn-primary { background: linear-gradient(95deg, #e67e22, #f39c12); border: none; padding: 1rem 2rem; border-radius: 60px; font-weight: 700; color: #0a0a0a; cursor: pointer; }
-    .btn-outline { background: transparent; border: 1.5px solid #e67e22; padding: 0.8rem 2rem; border-radius: 60px; font-weight: 600; cursor: pointer; }
-    .card-3d { background: #131313; border-radius: 28px; border: 1px solid rgba(230,126,34,0.2); }
-    .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; margin-top: 2rem; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #fcf3ec;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      padding: 1rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      max-width: 1300px;
+      width: 100%;
+    }
+
+    .header {
+      background: #dac1b3;
+      border-radius: 40px 40px 20px 20px;
+      padding: 0.8rem 1.2rem;
+      margin-bottom: 1.2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 4px solid #b18067;
+    }
+
+    .qr-badge {
+      background: #765b4e;
+      color: white;
+      padding: 0.4rem 1.2rem;
+      border-radius: 40px;
+      font-weight: 700;
+      font-size: 0.8rem;
+    }
+
+    .live-badge {
+      background: #2d5a4b;
+      color: white;
+      padding: 0.4rem 1.2rem;
+      border-radius: 40px;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pulse {
+      width: 8px;
+      height: 8px;
+      background: #b3f0d0;
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.6; transform: scale(1); }
+      100% { opacity: 1; transform: scale(1.2); }
+    }
+
+    .restaurant-header {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+      padding: 1rem 1.5rem;
+      background: #1a1a1a;
+      border-radius: 60px;
+      color: white;
+    }
     
-    /* Cart Sidebar */
-    .cart-sidebar { position: fixed; top: 0; right: -420px; width: 400px; height: 100vh; background: #0f0f0f; backdrop-filter: blur(24px); border-left: 1px solid #e67e22; z-index: 1000; transition: right 0.3s; padding: 1.5rem; display: flex; flex-direction: column; }
-    .cart-sidebar.open { right: 0; }
-    .cart-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); z-index: 999; display: none; }
-    .cart-overlay.active { display: block; }
+    .logo-container {
+      flex-shrink: 0;
+    }
     
-    /* Owner Panel */
-    .owner-toggle { position: fixed; bottom: 20px; left: 20px; background: #1f1f1f; border-radius: 60px; padding: 12px 20px; z-index: 1200; cursor: pointer; border: 1px solid #e67e22; display: flex; gap: 8px; align-items: center; }
-    .owner-panel { position: fixed; top: 0; left: -380px; width: 380px; height: 100vh; background: #0c0c0c; border-right: 1px solid #e67e22; z-index: 1100; transition: left 0.3s; padding: 1.5rem; overflow-y: auto; }
-    .owner-panel.open { left: 0; }
+    .logo-image {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #27ae60;
+      background: #2d2d2d;
+    }
     
-    input, textarea { background: #1e1e1e; border: 1px solid #333; padding: 12px 16px; border-radius: 60px; color: white; width: 100%; margin-bottom: 12px; }
-    .switch { position: relative; display: inline-block; width: 52px; height: 28px; margin-right: 12px; }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .3s; border-radius: 34px; }
-    .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
-    input:checked + .slider { background-color: #e67e22; }
-    .badge-pill { background: #2c2c2c; padding: 0.2rem 1rem; border-radius: 50px; font-size: 0.7rem; }
+    .logo-placeholder {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: #2d2d2d;
+      border: 3px dashed #27ae60;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #27ae60;
+      font-size: 2rem;
+    }
     
-    @media (max-width: 720px) { .cart-sidebar { width: 100%; right: -100%; } .owner-panel { width: 85%; } }
+    .restaurant-details {
+      flex: 1;
+    }
+    
+    .restaurant-name {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 0.3rem;
+    }
+    
+    .restaurant-contact {
+      display: flex;
+      gap: 1.5rem;
+      color: #ccc;
+      font-size: 0.9rem;
+    }
+    
+    .restaurant-contact i {
+      color: #27ae60;
+      margin-right: 0.3rem;
+    }
+
+    .store-status {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: white;
+      border-radius: 60px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .status-badge {
+      padding: 0.6rem 1.5rem;
+      border-radius: 60px;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .status-open {
+      background: #27ae60;
+      color: white;
+    }
+
+    .status-closed {
+      background: #c0392b;
+      color: white;
+    }
+
+    .status-paused {
+      background: #f39c12;
+      color: white;
+    }
+
+    .menu-card {
+      background: white;
+      border-radius: 36px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .category {
+      background: #fffcf7;
+      border-radius: 28px;
+      padding: 1.2rem;
+      margin-bottom: 1.2rem;
+      border: 1px solid #f0ddd2;
+    }
+
+    .category-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 2px dotted #eacec2;
+      padding-bottom: 0.8rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .category-title i {
+      font-size: 1.6rem;
+      color: #aa7862;
+    }
+
+    .category-title h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #3d2c24;
+    }
+
+    .item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.8rem 0;
+      border-bottom: 1px dashed #efd9cf;
+    }
+
+    .item-info {
+      flex: 1;
+    }
+
+    .item-name {
+      font-weight: 700;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .item-desc {
+      font-size: 0.8rem;
+      color: #6b5246;
+      margin-top: 2px;
+    }
+
+    .price {
+      font-weight: 800;
+      font-size: 1.2rem;
+      background: #ffefe7;
+      padding: 0.2rem 1.2rem;
+      border-radius: 60px;
+      color: #5c3d33;
+      white-space: nowrap;
+      margin: 0 1rem;
+    }
+
+    .price:before {
+      content: "रू";
+      margin-right: 3px;
+    }
+
+    .badge {
+      background: #e7d2c5;
+      border-radius: 60px;
+      padding: 0.2rem 1rem;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .out-of-stock-badge {
+      background: #7f8c8d;
+      color: white;
+      border-radius: 60px;
+      padding: 0.2rem 1rem;
+      font-size: 0.65rem;
+      font-weight: 700;
+    }
+
+    .add-to-cart {
+      background: #2c5f4b;
+      color: white;
+      border: none;
+      border-radius: 60px;
+      padding: 0.5rem 1.5rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .add-to-cart:hover {
+      background: #1e4a3a;
+      transform: scale(1.02);
+    }
+
+    .add-to-cart:disabled {
+      background: #95a5a6;
+      cursor: not-allowed;
+    }
+
+    .cart-section {
+      background: #fff1e9;
+      border-radius: 36px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.8rem 0;
+      border-bottom: 1px dashed #dbb9a8;
+    }
+
+    .cart-item-name {
+      font-weight: 600;
+    }
+
+    .cart-item-price {
+      font-weight: 700;
+      color: #5c3d33;
+    }
+
+    .cart-quantity {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .quantity-btn {
+      background: #b18067;
+      color: white;
+      border: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .cart-total {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 2px solid #b18067;
+    }
+
+    .service-type {
+      display: flex;
+      gap: 1rem;
+      margin: 1rem 0;
+      padding: 0.5rem;
+      background: white;
+      border-radius: 60px;
+      border: 2px solid #e0cbba;
+    }
+
+    .service-option {
+      flex: 1;
+      text-align: center;
+      padding: 0.8rem;
+      border-radius: 60px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .service-option.selected {
+      background: #2c5f4b;
+      color: white;
+    }
+
+    .service-option i {
+      margin-right: 0.5rem;
+    }
+
+    .table-number-input {
+      margin: 0.5rem 0;
+      display: none;
+    }
+
+    .table-number-input.show {
+      display: block;
+    }
+
+    .address-input {
+      margin: 0.5rem 0;
+      display: none;
+    }
+
+    .address-input.show {
+      display: block;
+    }
+
+    /* NEW: Pickup Time Container - Hidden for Dine In */
+    .pickup-time-container {
+      margin: 0.5rem 0;
+    }
+
+    .pickup-time-container.hide {
+      display: none;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 1rem;
+      margin: 0.5rem 0;
+      border: 2px solid #e0cbba;
+      border-radius: 60px;
+      font-size: 1rem;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #27ae60;
+    }
+
+    .whatsapp-btn {
+      background: #25D366;
+      color: white;
+      border: none;
+      border-radius: 60px;
+      padding: 1.2rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+      width: 100%;
+      cursor: pointer;
+      margin: 1rem 0;
+    }
+
+    .whatsapp-btn:hover {
+      background: #128C7E;
+    }
+
+    .whatsapp-btn:disabled {
+      background: #95a5a6;
+      cursor: not-allowed;
+    }
+
+    .payment-qr {
+      text-align: center;
+      margin: 1.5rem 0;
+      padding: 1.5rem;
+      background: white;
+      border-radius: 36px;
+    }
+
+    .payment-qr img {
+      max-width: 200px;
+      border-radius: 20px;
+      margin-top: 1rem;
+    }
+
+    .footer-note {
+      text-align: center;
+      margin-top: 2rem;
+      color: #8b6f63;
+      font-size: 0.8rem;
+    }
+
+    .paused-message {
+      background: #fef9e7;
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+      text-align: center;
+      border: 2px solid #f39c12;
+    }
+
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 1rem 2rem;
+      border-radius: 60px;
+      background: #2c5f4b;
+      color: white;
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      z-index: 1000;
+      animation: slideIn 0.3s ease;
+    }
+
+    .notification.success { background: #27ae60; }
+    .notification.error { background: #c0392b; }
+    .notification.info { background: #f39c12; }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
   </style>
 </head>
 <body>
-
-<!-- Owner Panel Toggle -->
-<div class="owner-toggle" id="ownerToggleBtn"><i class="fas fa-crown"></i> Owner Panel</div>
-
-<!-- Owner Panel Sidebar -->
-<div class="owner-panel" id="ownerPanel">
-  <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
-    <h3><i class="fas fa-sliders-h"></i> Dashboard</h3>
-    <button id="closeOwnerBtn" style="background:none; border:none; color:white; font-size:1.6rem; cursor:pointer;">&times;</button>
-  </div>
-  <div id="authSection">
-    <div id="loginBox">
-      <h4>Login</h4>
-      <input type="email" id="loginEmail" placeholder="Email">
-      <input type="password" id="loginPass" placeholder="Password">
-      <button id="doLoginBtn" class="btn-primary" style="width:100%;">Login</button>
+  <div class="container">
+    <div class="header">
+      <span class="qr-badge"><i class="fas fa-qrcode"></i> NIYALO</span>
+      <span class="live-badge"><span class="pulse"></span> ORDER ONLINE</span>
     </div>
-    <div id="dashboardContent" style="display:none;"></div>
-  </div>
-</div>
 
-<!-- Cart Sidebar -->
-<div class="cart-overlay" id="cartOverlay"></div>
-<div class="cart-sidebar" id="cartSidebar">
-  <div style="display:flex; justify-content:space-between;"><h3>Your Cart</h3><button id="closeCartBtn" style="background:none; border:none; color:white; font-size:1.8rem;">&times;</button></div>
-  <div id="cartItemsList" style="flex:1; overflow-y:auto;"></div>
-  <div id="cartTotal" style="font-size:1.3rem; font-weight:700; border-top:1px solid #e67e22; padding-top:1rem;"></div>
-  <button id="proceedOrderBtn" class="btn-primary" style="width:100%; margin-top:1rem;">Proceed to Order</button>
-</div>
-
-<!-- Order Modal -->
-<div id="orderModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#141414; border-radius:40px; padding:2rem; z-index:1300; width:90%; max-width:450px;">
-  <h2>Order Details</h2>
-  <input type="text" id="custName" placeholder="Your Name">
-  <input type="tel" id="custPhone" placeholder="Phone Number">
-  <input type="time" id="pickupTime" value="18:00">
-  <div style="display:flex; gap:12px; margin-top:12px;">
-    <button id="confirmOrderBtn" class="btn-primary">Send Order</button>
-    <button id="closeOrderModal" style="background:#333; border:none; border-radius:60px; padding:0 1rem;">Cancel</button>
-  </div>
-</div>
-
-<!-- QR Modal -->
-<div id="qrModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:white; padding:2rem; border-radius:32px; text-align:center; z-index:1400;">
-  <i class="fas fa-qrcode" style="font-size:4rem; color:#e67e22;"></i>
-  <p>Scan to pay online</p>
-  <img id="qrDisplayImg" width="150" style="margin:1rem 0;">
-  <button id="closeQrModalBtn" style="background:#e67e22; border:none; padding:0.5rem 1.5rem; border-radius:60px;">Close</button>
-</div>
-
-<!-- Main Content -->
-<main class="container">
-  <section style="display:flex; flex-wrap:wrap; align-items:center; gap:2rem; min-height:85vh;">
-    <div style="flex:1;">
-      <div style="background:#e67e22; display:inline-block; padding:0.2rem 1rem; border-radius:60px;">THE BORING EDIT</div>
-      <h1 style="font-size:4rem; margin:1rem 0;">Modern Cafe <span style="color:#e67e22;">Experience</span></h1>
-      <p>Order online, pay by QR, enjoy table service or delivery.</p>
-      <div style="display:flex; gap:1rem; margin-top:1.5rem;">
-        <button id="heroOrderBtn" class="btn-primary">Order Now</button>
-        <button id="heroViewMenuBtn" class="btn-outline">View Menu</button>
-      </div>
-    </div>
-    <div style="flex:1;"><img src="https://placehold.co/500x400/1a1a1a/e67e22?text=Premium+Dish" style="width:100%; border-radius:40px;"></div>
-  </section>
-
-  <section style="margin:4rem 0;"><h2 style="font-size:2rem; color:#e67e22;">Signature Menu</h2><div id="menuGrid" class="menu-grid"></div></section>
-
-  <section style="margin:4rem 0; background:radial-gradient(#2c1a0a,#0b0b0b); border-radius:48px; padding:3rem; text-align:center;">
-    <h2>Order your favorite food now</h2>
-    <button id="ctaOrderBtn" class="btn-primary" style="margin-top:1rem;">Start Order</button>
-  </section>
-
-  <footer style="border-top:1px solid #222; padding:2rem 0; display:flex; flex-wrap:wrap; justify-content:space-between;">
-    <div><h3>The Boring Edit</h3><p>Minimalist • Modern</p></div>
-    <div><i class="fas fa-map-pin"></i> Lakeside Rd, Pokhara<br><i class="fas fa-clock"></i> <span id="storeHours">8:00–22:00</span><br><i class="fab fa-whatsapp"></i> <span id="storePhone">+977 9812345678</span></div>
-    <div><button id="whatsappFooterBtn" style="background:#25D366; border:none; padding:0.8rem 1.5rem; border-radius:60px;">WhatsApp Order</button></div>
-  </footer>
-</main>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  // 🔴🔴🔴 REPLACE THESE WITH YOUR SUPABASE KEYS 🔴🔴🔴
-  const SUPABASE_URL = 'https://YOUR_PROJECT.supabase.co';
-  const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
-  
-  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  let menuItems = [];
-  let storeSettings = { is_open: true, phone: '+977 9812345678', hours: '8:00–22:00', qr_url: '', whatsapp_number: '977981234567' };
-  let cart = [];
-  let currentUser = null;
-
-  // Helper functions
-  function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function(m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
-
-  // Load public data
-  async function loadPublicData() {
-    try {
-      const { data: items } = await supabaseClient.from('menu_items').select('*').order('id');
-      if (items) menuItems = items;
-      const { data: settingsData } = await supabaseClient.from('settings').select('*').single();
-      if (settingsData) storeSettings = { ...storeSettings, ...settingsData };
-      document.getElementById('storeHours').innerText = storeSettings.hours;
-      document.getElementById('storePhone').innerText = storeSettings.phone;
-      renderMenu();
-    } catch(e) { console.log('Public load error'); }
-  }
-
-  function renderMenu() {
-    const grid = document.getElementById('menuGrid');
-    if (!grid) return;
-    const isOpen = storeSettings.is_open !== false;
-    grid.innerHTML = menuItems.filter(i => i.available !== false).map(item => `
-      <div class="card-3d" style="overflow:hidden;">
-        <img src="${item.image_url || 'https://placehold.co/400x300/222/e67e22?text=Food'}" style="width:100%; height:180px; object-fit:cover;">
-        <div style="padding:1rem;">
-          <div style="display:flex; justify-content:space-between;"><b>${escapeHtml(item.name)}</b><span>रू${item.price}</span></div>
-          <p style="font-size:0.8rem; color:#aaa;">${escapeHtml(item.description || '')}</p>
-          <div style="margin-top:10px;">
-            <button class="add-to-cart" data-id="${item.id}" ${!isOpen ? 'disabled style="opacity:0.5;"' : ''}>Add to cart</button>
-          </div>
+    <div class="restaurant-header" id="restaurantHeader">
+      <div class="logo-container">
+        <img id="logoImage" class="logo-image" src="" alt="Restaurant Logo" style="display: none;">
+        <div id="logoPlaceholder" class="logo-placeholder">
+          <i class="fas fa-utensils"></i>
         </div>
       </div>
-    `).join('');
-    document.querySelectorAll('.add-to-cart').forEach(btn => btn.addEventListener('click', (e) => {
-      if (!storeSettings.is_open) { alert('Store is closed'); return; }
-      const id = parseInt(btn.dataset.id);
-      const item = menuItems.find(i => i.id === id);
-      if (item) {
-        const existing = cart.find(c => c.id === id);
-        if (existing) existing.quantity++;
-        else cart.push({ ...item, quantity: 1 });
-        updateCartUI();
-        openCart();
-      }
-    }));
-  }
+      <div class="restaurant-details">
+        <div class="restaurant-name" id="restaurantName">Niyalo Cafe</div>
+        <div class="restaurant-contact" id="restaurantContact">
+          <span><i class="fas fa-clock"></i> <span id="displayHours">7:00–22:00</span></span>
+          <span><i class="fas fa-phone-alt"></i> <span id="displayPhone">+977 9875457844</span></span>
+        </div>
+      </div>
+    </div>
 
-  function updateCartUI() {
-    const container = document.getElementById('cartItemsList');
-    if (!container) return;
-    let total = 0;
-    if (!cart.length) { container.innerHTML = '<div style="text-align:center;">Cart empty</div>'; document.getElementById('cartTotal').innerHTML = 'Total: रू0'; return; }
-    container.innerHTML = cart.map(item => {
-      total += item.price * item.quantity;
-      return `<div style="display:flex; justify-content:space-between; margin-bottom:0.8rem;"><div><b>${escapeHtml(item.name)}</b><br>रू${item.price} x ${item.quantity}</div><div><button class="cart-inc" data-id="${item.id}">+</button><button class="cart-dec" data-id="${item.id}">-</button><button class="cart-remove" data-id="${item.id}">x</button></div></div>`;
-    }).join('');
-    document.getElementById('cartTotal').innerHTML = `Total: रू${total}`;
-    document.querySelectorAll('.cart-inc').forEach(btn => btn.addEventListener('click', () => { const ci = cart.find(c => c.id === parseInt(btn.dataset.id)); if (ci) ci.quantity++; updateCartUI(); }));
-    document.querySelectorAll('.cart-dec').forEach(btn => btn.addEventListener('click', () => { const ci = cart.find(c => c.id === parseInt(btn.dataset.id)); if (ci && ci.quantity > 1) ci.quantity--; else if (ci && ci.quantity === 1) { const idx = cart.findIndex(c => c.id === ci.id); cart.splice(idx,1); } updateCartUI(); }));
-    document.querySelectorAll('.cart-remove').forEach(btn => btn.addEventListener('click', () => { const idx = cart.findIndex(c => c.id === parseInt(btn.dataset.id)); if (idx !== -1) cart.splice(idx,1); updateCartUI(); }));
-  }
+    <div class="store-status" id="storeStatus"></div>
+    <div id="pausedMessageContainer"></div>
 
-  function openCart() { document.getElementById('cartSidebar').classList.add('open'); document.getElementById('cartOverlay').classList.add('active'); }
-  function closeCart() { document.getElementById('cartSidebar').classList.remove('open'); document.getElementById('cartOverlay').classList.remove('active'); }
-  document.getElementById('closeCartBtn').onclick = closeCart;
-  document.getElementById('cartOverlay').onclick = closeCart;
-  document.getElementById('heroOrderBtn').onclick = openCart;
-  document.getElementById('ctaOrderBtn').onclick = openCart;
-  document.getElementById('heroViewMenuBtn').onclick = () => document.getElementById('menuGrid').scrollIntoView({ behavior: 'smooth' });
+    <div class="menu-card">
+      <div id="categoriesContainer"></div>
+    </div>
 
-  // Order flow
-  const orderModal = document.getElementById('orderModal');
-  document.getElementById('proceedOrderBtn').onclick = () => { if (!cart.length) { alert('Cart empty'); return; } orderModal.style.display = 'flex'; };
-  document.getElementById('closeOrderModal').onclick = () => orderModal.style.display = 'none';
-  document.getElementById('confirmOrderBtn').onclick = () => {
-    const name = document.getElementById('custName').value.trim();
-    const phone = document.getElementById('custPhone').value.trim();
-    const time = document.getElementById('pickupTime').value;
-    if (!name || !phone) { alert('Enter name and phone'); return; }
-    let msg = `🆕 *The Boring Edit Order*\nName: ${name}\nPhone: ${phone}\nPickup: ${time}\n\nItems:\n`;
-    let total = 0;
-    cart.forEach(i => { msg += `${i.quantity}x ${i.name} - रू${i.price * i.quantity}\n`; total += i.price * i.quantity; });
-    msg += `\nTotal: रू${total}\n✅ Payment: Scan QR code`;
-    window.open(`https://wa.me/${storeSettings.whatsapp_number}?text=${encodeURIComponent(msg)}`, '_blank');
-    const qrModal = document.getElementById('qrModal');
-    document.getElementById('qrDisplayImg').src = storeSettings.qr_url || 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Payment';
-    qrModal.style.display = 'flex';
-    orderModal.style.display = 'none';
-    cart = []; updateCartUI(); closeCart();
-  };
-  document.getElementById('closeQrModalBtn').onclick = () => document.getElementById('qrModal').style.display = 'none';
-  document.getElementById('whatsappFooterBtn').onclick = () => { if (!cart.length) { alert('Add items first'); return; } document.getElementById('proceedOrderBtn').click(); };
+    <div class="cart-section" id="cartSection" style="display: none;">
+      <h3 style="margin-bottom: 1rem;">🛒 Your Cart</h3>
+      <div id="cartItems"></div>
+      <div class="cart-total" id="cartTotal"></div>
+      
+      <div class="service-type" id="serviceType">
+        <div class="service-option selected" data-type="dine-in" onclick="selectService('dine-in')">
+          <i class="fas fa-chair"></i> Dine In
+        </div>
+        <div class="service-option" data-type="delivery" onclick="selectService('delivery')">
+          <i class="fas fa-motorcycle"></i> Delivery
+        </div>
+        <div class="service-option" data-type="takeaway" onclick="selectService('takeaway')">
+          <i class="fas fa-shopping-bag"></i> Takeaway
+        </div>
+      </div>
 
-  // Owner Auth & Dashboard
-  async function checkAuth() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    if (session) {
-      currentUser = session;
-      document.getElementById('loginBox').style.display = 'none';
-      document.getElementById('dashboardContent').style.display = 'block';
-      loadDashboard();
-    } else {
-      document.getElementById('loginBox').style.display = 'block';
-      document.getElementById('dashboardContent').style.display = 'none';
+      <!-- Table Number Input (only for dine-in) -->
+      <div class="table-number-input" id="tableNumberContainer">
+        <input type="text" id="tableNumber" class="form-input" placeholder="Table Number (e.g., 5, 12, VIP)" maxlength="10">
+      </div>
+      
+      <!-- Address Input (only for delivery) -->
+      <div class="address-input" id="addressContainer">
+        <textarea id="deliveryAddress" class="form-input" placeholder="Delivery Address * (e.g., Street, House No., Landmark)" rows="3" style="border-radius: 20px; resize: vertical;"></textarea>
+      </div>
+      
+      <div class="checkout-form">
+        <input type="text" id="customerName" class="form-input" placeholder="Your Name *" required>
+        <input type="tel" id="customerPhone" class="form-input" placeholder="Phone Number *" required>
+        
+        <!-- NEW: Pickup Time Container (hidden for dine-in) -->
+        <div id="pickupTimeContainer" class="pickup-time-container">
+          <input type="time" id="pickupTime" class="form-input" value="18:00" required>
+        </div>
+        
+        <button id="whatsappBtn" class="whatsapp-btn" disabled>
+          <i class="fab fa-whatsapp"></i> SEND ORDER TO WHATSAPP
+        </button>
+      </div>
+    </div>
+
+    <div class="payment-qr" id="paymentQrContainer" style="display: none;">
+      <p>💳 Scan to pay online</p>
+      <img id="paymentQrImage" src="" alt="Payment QR Code">
+    </div>
+
+    <div class="footer-note">
+      <i class="fas fa-leaf"></i> fresh · local · handmade · नियालो
+    </div>
+  </div>
+
+  <script>
+    const supabaseClient = window.supabase.createClient(
+      'https://outxrzhbocyvopmivzzf.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dHhyemhib2N5dm9wbWl2enpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNTU1NDgsImV4cCI6MjA4NjYzMTU0OH0.apOAqrdlz3WBo9Aht3xzHc-XBkInHSQVfHu3NRuCxNc'
+    );
+
+    let menuData = null;
+    let storeSettings = {
+      isOpen: true,
+      ordersPaused: false,
+      paymentQrUrl: null,
+      ownerPhone: "977981234567",
+      deliveryCharge: 50
+    };
+    let cart = [];
+    let selectedService = 'dine-in';
+
+    function showNotification(message, type) {
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.innerHTML = message;
+      document.body.appendChild(notification);
+      setTimeout(() => notification.remove(), 3000);
     }
-  }
-  document.getElementById('doLoginBtn').onclick = async () => {
-    const email = document.getElementById('loginEmail').value;
-    const pass = document.getElementById('loginPass').value;
-    const { error } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
-    if (error) alert('Login failed: ' + error.message);
-    else checkAuth();
-  };
-  document.getElementById('closeOwnerBtn').onclick = () => document.getElementById('ownerPanel').classList.remove('open');
-  document.getElementById('ownerToggleBtn').onclick = () => { if (!currentUser) checkAuth(); document.getElementById('ownerPanel').classList.add('open'); };
 
-  async function loadDashboard() {
-    const { data: items } = await supabaseClient.from('menu_items').select('*');
-    const { data: settingsData } = await supabaseClient.from('settings').select('*').single();
-    if (items) menuItems = items;
-    if (settingsData) storeSettings = { ...storeSettings, ...settingsData };
-    renderDashboard();
-  }
-
-  function renderDashboard() {
-    const dashboard = document.getElementById('dashboardContent');
-    dashboard.innerHTML = `
-      <div style="margin-bottom:2rem;">
-        <h4>Store Settings</h4>
-        <label class="switch"><input type="checkbox" id="storeStatusToggle" ${storeSettings.is_open ? 'checked' : ''}><span class="slider"></span></label><span>Store ${storeSettings.is_open ? 'Open' : 'Closed'}</span>
-        <label>Phone (display)</label><input type="text" id="adminPhone" value="${storeSettings.phone || ''}">
-        <label>WhatsApp Number</label><input type="text" id="adminWhatsapp" value="${storeSettings.whatsapp_number || ''}">
-        <label>Hours</label><input type="text" id="adminHours" value="${storeSettings.hours || ''}">
-        <label>QR Code URL</label><input type="text" id="adminQrUrl" value="${storeSettings.qr_url || ''}">
-        <button id="saveSettingsBtn" class="btn-primary">Save Settings</button>
-      </div>
-      <div><h4>Menu Items</h4><div id="menuItemsAdmin"></div><button id="newItemBtn" class="btn-outline">+ Add New Item</button></div>
-    `;
-    const itemsDiv = document.getElementById('menuItemsAdmin');
-    itemsDiv.innerHTML = menuItems.map(item => `
-      <div style="border:1px solid #333; border-radius:20px; padding:1rem; margin-bottom:1rem;">
-        <input id="itemName_${item.id}" value="${escapeHtml(item.name)}" placeholder="Name">
-        <textarea id="itemDesc_${item.id}" placeholder="Description">${escapeHtml(item.description || '')}</textarea>
-        <input id="itemPrice_${item.id}" value="${item.price}" type="number">
-        <input id="itemImg_${item.id}" value="${item.image_url || ''}" placeholder="Image URL">
-        <label><input type="checkbox" id="itemAvail_${item.id}" ${item.available !== false ? 'checked' : ''}> Available</label>
-        <div><button class="updateItemBtn" data-id="${item.id}">Save Changes</button> <button class="deleteItemBtn" data-id="${item.id}">Delete</button></div>
-      </div>
-    `).join('');
-    document.querySelectorAll('.updateItemBtn').forEach(btn => btn.addEventListener('click', async (e) => {
-      const id = parseInt(btn.dataset.id);
-      const name = document.getElementById(`itemName_${id}`).value;
-      const desc = document.getElementById(`itemDesc_${id}`).value;
-      const price = parseFloat(document.getElementById(`itemPrice_${id}`).value);
-      const img = document.getElementById(`itemImg_${id}`).value;
-      const avail = document.getElementById(`itemAvail_${id}`).checked;
-      await supabaseClient.from('menu_items').update({ name, description: desc, price, image_url: img, available: avail }).eq('id', id);
-      loadDashboard(); loadPublicData();
-    }));
-    document.querySelectorAll('.deleteItemBtn').forEach(btn => btn.addEventListener('click', async (e) => {
-      if (confirm('Delete this item?')) { await supabaseClient.from('menu_items').delete().eq('id', parseInt(btn.dataset.id)); loadDashboard(); loadPublicData(); }
-    }));
-    document.getElementById('newItemBtn').onclick = async () => {
-      await supabaseClient.from('menu_items').insert({ name: 'New Item', price: 199, available: true });
-      loadDashboard(); loadPublicData();
+    window.selectService = function(type) {
+      selectedService = type;
+      document.querySelectorAll('.service-option').forEach(opt => opt.classList.remove('selected'));
+      document.querySelector(`.service-option[data-type="${type}"]`).classList.add('selected');
+      
+      // Show/hide table number input (only for dine-in)
+      const tableContainer = document.getElementById('tableNumberContainer');
+      tableContainer.classList.toggle('show', type === 'dine-in');
+      
+      // Show/hide address input (only for delivery)
+      const addressContainer = document.getElementById('addressContainer');
+      addressContainer.classList.toggle('show', type === 'delivery');
+      
+      // NEW: Hide pickup time for dine-in, show for delivery/takeaway
+      const pickupContainer = document.getElementById('pickupTimeContainer');
+      pickupContainer.classList.toggle('hide', type === 'dine-in');
+      
+      renderCart();
     };
-    document.getElementById('saveSettingsBtn').onclick = async () => {
-      const is_open = document.getElementById('storeStatusToggle').checked;
-      const phone = document.getElementById('adminPhone').value;
-      const hours = document.getElementById('adminHours').value;
-      const qr_url = document.getElementById('adminQrUrl').value;
-      const whatsapp_number = document.getElementById('adminWhatsapp').value;
-      await supabaseClient.from('settings').upsert({ id: 1, is_open, phone, hours, qr_url, whatsapp_number });
-      loadDashboard(); loadPublicData();
-    };
-  }
 
-  loadPublicData();
-  checkAuth();
-  setInterval(loadPublicData, 15000);
-</script>
+    async function loadAllData() {
+      try {
+        const { data: menuData_ } = await supabaseClient
+          .from('menus')
+          .select('*')
+          .eq('id', 1)
+          .single();
+        if (menuData_?.data) menuData = menuData_.data;
+      } catch(e) {}
+
+      try {
+        const { data: settingsData } = await supabaseClient
+          .from('settings')
+          .select('*')
+          .eq('id', 1)
+          .single();
+        if (settingsData?.data) storeSettings = { ...storeSettings, ...settingsData.data };
+      } catch(e) {}
+
+      renderAll();
+    }
+
+    function renderAll() {
+      renderStoreStatus();
+      renderPausedMessage();
+      renderMenu();
+      renderPaymentQr();
+      updateRestaurantDisplay();
+      updateWhatsAppButton();
+    }
+
+    function updateRestaurantDisplay() {
+      const logoImage = document.getElementById('logoImage');
+      const logoPlaceholder = document.getElementById('logoPlaceholder');
+      const restaurantName = document.getElementById('restaurantName');
+      const displayHours = document.getElementById('displayHours');
+      const displayPhone = document.getElementById('displayPhone');
+      
+      if (menuData?.hotel?.logoUrl) {
+        logoImage.src = menuData.hotel.logoUrl;
+        logoImage.style.display = 'block';
+        logoPlaceholder.style.display = 'none';
+      } else {
+        logoImage.style.display = 'none';
+        logoPlaceholder.style.display = 'flex';
+      }
+      
+      if (menuData?.hotel?.name) restaurantName.innerText = menuData.hotel.name;
+      if (menuData?.hotel?.hours) displayHours.innerText = menuData.hotel.hours;
+      if (menuData?.hotel?.phone) displayPhone.innerText = menuData.hotel.phone;
+    }
+
+    function renderStoreStatus() {
+      const statusDiv = document.getElementById('storeStatus');
+      let statusHtml = '';
+      if (!storeSettings.isOpen) {
+        statusHtml = '<span class="status-badge status-closed">🔴 STORE CLOSED</span>';
+      } else if (storeSettings.ordersPaused) {
+        statusHtml = '<span class="status-badge status-paused">🟡 ORDERS PAUSED</span>';
+      } else {
+        statusHtml = '<span class="status-badge status-open">🟢 OPEN FOR ORDERS</span>';
+      }
+      statusDiv.innerHTML = statusHtml;
+    }
+
+    function renderPausedMessage() {
+      const container = document.getElementById('pausedMessageContainer');
+      if (storeSettings.ordersPaused) {
+        container.innerHTML = `
+          <div class="paused-message">
+            <i class="fas fa-pause-circle"></i>
+            <h3>⏸️ Orders Temporarily Paused</h3>
+            <p>Please try again in 20 minutes.</p>
+          </div>
+        `;
+      } else {
+        container.innerHTML = '';
+      }
+    }
+
+    function renderMenu() {
+      if (!menuData?.categories) return;
+      const container = document.getElementById('categoriesContainer');
+      container.innerHTML = '';
+      
+      menuData.categories.forEach(cat => {
+        let catHtml = `<div class="category"><div class="category-title"><i class="fas fa-${cat.icon}"></i><h2>${cat.title}</h2></div>`;
+        cat.items.forEach(item => {
+          const isOutOfStock = item.outOfStock || false;
+          const canOrder = storeSettings.isOpen && !storeSettings.ordersPaused && !isOutOfStock;
+          
+          catHtml += `
+            <div class="item">
+              <div class="item-info">
+                <div class="item-name">
+                  ${item.name} ${item.badge ? `<span class="badge">${item.badge}</span>` : ''} ${isOutOfStock ? '<span class="out-of-stock-badge">Out of Stock</span>' : ''}
+                </div>
+                <div class="item-desc">${item.desc}</div>
+              </div>
+              <span class="price">${item.price}</span>
+              ${canOrder ? `<button class="add-to-cart" onclick="addToCart('${item.id}', '${item.name}', ${item.price})">Add</button>` : `<button class="add-to-cart" disabled>${!storeSettings.isOpen ? 'Closed' : storeSettings.ordersPaused ? 'Paused' : 'Sold Out'}</button>`}
+            </div>
+          `;
+        });
+        catHtml += `</div>`;
+        container.innerHTML += catHtml;
+      });
+    }
+
+    function renderPaymentQr() {
+      const container = document.getElementById('paymentQrContainer');
+      const img = document.getElementById('paymentQrImage');
+      if (storeSettings.paymentQrUrl) {
+        img.src = storeSettings.paymentQrUrl;
+        container.style.display = 'block';
+      } else {
+        container.style.display = 'none';
+      }
+    }
+
+    function updateWhatsAppButton() {
+      document.getElementById('whatsappBtn').disabled = !storeSettings.isOpen || storeSettings.ordersPaused;
+    }
+
+    window.addToCart = function(id, name, price) {
+      const existingItem = cart.find(item => item.id === id);
+      if (existingItem) {
+        existingItem.quantity++;
+      } else {
+        cart.push({ id, name, price, quantity: 1 });
+      }
+      renderCart();
+      showNotification(`✅ ${name} added to cart`, 'success');
+    };
+
+    window.updateQuantity = function(id, change) {
+      const item = cart.find(item => item.id === id);
+      if (item) {
+        item.quantity += change;
+        if (item.quantity <= 0) {
+          cart = cart.filter(i => i.id !== id);
+          showNotification(`❌ ${item.name} removed from cart`, 'info');
+        }
+      }
+      renderCart();
+    };
+
+    function renderCart() {
+      const cartSection = document.getElementById('cartSection');
+      const cartItemsDiv = document.getElementById('cartItems');
+      const cartTotalDiv = document.getElementById('cartTotal');
+      
+      if (cart.length === 0 || !storeSettings.isOpen || storeSettings.ordersPaused) {
+        cartSection.style.display = 'none';
+        return;
+      }
+      
+      cartSection.style.display = 'block';
+      
+      let itemsHtml = '';
+      let subtotal = 0;
+      
+      cart.forEach(item => {
+        subtotal += item.price * item.quantity;
+        itemsHtml += `
+          <div class="cart-item">
+            <div><span class="cart-item-name">${item.name}</span> <span class="cart-item-price">रू${item.price}</span></div>
+            <div class="cart-quantity">
+              <button class="quantity-btn" onclick="updateQuantity('${item.id}', -1)">-</button>
+              <span>${item.quantity}</span>
+              <button class="quantity-btn" onclick="updateQuantity('${item.id}', 1)">+</button>
+            </div>
+          </div>
+        `;
+      });
+      
+      let deliveryCharge = 0;
+      if (selectedService === 'delivery') {
+        deliveryCharge = storeSettings.deliveryCharge || 50;
+      }
+      
+      const total = subtotal + deliveryCharge;
+      
+      cartItemsDiv.innerHTML = itemsHtml;
+      cartTotalDiv.innerHTML = `
+        <div>Subtotal: रू${subtotal}</div>
+        ${deliveryCharge > 0 ? `<div>Delivery Charge: रू${deliveryCharge}</div>` : ''}
+        <div style="font-size:1.4rem; margin-top:0.5rem;">Total: रू${total}</div>
+      `;
+    }
+
+    // Phone validation
+    document.getElementById('customerPhone').addEventListener('input', function(e) {
+      const phone = e.target.value;
+      const phoneRegex = /^(98|97)\d{8}$/;
+      if (phone.length > 0 && !phoneRegex.test(phone)) {
+        this.style.borderColor = '#c0392b';
+      } else if (phoneRegex.test(phone)) {
+        this.style.borderColor = '#27ae60';
+      } else {
+        this.style.borderColor = '#e0cbba';
+      }
+    });
+
+    // WhatsApp order
+    document.getElementById('whatsappBtn').addEventListener('click', function() {
+      const name = document.getElementById('customerName').value.trim();
+      const phone = document.getElementById('customerPhone').value.trim();
+      const time = document.getElementById('pickupTime').value;
+      const tableNumber = document.getElementById('tableNumber').value.trim();
+      const deliveryAddress = document.getElementById('deliveryAddress')?.value.trim() || '';
+      
+      if (!name || !phone) {
+        showNotification('Please fill all fields', 'error');
+        return;
+      }
+      
+      // Only validate time for non-dine-in orders
+      if (selectedService !== 'dine-in' && !time) {
+        showNotification('Please select pickup time', 'error');
+        return;
+      }
+      
+      if (selectedService === 'dine-in' && !tableNumber) {
+        showNotification('Please enter table number for dine-in', 'error');
+        return;
+      }
+      
+      if (selectedService === 'delivery' && !deliveryAddress) {
+        showNotification('Please enter delivery address', 'error');
+        return;
+      }
+      
+      const phoneRegex = /^(98|97)\d{8}$/;
+      if (!phoneRegex.test(phone)) {
+        showNotification('Invalid phone number! Must be 10 digits starting with 97 or 98', 'error');
+        return;
+      }
+      
+      if (cart.length === 0) {
+        showNotification('Your cart is empty', 'error');
+        return;
+      }
+      
+      const orderNumber = Math.floor(Math.random() * 1000);
+      
+      let message = `🆕 *New Order #${orderNumber}*\n\n`;
+      message += `*Service Type:* ${selectedService === 'dine-in' ? 'Dine In' : selectedService === 'delivery' ? 'Delivery' : 'Takeaway'}\n`;
+      
+      if (selectedService === 'dine-in') {
+        message += `*Table:* ${tableNumber}\n`;
+      } else if (selectedService === 'delivery') {
+        message += `*Delivery Address:* ${deliveryAddress}\n`;
+      }
+      
+      message += `*Your Order:*\n`;
+      let subtotal = 0;
+      cart.forEach(item => {
+        subtotal += item.price * item.quantity;
+        message += `${item.quantity}x ${item.name} - रू${item.price * item.quantity}\n`;
+      });
+      
+      let deliveryCharge = selectedService === 'delivery' ? (storeSettings.deliveryCharge || 50) : 0;
+      let total = subtotal + deliveryCharge;
+      
+      message += `\n*Subtotal*: रू${subtotal}`;
+      if (deliveryCharge > 0) message += `\n*Delivery Charge*: रू${deliveryCharge}`;
+      message += `\n*Total*: रू${total}`;
+      
+      // Only include pickup time for non-dine-in orders
+      if (selectedService !== 'dine-in') {
+        message += `\n*Pickup Time*: ${time}`;
+      }
+      
+      message += `\n*Name*: ${name}`;
+      message += `\n*Phone*: ${phone}`;
+      message += `\n\n✅ Preparation begins after confirmation`;
+      
+      window.open(`https://wa.me/${storeSettings.ownerPhone}?text=${encodeURIComponent(message)}`, '_blank');
+      
+      cart = [];
+      renderCart();
+      showNotification('✅ Order sent to WhatsApp!', 'success');
+    });
+
+    loadAllData();
+    setInterval(loadAllData, 5000);
+    window.selectService('dine-in');
+  </script>
 </body>
 </html>
