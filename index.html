@@ -3,275 +3,312 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Boring Edit · Order Online</title>
+  <title>The Boring Edit · Modern Cafe</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #0b0b0b; font-family: 'Inter', sans-serif; color: #eaeaea; scroll-behavior: smooth; }
+    body { background: #0b0b0b; font-family: 'Inter', sans-serif; color: #eaeaea; }
     .container { max-width: 1400px; margin: 0 auto; padding: 0 2rem; }
-    .btn-primary { background: linear-gradient(95deg, #e67e22, #f39c12); border: none; padding: 1rem 2rem; border-radius: 60px; font-weight: 700; color: #0a0a0a; cursor: pointer; transition: 0.2s; }
+    .btn-primary { background: linear-gradient(95deg, #e67e22, #f39c12); border: none; padding: 1rem 2rem; border-radius: 60px; font-weight: 700; color: #0a0a0a; cursor: pointer; }
     .btn-outline { background: transparent; border: 1.5px solid #e67e22; padding: 0.8rem 2rem; border-radius: 60px; font-weight: 600; cursor: pointer; }
-    .card-3d { background: #131313; border-radius: 28px; transition: 0.2s; box-shadow: 0 20px 30px -12px rgba(0,0,0,0.6); border: 1px solid rgba(230,126,34,0.2); }
-    .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; }
-    .cart-sidebar { position: fixed; top: 0; right: -420px; width: 400px; height: 100vh; background: #0f0f0f; backdrop-filter: blur(24px); border-left: 1px solid #e67e2240; z-index: 1000; transition: right 0.3s; padding: 1.5rem; display: flex; flex-direction: column; }
+    .card-3d { background: #131313; border-radius: 28px; border: 1px solid rgba(230,126,34,0.2); }
+    .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; margin-top: 2rem; }
+    
+    /* Cart Sidebar */
+    .cart-sidebar { position: fixed; top: 0; right: -420px; width: 400px; height: 100vh; background: #0f0f0f; backdrop-filter: blur(24px); border-left: 1px solid #e67e22; z-index: 1000; transition: right 0.3s; padding: 1.5rem; display: flex; flex-direction: column; }
     .cart-sidebar.open { right: 0; }
     .cart-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); z-index: 999; display: none; }
     .cart-overlay.active { display: block; }
+    
+    /* Owner Panel */
+    .owner-toggle { position: fixed; bottom: 20px; left: 20px; background: #1f1f1f; border-radius: 60px; padding: 12px 20px; z-index: 1200; cursor: pointer; border: 1px solid #e67e22; display: flex; gap: 8px; align-items: center; }
     .owner-panel { position: fixed; top: 0; left: -380px; width: 380px; height: 100vh; background: #0c0c0c; border-right: 1px solid #e67e22; z-index: 1100; transition: left 0.3s; padding: 1.5rem; overflow-y: auto; }
     .owner-panel.open { left: 0; }
-    .owner-toggle { position: fixed; bottom: 20px; left: 20px; background: #1f1f1f; border-radius: 60px; padding: 12px 20px; z-index: 1200; cursor: pointer; border: 1px solid #e67e22; display: flex; gap: 8px; align-items: center; }
-    input, textarea, select { background: #1e1e1e; border: 1px solid #333; padding: 12px 16px; border-radius: 60px; color: white; width: 100%; margin-bottom: 12px; }
+    
+    input, textarea { background: #1e1e1e; border: 1px solid #333; padding: 12px 16px; border-radius: 60px; color: white; width: 100%; margin-bottom: 12px; }
     .switch { position: relative; display: inline-block; width: 52px; height: 28px; margin-right: 12px; }
     .switch input { opacity: 0; width: 0; height: 0; }
     .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .3s; border-radius: 34px; }
     .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
     input:checked + .slider { background-color: #e67e22; }
-    input:checked + .slider:before { transform: translateX(24px); }
-    @media (max-width: 720px) { .cart-sidebar { width: 100%; right: -100%; } .owner-panel { width: 85%; } }
-    .qr-preview { max-width: 180px; margin: 1rem auto; display: block; border-radius: 20px; }
     .badge-pill { background: #2c2c2c; padding: 0.2rem 1rem; border-radius: 50px; font-size: 0.7rem; }
+    
+    @media (max-width: 720px) { .cart-sidebar { width: 100%; right: -100%; } .owner-panel { width: 85%; } }
   </style>
 </head>
 <body>
-  <div class="owner-toggle" id="ownerToggleBtn"><i class="fas fa-crown"></i> <span>Owner Panel</span></div>
-  <div class="owner-panel" id="ownerPanel">
-    <div style="display:flex; justify-content:space-between; align-items:center;"><h3><i class="fas fa-sliders-h"></i> Dashboard</h3><button id="closeOwnerBtn" style="background:none; border:none; color:white; font-size:1.6rem;">&times;</button></div>
-    <div id="authSection">
-      <div id="loginBox"><h4>Login</h4><input type="email" id="loginEmail" placeholder="Email"><input type="password" id="loginPass" placeholder="Password"><button id="doLoginBtn" class="btn-primary">Login</button></div>
-      <div id="dashboardContent" style="display:none;"></div>
-    </div>
+
+<!-- Owner Panel Toggle -->
+<div class="owner-toggle" id="ownerToggleBtn"><i class="fas fa-crown"></i> Owner Panel</div>
+
+<!-- Owner Panel Sidebar -->
+<div class="owner-panel" id="ownerPanel">
+  <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
+    <h3><i class="fas fa-sliders-h"></i> Dashboard</h3>
+    <button id="closeOwnerBtn" style="background:none; border:none; color:white; font-size:1.6rem; cursor:pointer;">&times;</button>
   </div>
-  <div class="cart-overlay" id="cartOverlay"></div>
-  <div class="cart-sidebar" id="cartSidebar"><div style="display:flex; justify-content:space-between;"><h3>🛒 Cart</h3><button id="closeCartBtn" style="background:none; border:none; color:white; font-size:1.8rem;">&times;</button></div><div id="cartItemsList"></div><div id="cartTotal"></div><button id="proceedOrderBtn" class="btn-primary">Order Now</button></div>
-  <div id="orderModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#141414; border-radius:40px; padding:2rem; z-index:1300; width:90%; max-width:450px;"><h2>Order Details</h2><input type="text" id="custName" placeholder="Your Name"><input type="tel" id="custPhone" placeholder="Phone"><input type="time" id="pickupTime" value="18:00"><div style="display:flex; gap:12px;"><button id="confirmOrderBtn" class="btn-primary">Send Order</button><button id="closeOrderModal">Cancel</button></div></div>
-  <div id="qrModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:white; padding:2rem; border-radius:32px; text-align:center; z-index:1400;"><i class="fas fa-qrcode" style="font-size:4rem; color:#e67e22;"></i><p>Scan QR to pay</p><img id="qrDisplayImg" width="150"><button id="closeQrModalBtn">Close</button></div>
-  <main class="container">
-    <section style="display:flex; flex-wrap:wrap; align-items:center; gap:2rem; min-height:85vh;"><div><div style="background:#e67e22; display:inline-block; padding:0.2rem 1rem; border-radius:60px;">THE BORING EDIT</div><h1 style="font-size:4rem;">Modern Cafe <span style="color:#e67e22;">Experience</span></h1><p>Order online, pay by QR, enjoy table service or delivery.</p><div><button id="heroOrderBtn" class="btn-primary">Order Now</button><button id="heroViewMenuBtn" class="btn-outline">View Menu</button></div></div><div><img src="https://placehold.co/500x400/1a1a1a/e67e22?text=Premium+Dish" style="border-radius:40px;"></div></section>
-    <section style="margin:4rem 0;"><h2 class="section-title" style="font-size:2rem;">Signature Menu</h2><div id="menuGrid" class="menu-grid"></div></section>
-    <section style="margin:4rem 0; background:radial-gradient(#2c1a0a,#0b0b0b); border-radius:48px; padding:3rem; text-align:center;"><h2>Order your favorite food now</h2><button id="ctaOrderBtn" class="btn-primary">Start Order</button></section>
-    <footer style="border-top:1px solid #222; padding:2rem 0; display:flex; justify-content:space-between;"><div><h3>The Boring Edit</h3><p>Minimalist • Modern</p></div><div><i class="fas fa-map-pin"></i> Pokhara<br><i class="fas fa-clock"></i> <span id="storeHours">8:00–22:00</span><br><i class="fab fa-whatsapp"></i> <span id="storePhone">+977 9812345678</span></div><div><button id="whatsappFooterBtn" style="background:#25D366; border:none; padding:0.8rem 1.5rem; border-radius:60px;">WhatsApp Order</button></div></footer>
-  </main>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    // Supabase configuration (replace with your own project credentials)
-    const SUPABASE_URL = 'https://your-project.supabase.co';
-    const SUPABASE_ANON_KEY = 'your-anon-key';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  <div id="authSection">
+    <div id="loginBox">
+      <h4>Login</h4>
+      <input type="email" id="loginEmail" placeholder="Email">
+      <input type="password" id="loginPass" placeholder="Password">
+      <button id="doLoginBtn" class="btn-primary" style="width:100%;">Login</button>
+    </div>
+    <div id="dashboardContent" style="display:none;"></div>
+  </div>
+</div>
 
-    // Global state
-    let menuItems = [];
-    let categories = [];
-    let settings = { isOpen: true, phone: '+977 9812345678', hours: '8:00–22:00', qr_url: '', whatsappNumber: '977981234567' };
-    let cart = [];
+<!-- Cart Sidebar -->
+<div class="cart-overlay" id="cartOverlay"></div>
+<div class="cart-sidebar" id="cartSidebar">
+  <div style="display:flex; justify-content:space-between;"><h3>Your Cart</h3><button id="closeCartBtn" style="background:none; border:none; color:white; font-size:1.8rem;">&times;</button></div>
+  <div id="cartItemsList" style="flex:1; overflow-y:auto;"></div>
+  <div id="cartTotal" style="font-size:1.3rem; font-weight:700; border-top:1px solid #e67e22; padding-top:1rem;"></div>
+  <button id="proceedOrderBtn" class="btn-primary" style="width:100%; margin-top:1rem;">Proceed to Order</button>
+</div>
 
-    // DOM elements
-    const menuGrid = document.getElementById('menuGrid');
-    const cartSidebar = document.getElementById('cartSidebar');
-    const cartOverlay = document.getElementById('cartOverlay');
-    const cartItemsList = document.getElementById('cartItemsList');
-    const cartTotalSpan = document.getElementById('cartTotal');
-    const ownerPanel = document.getElementById('ownerPanel');
-    const authSection = document.getElementById('authSection');
-    const dashboardDiv = document.getElementById('dashboardContent');
+<!-- Order Modal -->
+<div id="orderModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#141414; border-radius:40px; padding:2rem; z-index:1300; width:90%; max-width:450px;">
+  <h2>Order Details</h2>
+  <input type="text" id="custName" placeholder="Your Name">
+  <input type="tel" id="custPhone" placeholder="Phone Number">
+  <input type="time" id="pickupTime" value="18:00">
+  <div style="display:flex; gap:12px; margin-top:12px;">
+    <button id="confirmOrderBtn" class="btn-primary">Send Order</button>
+    <button id="closeOrderModal" style="background:#333; border:none; border-radius:60px; padding:0 1rem;">Cancel</button>
+  </div>
+</div>
 
-    // Helper functions
-    function openCart() { cartSidebar.classList.add('open'); cartOverlay.classList.add('active'); }
-    function closeCart() { cartSidebar.classList.remove('open'); cartOverlay.classList.remove('active'); }
-    document.getElementById('closeCartBtn').onclick = closeCart;
-    cartOverlay.onclick = closeCart;
-    document.getElementById('heroOrderBtn').onclick = openCart;
-    document.getElementById('ctaOrderBtn').onclick = openCart;
-    document.getElementById('heroViewMenuBtn').onclick = () => document.querySelector('#menuGrid').scrollIntoView({ behavior: 'smooth' });
+<!-- QR Modal -->
+<div id="qrModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:white; padding:2rem; border-radius:32px; text-align:center; z-index:1400;">
+  <i class="fas fa-qrcode" style="font-size:4rem; color:#e67e22;"></i>
+  <p>Scan to pay online</p>
+  <img id="qrDisplayImg" width="150" style="margin:1rem 0;">
+  <button id="closeQrModalBtn" style="background:#e67e22; border:none; padding:0.5rem 1.5rem; border-radius:60px;">Close</button>
+</div>
 
-    // Load data from Supabase (public read)
-    async function loadPublicData() {
-      try {
-        const [{ data: items }, { data: cats }, { data: settingsData }] = await Promise.all([
-          supabase.from('menu_items').select('*').order('id'),
-          supabase.from('categories').select('*'),
-          supabase.from('settings').select('*').single()
-        ]);
-        if (items) menuItems = items;
-        if (cats) categories = cats;
-        if (settingsData) {
-          settings = { ...settings, ...settingsData };
-          document.getElementById('storeHours').innerText = settings.hours || '8:00–22:00';
-          document.getElementById('storePhone').innerText = settings.phone || '+977 9812345678';
-        }
-        renderMenu();
-      } catch(e) { console.warn('fallback'); renderMenu(); }
-    }
+<!-- Main Content -->
+<main class="container">
+  <section style="display:flex; flex-wrap:wrap; align-items:center; gap:2rem; min-height:85vh;">
+    <div style="flex:1;">
+      <div style="background:#e67e22; display:inline-block; padding:0.2rem 1rem; border-radius:60px;">THE BORING EDIT</div>
+      <h1 style="font-size:4rem; margin:1rem 0;">Modern Cafe <span style="color:#e67e22;">Experience</span></h1>
+      <p>Order online, pay by QR, enjoy table service or delivery.</p>
+      <div style="display:flex; gap:1rem; margin-top:1.5rem;">
+        <button id="heroOrderBtn" class="btn-primary">Order Now</button>
+        <button id="heroViewMenuBtn" class="btn-outline">View Menu</button>
+      </div>
+    </div>
+    <div style="flex:1;"><img src="https://placehold.co/500x400/1a1a1a/e67e22?text=Premium+Dish" style="width:100%; border-radius:40px;"></div>
+  </section>
 
-    function renderMenu() {
-      if (!menuGrid) return;
-      const isOpen = settings.isOpen !== false;
-      menuGrid.innerHTML = menuItems.filter(i => i.available !== false).map(item => `
-        <div class="card-3d" style="overflow:hidden; padding:0;">
-          <img src="${item.image_url || 'https://placehold.co/400x300/222/e67e22?text=Item'}" style="width:100%; height:180px; object-fit:cover;">
-          <div style="padding:1rem;">
-            <div style="display:flex; justify-content:space-between;"><b>${item.name}</b><span>रू${item.price}</span></div>
-            <p style="font-size:0.8rem; color:#aaa;">${item.description || ''}</p>
-            <div style="display:flex; justify-content:space-between; margin-top:10px;">
-              <span class="badge-pill">${categories.find(c=>c.id===item.category_id)?.name || 'item'}</span>
-              <button class="add-to-cart" data-id="${item.id}" ${!isOpen ? 'disabled style="opacity:0.5;"' : ''}>Add to cart</button>
-            </div>
+  <section style="margin:4rem 0;"><h2 style="font-size:2rem; color:#e67e22;">Signature Menu</h2><div id="menuGrid" class="menu-grid"></div></section>
+
+  <section style="margin:4rem 0; background:radial-gradient(#2c1a0a,#0b0b0b); border-radius:48px; padding:3rem; text-align:center;">
+    <h2>Order your favorite food now</h2>
+    <button id="ctaOrderBtn" class="btn-primary" style="margin-top:1rem;">Start Order</button>
+  </section>
+
+  <footer style="border-top:1px solid #222; padding:2rem 0; display:flex; flex-wrap:wrap; justify-content:space-between;">
+    <div><h3>The Boring Edit</h3><p>Minimalist • Modern</p></div>
+    <div><i class="fas fa-map-pin"></i> Lakeside Rd, Pokhara<br><i class="fas fa-clock"></i> <span id="storeHours">8:00–22:00</span><br><i class="fab fa-whatsapp"></i> <span id="storePhone">+977 9812345678</span></div>
+    <div><button id="whatsappFooterBtn" style="background:#25D366; border:none; padding:0.8rem 1.5rem; border-radius:60px;">WhatsApp Order</button></div>
+  </footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // 🔴🔴🔴 REPLACE THESE WITH YOUR SUPABASE KEYS 🔴🔴🔴
+  const SUPABASE_URL = 'https://YOUR_PROJECT.supabase.co';
+  const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
+  
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let menuItems = [];
+  let storeSettings = { is_open: true, phone: '+977 9812345678', hours: '8:00–22:00', qr_url: '', whatsapp_number: '977981234567' };
+  let cart = [];
+  let currentUser = null;
+
+  // Helper functions
+  function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function(m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
+
+  // Load public data
+  async function loadPublicData() {
+    try {
+      const { data: items } = await supabaseClient.from('menu_items').select('*').order('id');
+      if (items) menuItems = items;
+      const { data: settingsData } = await supabaseClient.from('settings').select('*').single();
+      if (settingsData) storeSettings = { ...storeSettings, ...settingsData };
+      document.getElementById('storeHours').innerText = storeSettings.hours;
+      document.getElementById('storePhone').innerText = storeSettings.phone;
+      renderMenu();
+    } catch(e) { console.log('Public load error'); }
+  }
+
+  function renderMenu() {
+    const grid = document.getElementById('menuGrid');
+    if (!grid) return;
+    const isOpen = storeSettings.is_open !== false;
+    grid.innerHTML = menuItems.filter(i => i.available !== false).map(item => `
+      <div class="card-3d" style="overflow:hidden;">
+        <img src="${item.image_url || 'https://placehold.co/400x300/222/e67e22?text=Food'}" style="width:100%; height:180px; object-fit:cover;">
+        <div style="padding:1rem;">
+          <div style="display:flex; justify-content:space-between;"><b>${escapeHtml(item.name)}</b><span>रू${item.price}</span></div>
+          <p style="font-size:0.8rem; color:#aaa;">${escapeHtml(item.description || '')}</p>
+          <div style="margin-top:10px;">
+            <button class="add-to-cart" data-id="${item.id}" ${!isOpen ? 'disabled style="opacity:0.5;"' : ''}>Add to cart</button>
           </div>
         </div>
-      `).join('');
-      document.querySelectorAll('.add-to-cart').forEach(btn => btn.addEventListener('click', (e) => {
-        if (!settings.isOpen) return alert('Store closed');
-        const id = parseInt(btn.dataset.id);
-        const found = menuItems.find(i => i.id === id);
-        if (found) { const existing = cart.find(c => c.id === id); if (existing) existing.quantity++; else cart.push({ ...found, quantity: 1 }); updateCartUI(); openCart(); }
-      }));
-    }
-
-    function updateCartUI() {
-      if (!cartItemsList) return;
-      let total = 0;
-      if (!cart.length) { cartItemsList.innerHTML = '<div style="text-align:center; padding:2rem;">Cart empty</div>'; cartTotalSpan.innerHTML = 'Total: रू0'; return; }
-      cartItemsList.innerHTML = cart.map(item => {
-        total += item.price * item.quantity;
-        return `<div style="display:flex; justify-content:space-between; margin-bottom:0.8rem;"><div><b>${item.name}</b><br>रू${item.price} x ${item.quantity}</div><div><button class="cart-inc" data-id="${item.id}">+</button><button class="cart-dec" data-id="${item.id}">-</button><button class="cart-remove" data-id="${item.id}">remove</button></div></div>`;
-      }).join('');
-      cartTotalSpan.innerHTML = `Total: रू${total}`;
-      document.querySelectorAll('.cart-inc').forEach(btn => btn.addEventListener('click', (e) => { const id = parseInt(btn.dataset.id); const ci = cart.find(c => c.id === id); if (ci) ci.quantity++; updateCartUI(); }));
-      document.querySelectorAll('.cart-dec').forEach(btn => btn.addEventListener('click', (e) => { const id = parseInt(btn.dataset.id); const ci = cart.find(c => c.id === id); if (ci && ci.quantity > 1) ci.quantity--; else if (ci && ci.quantity === 1) { const idx = cart.findIndex(c => c.id === id); cart.splice(idx,1); } updateCartUI(); }));
-      document.querySelectorAll('.cart-remove').forEach(btn => btn.addEventListener('click', (e) => { const id = parseInt(btn.dataset.id); const idx = cart.findIndex(c => c.id === id); if (idx!==-1) cart.splice(idx,1); updateCartUI(); }));
-    }
-
-    // Order and WhatsApp
-    const orderModal = document.getElementById('orderModal');
-    document.getElementById('proceedOrderBtn').onclick = () => { if (!cart.length) { alert('Cart empty'); return; } orderModal.style.display = 'flex'; };
-    document.getElementById('closeOrderModal').onclick = () => orderModal.style.display = 'none';
-    document.getElementById('confirmOrderBtn').onclick = async () => {
-      const name = document.getElementById('custName').value.trim();
-      const phone = document.getElementById('custPhone').value.trim();
-      const time = document.getElementById('pickupTime').value;
-      if (!name || !phone) { alert('Enter name & phone'); return; }
-      let msg = `🆕 *The Boring Edit Order*\nName: ${name}\nPhone: ${phone}\nPickup: ${time}\n\nItems:\n`;
-      let total = 0;
-      cart.forEach(i => { msg += `${i.quantity}x ${i.name} - रू${i.price * i.quantity}\n`; total += i.price * i.quantity; });
-      msg += `\nTotal: रू${total}\n\n✅ Payment: Scan QR code`;
-      const ownerWa = settings.whatsappNumber || '977981234567';
-      window.open(`https://wa.me/${ownerWa}?text=${encodeURIComponent(msg)}`, '_blank');
-      const qrModal = document.getElementById('qrModal');
-      const qrImg = document.getElementById('qrDisplayImg');
-      qrImg.src = settings.qr_url || 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Payment+for+The+Boring+Edit';
-      qrModal.style.display = 'flex';
-      orderModal.style.display = 'none';
-      cart = []; updateCartUI(); closeCart();
-    };
-    document.getElementById('closeQrModalBtn').onclick = () => document.getElementById('qrModal').style.display = 'none';
-    document.getElementById('whatsappFooterBtn').onclick = () => { if (cart.length===0) { alert('Add items first'); return; } document.getElementById('proceedOrderBtn').click(); };
-
-    // Owner Dashboard (supabase auth + CRUD)
-    let currentSession = null;
-    async function checkAuth() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        currentSession = session;
-        document.getElementById('loginBox').style.display = 'none';
-        dashboardDiv.style.display = 'block';
-        loadDashboardData();
-      } else {
-        document.getElementById('loginBox').style.display = 'block';
-        dashboardDiv.style.display = 'none';
+      </div>
+    `).join('');
+    document.querySelectorAll('.add-to-cart').forEach(btn => btn.addEventListener('click', (e) => {
+      if (!storeSettings.is_open) { alert('Store is closed'); return; }
+      const id = parseInt(btn.dataset.id);
+      const item = menuItems.find(i => i.id === id);
+      if (item) {
+        const existing = cart.find(c => c.id === id);
+        if (existing) existing.quantity++;
+        else cart.push({ ...item, quantity: 1 });
+        updateCartUI();
+        openCart();
       }
-    }
-    document.getElementById('doLoginBtn').onclick = async () => {
-      const email = document.getElementById('loginEmail').value;
-      const pass = document.getElementById('loginPass').value;
-      const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
-      if (error) alert('Login failed: ' + error.message);
-      else checkAuth();
-    };
-    document.getElementById('closeOwnerBtn').onclick = () => ownerPanel.classList.remove('open');
-    document.getElementById('ownerToggleBtn').onclick = () => { if (!currentSession) checkAuth(); ownerPanel.classList.add('open'); };
+    }));
+  }
 
-    async function loadDashboardData() {
-      const [{ data: items }, { data: cats }, { data: settingsData }] = await Promise.all([
-        supabase.from('menu_items').select('*'),
-        supabase.from('categories').select('*'),
-        supabase.from('settings').select('*').single()
-      ]);
-      if (items) menuItems = items;
-      if (cats) categories = cats;
-      if (settingsData) settings = { ...settings, ...settingsData };
-      renderAdminUI();
+  function updateCartUI() {
+    const container = document.getElementById('cartItemsList');
+    if (!container) return;
+    let total = 0;
+    if (!cart.length) { container.innerHTML = '<div style="text-align:center;">Cart empty</div>'; document.getElementById('cartTotal').innerHTML = 'Total: रू0'; return; }
+    container.innerHTML = cart.map(item => {
+      total += item.price * item.quantity;
+      return `<div style="display:flex; justify-content:space-between; margin-bottom:0.8rem;"><div><b>${escapeHtml(item.name)}</b><br>रू${item.price} x ${item.quantity}</div><div><button class="cart-inc" data-id="${item.id}">+</button><button class="cart-dec" data-id="${item.id}">-</button><button class="cart-remove" data-id="${item.id}">x</button></div></div>`;
+    }).join('');
+    document.getElementById('cartTotal').innerHTML = `Total: रू${total}`;
+    document.querySelectorAll('.cart-inc').forEach(btn => btn.addEventListener('click', () => { const ci = cart.find(c => c.id === parseInt(btn.dataset.id)); if (ci) ci.quantity++; updateCartUI(); }));
+    document.querySelectorAll('.cart-dec').forEach(btn => btn.addEventListener('click', () => { const ci = cart.find(c => c.id === parseInt(btn.dataset.id)); if (ci && ci.quantity > 1) ci.quantity--; else if (ci && ci.quantity === 1) { const idx = cart.findIndex(c => c.id === ci.id); cart.splice(idx,1); } updateCartUI(); }));
+    document.querySelectorAll('.cart-remove').forEach(btn => btn.addEventListener('click', () => { const idx = cart.findIndex(c => c.id === parseInt(btn.dataset.id)); if (idx !== -1) cart.splice(idx,1); updateCartUI(); }));
+  }
+
+  function openCart() { document.getElementById('cartSidebar').classList.add('open'); document.getElementById('cartOverlay').classList.add('active'); }
+  function closeCart() { document.getElementById('cartSidebar').classList.remove('open'); document.getElementById('cartOverlay').classList.remove('active'); }
+  document.getElementById('closeCartBtn').onclick = closeCart;
+  document.getElementById('cartOverlay').onclick = closeCart;
+  document.getElementById('heroOrderBtn').onclick = openCart;
+  document.getElementById('ctaOrderBtn').onclick = openCart;
+  document.getElementById('heroViewMenuBtn').onclick = () => document.getElementById('menuGrid').scrollIntoView({ behavior: 'smooth' });
+
+  // Order flow
+  const orderModal = document.getElementById('orderModal');
+  document.getElementById('proceedOrderBtn').onclick = () => { if (!cart.length) { alert('Cart empty'); return; } orderModal.style.display = 'flex'; };
+  document.getElementById('closeOrderModal').onclick = () => orderModal.style.display = 'none';
+  document.getElementById('confirmOrderBtn').onclick = () => {
+    const name = document.getElementById('custName').value.trim();
+    const phone = document.getElementById('custPhone').value.trim();
+    const time = document.getElementById('pickupTime').value;
+    if (!name || !phone) { alert('Enter name and phone'); return; }
+    let msg = `🆕 *The Boring Edit Order*\nName: ${name}\nPhone: ${phone}\nPickup: ${time}\n\nItems:\n`;
+    let total = 0;
+    cart.forEach(i => { msg += `${i.quantity}x ${i.name} - रू${i.price * i.quantity}\n`; total += i.price * i.quantity; });
+    msg += `\nTotal: रू${total}\n✅ Payment: Scan QR code`;
+    window.open(`https://wa.me/${storeSettings.whatsapp_number}?text=${encodeURIComponent(msg)}`, '_blank');
+    const qrModal = document.getElementById('qrModal');
+    document.getElementById('qrDisplayImg').src = storeSettings.qr_url || 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Payment';
+    qrModal.style.display = 'flex';
+    orderModal.style.display = 'none';
+    cart = []; updateCartUI(); closeCart();
+  };
+  document.getElementById('closeQrModalBtn').onclick = () => document.getElementById('qrModal').style.display = 'none';
+  document.getElementById('whatsappFooterBtn').onclick = () => { if (!cart.length) { alert('Add items first'); return; } document.getElementById('proceedOrderBtn').click(); };
+
+  // Owner Auth & Dashboard
+  async function checkAuth() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session) {
+      currentUser = session;
+      document.getElementById('loginBox').style.display = 'none';
+      document.getElementById('dashboardContent').style.display = 'block';
+      loadDashboard();
+    } else {
+      document.getElementById('loginBox').style.display = 'block';
+      document.getElementById('dashboardContent').style.display = 'none';
     }
-    function renderAdminUI() {
-      dashboardDiv.innerHTML = `
-        <div style="margin-bottom:2rem;"><h4>Store Settings</h4>
-          <label class="switch"><input type="checkbox" id="storeStatusToggle" ${settings.isOpen ? 'checked' : ''}><span class="slider"></span></label><span>Store ${settings.isOpen ? 'Open' : 'Closed'}</span>
-          <label>Phone (WhatsApp)</label><input type="text" id="adminPhone" value="${settings.phone || ''}">
-          <label>WhatsApp number (for orders)</label><input type="text" id="adminWhatsapp" value="${settings.whatsappNumber || ''}">
-          <label>Hours</label><input type="text" id="adminHours" value="${settings.hours || ''}">
-          <label>QR Code URL (image link)</label><input type="text" id="adminQrUrl" value="${settings.qr_url || ''}"><button id="saveSettingsBtn">Save Settings</button>
-        </div>
-        <div><h4>Categories</h4><div id="categoryList"></div><input type="text" id="newCatName" placeholder="New category"><button id="addCategoryBtn">+ Add</button></div>
-        <div><h4>Menu Items</h4><div id="menuItemsAdmin"></div><button id="newItemBtn">+ New Item</button></div>
-      `;
-      // render categories
-      const catDiv = document.getElementById('categoryList');
-      catDiv.innerHTML = categories.map(c => `<div style="display:flex; gap:8px; margin:8px 0;"><span>${c.name}</span><button class="delCat" data-id="${c.id}">Delete</button></div>`).join('');
-      document.querySelectorAll('.delCat').forEach(btn => btn.addEventListener('click', async (e) => {
-        const id = parseInt(btn.dataset.id);
-        if (confirm('Delete category? Will unlink items')) { await supabase.from('categories').delete().eq('id', id); loadDashboardData(); }
-      }));
-      document.getElementById('addCategoryBtn').onclick = async () => {
-        const name = document.getElementById('newCatName').value.trim();
-        if (name) { await supabase.from('categories').insert({ name }); loadDashboardData(); }
-      };
-      // render menu items
-      const menuAdminDiv = document.getElementById('menuItemsAdmin');
-      menuAdminDiv.innerHTML = menuItems.map(item => `
-        <div style="border:1px solid #333; border-radius:20px; padding:1rem; margin-bottom:1rem;">
-          <input id="itemName_${item.id}" value="${item.name}" placeholder="Name">
-          <textarea id="itemDesc_${item.id}" placeholder="Description">${item.description || ''}</textarea>
-          <input id="itemPrice_${item.id}" value="${item.price}" type="number">
-          <select id="itemCat_${item.id}">${categories.map(c => `<option value="${c.id}" ${c.id===item.category_id ? 'selected' : ''}>${c.name}</option>`).join('')}</select>
-          <div>Image URL: <input id="itemImg_${item.id}" value="${item.image_url || ''}" placeholder="https://..."></div>
-          <label><input type="checkbox" id="itemAvail_${item.id}" ${item.available ? 'checked' : ''}> Available</label>
-          <button class="updateItemBtn" data-id="${item.id}">Save Changes</button>
-          <button class="deleteItemBtn" data-id="${item.id}">Delete Item</button>
-        </div>
-      `).join('');
-      // update and delete
-      document.querySelectorAll('.updateItemBtn').forEach(btn => btn.addEventListener('click', async (e) => {
-        const id = parseInt(btn.dataset.id);
-        const name = document.getElementById(`itemName_${id}`).value;
-        const description = document.getElementById(`itemDesc_${id}`).value;
-        const price = parseFloat(document.getElementById(`itemPrice_${id}`).value);
-        const category_id = parseInt(document.getElementById(`itemCat_${id}`).value);
-        const image_url = document.getElementById(`itemImg_${id}`).value;
-        const available = document.getElementById(`itemAvail_${id}`).checked;
-        await supabase.from('menu_items').update({ name, description, price, category_id, image_url, available }).eq('id', id);
-        loadDashboardData(); loadPublicData();
-      }));
-      document.querySelectorAll('.deleteItemBtn').forEach(btn => btn.addEventListener('click', async (e) => {
-        if (confirm('Delete item?')) { await supabase.from('menu_items').delete().eq('id', parseInt(btn.dataset.id)); loadDashboardData(); loadPublicData(); }
-      }));
-      document.getElementById('newItemBtn').onclick = async () => {
-        const defaultCat = categories[0]?.id || null;
-        await supabase.from('menu_items').insert({ name: 'New Item', price: 199, category_id: defaultCat, available: true, image_url: '' });
-        loadDashboardData();
-      };
-      document.getElementById('saveSettingsBtn').onclick = async () => {
-        const isOpen = document.getElementById('storeStatusToggle').checked;
-        const phone = document.getElementById('adminPhone').value;
-        const hours = document.getElementById('adminHours').value;
-        const qr_url = document.getElementById('adminQrUrl').value;
-        const whatsappNumber = document.getElementById('adminWhatsapp').value;
-        await supabase.from('settings').upsert({ id: 1, is_open: isOpen, phone, hours, qr_url, whatsapp_number: whatsappNumber });
-        loadDashboardData(); loadPublicData();
-      };
-    }
-    // initial load
-    loadPublicData();
-    checkAuth();
-    setInterval(loadPublicData, 10000);
-  </script>
+  }
+  document.getElementById('doLoginBtn').onclick = async () => {
+    const email = document.getElementById('loginEmail').value;
+    const pass = document.getElementById('loginPass').value;
+    const { error } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
+    if (error) alert('Login failed: ' + error.message);
+    else checkAuth();
+  };
+  document.getElementById('closeOwnerBtn').onclick = () => document.getElementById('ownerPanel').classList.remove('open');
+  document.getElementById('ownerToggleBtn').onclick = () => { if (!currentUser) checkAuth(); document.getElementById('ownerPanel').classList.add('open'); };
+
+  async function loadDashboard() {
+    const { data: items } = await supabaseClient.from('menu_items').select('*');
+    const { data: settingsData } = await supabaseClient.from('settings').select('*').single();
+    if (items) menuItems = items;
+    if (settingsData) storeSettings = { ...storeSettings, ...settingsData };
+    renderDashboard();
+  }
+
+  function renderDashboard() {
+    const dashboard = document.getElementById('dashboardContent');
+    dashboard.innerHTML = `
+      <div style="margin-bottom:2rem;">
+        <h4>Store Settings</h4>
+        <label class="switch"><input type="checkbox" id="storeStatusToggle" ${storeSettings.is_open ? 'checked' : ''}><span class="slider"></span></label><span>Store ${storeSettings.is_open ? 'Open' : 'Closed'}</span>
+        <label>Phone (display)</label><input type="text" id="adminPhone" value="${storeSettings.phone || ''}">
+        <label>WhatsApp Number</label><input type="text" id="adminWhatsapp" value="${storeSettings.whatsapp_number || ''}">
+        <label>Hours</label><input type="text" id="adminHours" value="${storeSettings.hours || ''}">
+        <label>QR Code URL</label><input type="text" id="adminQrUrl" value="${storeSettings.qr_url || ''}">
+        <button id="saveSettingsBtn" class="btn-primary">Save Settings</button>
+      </div>
+      <div><h4>Menu Items</h4><div id="menuItemsAdmin"></div><button id="newItemBtn" class="btn-outline">+ Add New Item</button></div>
+    `;
+    const itemsDiv = document.getElementById('menuItemsAdmin');
+    itemsDiv.innerHTML = menuItems.map(item => `
+      <div style="border:1px solid #333; border-radius:20px; padding:1rem; margin-bottom:1rem;">
+        <input id="itemName_${item.id}" value="${escapeHtml(item.name)}" placeholder="Name">
+        <textarea id="itemDesc_${item.id}" placeholder="Description">${escapeHtml(item.description || '')}</textarea>
+        <input id="itemPrice_${item.id}" value="${item.price}" type="number">
+        <input id="itemImg_${item.id}" value="${item.image_url || ''}" placeholder="Image URL">
+        <label><input type="checkbox" id="itemAvail_${item.id}" ${item.available !== false ? 'checked' : ''}> Available</label>
+        <div><button class="updateItemBtn" data-id="${item.id}">Save Changes</button> <button class="deleteItemBtn" data-id="${item.id}">Delete</button></div>
+      </div>
+    `).join('');
+    document.querySelectorAll('.updateItemBtn').forEach(btn => btn.addEventListener('click', async (e) => {
+      const id = parseInt(btn.dataset.id);
+      const name = document.getElementById(`itemName_${id}`).value;
+      const desc = document.getElementById(`itemDesc_${id}`).value;
+      const price = parseFloat(document.getElementById(`itemPrice_${id}`).value);
+      const img = document.getElementById(`itemImg_${id}`).value;
+      const avail = document.getElementById(`itemAvail_${id}`).checked;
+      await supabaseClient.from('menu_items').update({ name, description: desc, price, image_url: img, available: avail }).eq('id', id);
+      loadDashboard(); loadPublicData();
+    }));
+    document.querySelectorAll('.deleteItemBtn').forEach(btn => btn.addEventListener('click', async (e) => {
+      if (confirm('Delete this item?')) { await supabaseClient.from('menu_items').delete().eq('id', parseInt(btn.dataset.id)); loadDashboard(); loadPublicData(); }
+    }));
+    document.getElementById('newItemBtn').onclick = async () => {
+      await supabaseClient.from('menu_items').insert({ name: 'New Item', price: 199, available: true });
+      loadDashboard(); loadPublicData();
+    };
+    document.getElementById('saveSettingsBtn').onclick = async () => {
+      const is_open = document.getElementById('storeStatusToggle').checked;
+      const phone = document.getElementById('adminPhone').value;
+      const hours = document.getElementById('adminHours').value;
+      const qr_url = document.getElementById('adminQrUrl').value;
+      const whatsapp_number = document.getElementById('adminWhatsapp').value;
+      await supabaseClient.from('settings').upsert({ id: 1, is_open, phone, hours, qr_url, whatsapp_number });
+      loadDashboard(); loadPublicData();
+    };
+  }
+
+  loadPublicData();
+  checkAuth();
+  setInterval(loadPublicData, 15000);
+</script>
 </body>
 </html>
