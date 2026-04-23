@@ -622,6 +622,7 @@ footer{background:var(--off);border-top:1px solid var(--border);padding:60px 5% 
 const{createClient}=supabase;
 const db=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 let cart=[],settings={},allItems=[],currentCat='all',submitting=false,storeIsOpen=true;
+// applyStoreOpenState defined after init — safe because loadSettings is async
 let customDesignFile=null,customDesignPreviewUrl='';
 
 // ── LIVE VIEWERS ────────────────────────────────────────────────────────
@@ -646,6 +647,66 @@ async function init(){
   await Promise.all([loadSettings(),loadCategories(),loadMenu()]);
   initReveal();
   window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('stuck',scrollY>16));
+  startAutoSync();
+}
+
+// ── AUTO SYNC ─────────────────────────────────────────────────────────
+// Supabase realtime subscription — instant updates when owner changes settings
+function startAutoSync(){
+  // Method 1: Supabase Realtime channel (instant, pushed from server)
+  try{
+    db.channel('store-sync')
+      .on('postgres_changes',{event:'UPDATE',schema:'public',table:'settings',filter:'id=eq.1'},payload=>{
+        if(!payload.new) return;
+        const wasOpen = storeIsOpen;
+        const isNowOpen = payload.new.store_open !== false;
+        storeIsOpen = isNowOpen;
+        applyStoreOpenState(isNowOpen);
+        // If store just closed while customer is browsing, close their cart too
+        if(wasOpen && !isNowOpen){
+          closeCart();
+          closeModal();
+        }
+      })
+      .on('postgres_changes',{event:'*',schema:'public',table:'menu_items'},()=>{
+        // Silently refresh menu when owner adds/edits/toggles products
+        loadMenu();
+      })
+      .subscribe();
+  }catch(e){ console.warn('Realtime unavailable, using polling'); }
+
+  // Method 2: Polling every 8 seconds as fallback (catches any missed events)
+  setInterval(async()=>{
+    try{
+      const{data}=await db.from('settings').select('store_open').eq('id',1).single();
+      if(!data) return;
+      const wasOpen = storeIsOpen;
+      const isNowOpen = data.store_open !== false;
+      storeIsOpen = isNowOpen;
+      if(wasOpen !== isNowOpen){
+        applyStoreOpenState(isNowOpen);
+        if(wasOpen && !isNowOpen){ closeCart(); closeModal(); }
+      }
+    }catch(e){}
+  }, 8000);
+}
+
+// Apply store open/closed state to the UI without full page reload
+function applyStoreOpenState(isOpen){
+  const banner = document.getElementById('storeBanner');
+  const cartBtn = document.getElementById('navCartBtn');
+  const overlay = document.getElementById('storeClosedOverlay');
+  if(isOpen){
+    // Store just opened
+    if(banner) banner.style.display='none';
+    if(cartBtn){ cartBtn.style.opacity='1'; cartBtn.style.pointerEvents='auto'; cartBtn.title=''; }
+    if(overlay) overlay.style.display='none';
+  } else {
+    // Store just closed
+    if(banner) banner.style.display='block';
+    if(cartBtn){ cartBtn.style.opacity='0.4'; cartBtn.style.pointerEvents='none'; cartBtn.title='Store is currently closed'; }
+    if(overlay){ overlay.style.display='flex'; }
+  }
 }
 
 // ── SETTINGS ────────────────────────────────────────────────────────────
@@ -663,12 +724,7 @@ async function loadSettings(){
     document.getElementById('footerWa').href=wl;
     document.getElementById('ctaWa').href=wl;
     storeIsOpen = data.store_open !== false;
-    if(!storeIsOpen){
-      document.getElementById('storeBanner').style.display='block';
-      // disable cart button visually
-      const cartBtn = document.getElementById('navCartBtn');
-      if(cartBtn){cartBtn.style.opacity='0.4';cartBtn.style.pointerEvents='none';cartBtn.title='Store is currently closed';}
-    }
+    applyStoreOpenState(storeIsOpen);
     if(data.accent_color&&!['#f97316','#d4a853'].includes(data.accent_color))
       document.documentElement.style.setProperty('--amber',data.accent_color);
     const c=data.content||{};
