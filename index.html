@@ -373,12 +373,19 @@ footer{background:var(--off);border-top:1px solid var(--border);padding:60px 5% 
     <a href="#reviews">Reviews</a>
     <a href="#how">How It Works</a>
   </div>
-  <button class="n-cart" onclick="openCart()">
+  <button class="n-cart" id="navCartBtn" onclick="openCart()">
     🛒 Cart <span class="cart-dot" id="cartDot">0</span>
   </button>
 </nav>
 
 <div id="storeBanner">We're currently closed — back soon! 🌿</div>
+<!-- Store closed overlay - blocks all ordering when store is closed -->
+<div id="storeClosedOverlay" style="display:none;position:fixed;inset:0;background:rgba(249,247,244,0.96);z-index:450;backdrop-filter:blur(4px);flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px">
+  <div style="font-size:2.5rem;margin-bottom:16px">🌿</div>
+  <div style="font-family:var(--serif);font-size:1.8rem;font-weight:500;color:var(--ink);margin-bottom:10px">We're closed right now</div>
+  <div style="font-size:.92rem;color:var(--muted);line-height:1.8;max-width:360px;margin-bottom:28px">We're not taking orders at the moment. Check back soon — we'd love to help you find something wonderful.</div>
+  <a href="#reviews" id="closedWaBtn" style="display:inline-flex;align-items:center;gap:8px;background:#22c55e;color:white;padding:13px 26px;border-radius:999px;font-size:.84rem;font-weight:600;text-decoration:none">💬 Message us on WhatsApp</a>
+</div>
 
 <!-- TICKER -->
 <div class="ticker"><div class="ticker-track" id="tickerTrack"></div></div>
@@ -614,7 +621,7 @@ footer{background:var(--off);border-top:1px solid var(--border);padding:60px 5% 
 <script>
 const{createClient}=supabase;
 const db=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-let cart=[],settings={},allItems=[],currentCat='all',submitting=false;
+let cart=[],settings={},allItems=[],currentCat='all',submitting=false,storeIsOpen=true;
 let customDesignFile=null,customDesignPreviewUrl='';
 
 // ── LIVE VIEWERS ────────────────────────────────────────────────────────
@@ -655,7 +662,13 @@ async function loadSettings(){
     const wl=`https://wa.me/${wa}`;
     document.getElementById('footerWa').href=wl;
     document.getElementById('ctaWa').href=wl;
-    if(!data.store_open){document.getElementById('storeBanner').style.display='block';}
+    storeIsOpen = data.store_open !== false;
+    if(!storeIsOpen){
+      document.getElementById('storeBanner').style.display='block';
+      // disable cart button visually
+      const cartBtn = document.getElementById('navCartBtn');
+      if(cartBtn){cartBtn.style.opacity='0.4';cartBtn.style.pointerEvents='none';cartBtn.title='Store is currently closed';}
+    }
     if(data.accent_color&&!['#f97316','#d4a853'].includes(data.accent_color))
       document.documentElement.style.setProperty('--amber',data.accent_color);
     const c=data.content||{};
@@ -760,6 +773,7 @@ async function submitCustomRequest(){
 
 // ── CART ────────────────────────────────────────────────────────────────
 function addToCart(id){
+  if(!storeIsOpen){showClosedToast();return;}
   const item=allItems.find(i=>i.id===id);if(!item||!item.available)return;
   const ex=cart.find(c=>c.id===id);
   if(ex){ex.qty=(ex.qty||1)+1;}else{cart.push({...item,qty:1});}
@@ -804,7 +818,39 @@ function renderCartItems(){
       <button class="cd-rm" onclick="removeFromCart('${i.id}')">✕</button>
     </div>`).join('');
 }
-function openCart(){renderCartItems();document.getElementById('cartBg').classList.add('open');document.getElementById('cartDrawer').classList.add('open');}
+function openCart(){
+  if(!storeIsOpen){
+    showClosedToast();return;
+  }
+  renderCartItems();document.getElementById('cartBg').classList.add('open');document.getElementById('cartDrawer').classList.add('open');
+}
+function showClosedPopup(){
+  // Remove any existing popup
+  const existing=document.getElementById('storeClosedPopup');
+  if(existing)existing.remove();
+  const wa=settings.whatsapp_number||settings.phone_number||'9779800000000';
+  const popup=document.createElement('div');
+  popup.id='storeClosedPopup';
+  popup.style.cssText='position:fixed;inset:0;background:rgba(28,26,23,0.55);backdrop-filter:blur(6px);z-index:900;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;transition:opacity .3s';
+  popup.innerHTML=`
+    <div style="background:#fff;border-radius:24px;padding:36px 32px;width:100%;max-width:400px;text-align:center;box-shadow:0 20px 60px rgba(28,26,23,0.18);border:1px solid #e8e3db;transform:scale(0.95);transition:transform .3s">
+      <div style="font-size:2.4rem;margin-bottom:14px">🌿</div>
+      <div style="font-family:'Lora',serif;font-size:1.4rem;font-weight:500;color:#1c1a17;margin-bottom:8px">We're closed right now</div>
+      <p style="font-size:.86rem;color:#8a8278;line-height:1.75;margin-bottom:24px">Sorry, we're not accepting orders at the moment. You can still browse our collection or reach out to us on WhatsApp.</p>
+      <a href="https://wa.me/${wa}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#22c55e;color:#fff;padding:13px 26px;border-radius:999px;font-size:.82rem;font-weight:600;text-decoration:none;margin-bottom:10px;transition:opacity .2s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">💬 Message us on WhatsApp</a>
+      <br>
+      <button onclick="document.getElementById('storeClosedPopup').remove()" style="background:none;border:none;color:#8a8278;font-size:.8rem;cursor:pointer;margin-top:8px;padding:6px 12px;border-radius:999px;transition:color .2s" onmouseover="this.style.color='#1c1a17'" onmouseout="this.style.color='#8a8278'">Close</button>
+    </div>`;
+  document.body.appendChild(popup);
+  // Click outside to close
+  popup.addEventListener('click',e=>{if(e.target===popup)popup.remove();});
+  // Animate in
+  requestAnimationFrame(()=>{
+    popup.style.opacity='1';
+    popup.querySelector('div').style.transform='scale(1)';
+  });
+}
+function showClosedToast(){showClosedPopup();}
 function closeCart(){document.getElementById('cartBg').classList.remove('open');document.getElementById('cartDrawer').classList.remove('open');}
 
 // ── ADDRESS FIELD ────────────────────────────────────────────────────────
@@ -819,8 +865,22 @@ function initMapPicker(containerId){
 }
 
 // ── CHECKOUT ────────────────────────────────────────────────────────────
-function openCheckout(){
+async function openCheckout(){
   if(!cart.length)return;
+  // Re-check live from Supabase so stale page sessions are caught
+  try{
+    const{data:ls}=await db.from('settings').select('store_open').eq('id',1).single();
+    if(ls&&ls.store_open===false){
+      storeIsOpen=false;
+      closeCart();
+      showClosedPopup();
+      return;
+    }
+    storeIsOpen=true;
+  }catch(e){
+    // If Supabase fails, fall back to cached value
+    if(!storeIsOpen){closeCart();showClosedPopup();return;}
+  }
   closeCart();
   const total=cartTotal();
   document.getElementById('modal').innerHTML=`
@@ -867,6 +927,16 @@ let modalDesignFile=null;
 
 async function submitOrder(){
   if(submitting)return;
+  // Always re-check store status live from Supabase — catches if owner closed after page load
+  try{
+    const{data:liveSettings}=await db.from('settings').select('store_open').eq('id',1).single();
+    if(liveSettings&&liveSettings.store_open===false){
+      storeIsOpen=false;
+      closeModal();
+      showClosedPopup();
+      return;
+    }
+  }catch(e){}
   const name=document.getElementById('oName').value.trim();
   const phone=document.getElementById('oPhone').value.trim();
   let ok=true;
