@@ -372,6 +372,35 @@ footer{background:var(--off);border-top:1px solid var(--border);padding:60px 5% 
   .n-logo{font-size:.88rem}
   .n-cart{padding:7px 12px;font-size:.68rem}
 }
+
+/* PAYMENT METHOD CARDS */
+.pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:0}
+.pay-card{border:1.5px solid var(--border);border-radius:var(--r-lg);padding:14px 12px;cursor:pointer;transition:all .25s;text-align:center;background:var(--off);position:relative;user-select:none}
+.pay-card:hover{border-color:var(--amber)}
+.pay-card.active{border-color:var(--amber);background:var(--amber-dim)}
+.pay-card .check{position:absolute;top:8px;right:8px;width:18px;height:18px;background:var(--amber);border-radius:50%;display:none;align-items:center;justify-content:center;font-size:.58rem;color:#fff;font-weight:700}
+.pay-card.active .check{display:flex}
+.pay-card .icon{font-size:1.5rem;margin-bottom:6px;display:block}
+.pay-card .lbl{font-size:.82rem;font-weight:600;color:var(--ink)}
+.pay-card .sub{font-size:.68rem;color:var(--muted);margin-top:2px}
+
+/* DELIVERY CHARGE IN SUMMARY */
+.dc-row{display:flex;justify-content:space-between;font-size:.8rem;padding:4px 0;color:var(--muted);border-top:1px dashed var(--border);margin-top:4px}
+.dc-row span:last-child{font-weight:600;color:var(--ink)}
+
+/* SCREENSHOT UPLOAD */
+.ss-zone{border:2px dashed var(--border);border-radius:var(--r-md);padding:22px 16px;text-align:center;cursor:pointer;transition:all .25s;position:relative;background:var(--off);margin-top:0}
+.ss-zone:hover{border-color:var(--amber);background:rgba(212,130,74,.06)}
+.ss-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.ss-icon{font-size:1.6rem;display:block;margin-bottom:6px}
+.ss-txt{font-size:.82rem;font-weight:600;color:var(--ink2)}
+.ss-sub{font-size:.7rem;color:var(--muted);margin-top:3px}
+.ss-preview{display:none;text-align:center;padding:10px 0}
+.ss-preview img{max-width:100%;max-height:150px;border-radius:var(--r-sm);object-fit:contain;border:1px solid var(--border);margin-bottom:8px}
+.ss-preview-name{font-size:.72rem;color:var(--muted)}
+.ss-rm{margin:8px auto 0;display:block;background:none;border:1.5px solid #ef4444;border-radius:var(--r-pill);color:#ef4444;font-size:.72rem;font-weight:600;padding:5px 16px;cursor:pointer;font-family:var(--sans);transition:all .2s}
+.ss-rm:hover{background:#ef4444;color:#fff}
+.ss-err{font-size:.72rem;color:#ef4444;margin-top:5px;display:none;text-align:center}
 </style>
 </head>
 <body>
@@ -737,6 +766,7 @@ async function loadSettings(){
     document.getElementById('ctaWa').href=wl;
     storeIsOpen = data.store_open !== false;
     applyStoreOpenState(storeIsOpen);
+    if(data.delivery_charge!=null)settings.delivery_charge=Number(data.delivery_charge)||0;
     if(data.accent_color&&!['#f97316','#d4a853'].includes(data.accent_color))
       document.documentElement.style.setProperty('--amber',data.accent_color);
     const c=data.content||{};
@@ -933,24 +963,23 @@ function initMapPicker(containerId){
 }
 
 // ── CHECKOUT ────────────────────────────────────────────────────────────
+let payScreenshotFile=null, currentPayMethod='online';
+
 async function openCheckout(){
   if(!cart.length)return;
-  // Re-check live from Supabase so stale page sessions are caught
   try{
-    const{data:ls}=await db.from('settings').select('store_open').eq('id',1).single();
-    if(ls&&ls.store_open===false){
-      storeIsOpen=false;
-      closeCart();
-      showClosedPopup();
-      return;
-    }
+    const{data:ls}=await db.from('settings').select('store_open,delivery_charge').eq('id',1).single();
+    if(ls&&ls.store_open===false){storeIsOpen=false;closeCart();showClosedPopup();return;}
     storeIsOpen=true;
-  }catch(e){
-    // If Supabase fails, fall back to cached value
-    if(!storeIsOpen){closeCart();showClosedPopup();return;}
-  }
+    if(ls&&ls.delivery_charge!=null)settings.delivery_charge=Number(ls.delivery_charge)||0;
+  }catch(e){if(!storeIsOpen){closeCart();showClosedPopup();return;}}
   closeCart();
-  const total=cartTotal();
+  payScreenshotFile=null;
+  currentPayMethod='online';
+  const sub=cartTotal();
+  const dc=Number(settings.delivery_charge||0);
+  const total=sub+dc;
+  const dcRow=dc>0?`<div class="dc-row"><span>🚚 Delivery</span><span>+Rs. ${dc.toLocaleString()}</span></div>`:'';
   document.getElementById('modal').innerHTML=`
     <div class="m-head">
       <div class="m-title">Checkout</div>
@@ -960,8 +989,9 @@ async function openCheckout(){
     <div class="m-body">
       <div class="order-list">
         ${cart.map(i=>`<div class="ol-row"><span>${i.name} × ${i.qty||1}</span><span>Rs. ${(Number(i.price)*(i.qty||1)).toLocaleString()}</span></div>`).join('')}
+        ${dcRow}
       </div>
-      <div class="m-total"><span class="m-tl">Total</span><span class="m-tv">Rs. ${total.toLocaleString()}</span></div>
+      <div class="m-total"><span class="m-tl">Total</span><span class="m-tv" id="mTotal">Rs. ${total.toLocaleString()}</span></div>
       <div class="ff" id="ff-name">
         <label>Your Name *</label>
         <input type="text" id="oName" placeholder="e.g. Ram Sharma">
@@ -975,36 +1005,94 @@ async function openCheckout(){
       <div id="mapContainer"></div>
       <div class="ff">
         <label>Order Type</label>
-        <select id="oType">
+        <select id="oType" onchange="onTypeChange(this.value)">
           <option value="delivery">🚀 Home Delivery</option>
           <option value="pickup">📦 Pickup</option>
         </select>
       </div>
       <div class="ff">
-        <label>Special Requests <span class="optional-label">(optional)</span></label>
-        <textarea id="oNotes" placeholder="Any special instructions or things we should know about your order..."></textarea>
+        <label>Payment Method *</label>
+        <div class="pay-grid">
+          <div class="pay-card active" id="payOnline" onclick="setPayMethod('online')">
+            <span class="check">✓</span>
+            <span class="icon">📱</span>
+            <div class="lbl">Online Payment</div>
+            <div class="sub">QR · eSewa · Khalti</div>
+          </div>
+          <div class="pay-card" id="payCod" onclick="setPayMethod('cod')">
+            <span class="check">✓</span>
+            <span class="icon">💵</span>
+            <div class="lbl">Cash on Delivery</div>
+            <div class="sub">Pay when received</div>
+          </div>
+        </div>
       </div>
-      <button class="m-submit" id="submitBtn" onclick="submitOrder()">Confirm Order & Pay →</button>
-      <p class="trust-note">🔒 Safe & simple · No account needed · Instant WhatsApp confirmation</p>
+      <div class="ff">
+        <label>Special Requests <span class="optional-label">(optional)</span></label>
+        <textarea id="oNotes" placeholder="Any special instructions or things we should know..."></textarea>
+      </div>
+      <button class="m-submit" id="submitBtn" onclick="submitOrder()">Confirm Order →</button>
+      <p class="trust-note">🔒 Safe & simple · No account needed · WhatsApp confirmation</p>
     </div>`;
   openModal();
   setTimeout(()=>initMapPicker('mapContainer'),80);
 }
 
-let modalDesignFile=null;
+function setPayMethod(m){
+  currentPayMethod=m;
+  document.getElementById('payOnline').classList.toggle('active',m==='online');
+  document.getElementById('payCod').classList.toggle('active',m==='cod');
+}
+
+function onTypeChange(val){
+  const dc=Number(settings.delivery_charge||0);
+  if(!dc)return;
+  const sub=cartTotal();
+  const charge=val==='pickup'?0:dc;
+  const el=document.getElementById('mTotal');
+  if(el)el.textContent=`Rs. ${(sub+charge).toLocaleString()}`;
+}
+
+function handleSSUpload(e){
+  const file=e.target.files[0];if(!file)return;
+  const errEl=document.getElementById('ssErr');
+  if(!file.type.startsWith('image/')){
+    errEl.textContent='Please select an image file (JPG, PNG, etc.)';
+    errEl.style.display='block';e.target.value='';return;
+  }
+  if(file.size>10*1024*1024){
+    errEl.textContent='File too large — max 10MB';
+    errEl.style.display='block';e.target.value='';return;
+  }
+  errEl.style.display='none';
+  payScreenshotFile=file;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    document.getElementById('ssZone').style.display='none';
+    const prev=document.getElementById('ssPrev');
+    prev.style.display='block';
+    prev.querySelector('img').src=ev.target.result;
+    prev.querySelector('.ss-preview-name').textContent=file.name+' ('+Math.round(file.size/1024)+' KB)';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearSS(e){
+  e.preventDefault();e.stopPropagation();
+  payScreenshotFile=null;
+  document.getElementById('ssZone').style.display='block';
+  document.getElementById('ssPrev').style.display='none';
+  document.getElementById('ssFile').value='';
+}
 
 async function submitOrder(){
   if(submitting)return;
-  // Always re-check store status live from Supabase — catches if owner closed after page load
+  // Live store check
   try{
-    const{data:liveSettings}=await db.from('settings').select('store_open').eq('id',1).single();
-    if(liveSettings&&liveSettings.store_open===false){
-      storeIsOpen=false;
-      closeModal();
-      showClosedPopup();
-      return;
-    }
+    const{data:lv}=await db.from('settings').select('store_open').eq('id',1).single();
+    if(lv&&lv.store_open===false){storeIsOpen=false;closeModal();showClosedPopup();return;}
   }catch(e){}
+
   const name=document.getElementById('oName').value.trim();
   const phone=document.getElementById('oPhone').value.trim();
   let ok=true;
@@ -1013,56 +1101,130 @@ async function submitOrder(){
   const validPh=/^(97|98)\d{8}$/.test(phone);
   if(!validPh){document.getElementById('ff-phone').classList.add('err');document.getElementById('phoneErr').textContent='Valid 10-digit Nepal number starting with 97 or 98';ok=false;}
   else document.getElementById('ff-phone').classList.remove('err');
-
-  // Address
   const addrEl=document.getElementById('oAddr');
-  let addr=addrEl?addrEl.value.trim():'';
+  const addr=addrEl?addrEl.value.trim():'';
   if(!addr){document.getElementById('ff-addr')?.classList.add('err');ok=false;}
   if(!ok)return;
 
   submitting=true;
   const btn=document.getElementById('submitBtn');btn.disabled=true;btn.textContent='Placing order...';
+
   const type=document.getElementById('oType').value;
   const notes=document.getElementById('oNotes')?.value.trim()||'';
-  const total=cartTotal();
+  const payMethod=currentPayMethod||'online';
+  const sub=cartTotal();
+  const dc=type==='pickup'?0:Number(settings.delivery_charge||0);
+  const total=sub+dc;
   const tLabel=type==='delivery'?'🚀 Home Delivery':'📦 Pickup';
+  const pLabel=payMethod==='cod'?'💵 Cash on Delivery':'📱 Online Payment';
   const itemsText=cart.map(i=>`• ${i.name} × ${i.qty||1} — Rs. ${(Number(i.price)*(i.qty||1)).toLocaleString()}`).join('\n');
-  const locText=`📍 Address: ${addr}`;
-  // notesLine defined above;
-  const notesLine=notes?`\n📝 Special Request: ${notes}`:'';
+  const dcLine=dc>0?`\n🚚 Delivery: Rs. ${dc.toLocaleString()}`:'';
+  const notesLine=notes?`\n📝 Request: ${notes}`:'';
   const wa=settings.whatsapp_number||settings.phone_number||'9779800000000';
-  const msg=encodeURIComponent(`🛍️ *New Order*\n\n👤 ${name}\n📞 ${phone}\n${locText}\n\n📋 Items:\n${itemsText}\n\n💰 Total: Rs. ${total.toLocaleString()}\n${tLabel}${notesLine}`);
 
+  // Save order to Supabase
   try{
     await db.from('orders').insert([{
-      customer_name:name,customer_phone:phone,
-      address:addr,
-      items:cart,total,order_type:type,preferred_time:'',notes
+      customer_name:name,customer_phone:phone,address:addr,
+      items:cart,total,order_type:type,preferred_time:'',notes,
+      payment_method:payMethod,delivery_charge:dc
     }]);
   }catch(e){}
 
-  const qrHtml=settings.qr_code_url
-    ?`<img src="${settings.qr_code_url}" class="qr-img" alt="Pay QR">`
-    :`<div class="qr-ph">QR code not set yet.<br>Owner can add it in the dashboard.</div>`;
+  // Clear cart now
+  cart=[];updateCartUI();renderMenu(currentCat);submitting=false;
 
+  if(payMethod==='cod'){
+    // COD — no QR, straight to WhatsApp
+    const msg=encodeURIComponent(`🛍️ *New Order*\n\n👤 ${name}\n📞 ${phone}\n📍 ${addr}\n\n📋 Items:\n${itemsText}${dcLine}\n\n💰 Total: Rs. ${total.toLocaleString()}\n${tLabel} · ${pLabel}${notesLine}`);
+    document.getElementById('modal').innerHTML=`
+      <div class="m-head">
+        <div class="m-title">Order placed! 🎉</div>
+        <div class="m-sub">Tap below to confirm on WhatsApp</div>
+        <button class="m-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="m-body">
+        <div style="text-align:center;padding:24px 0 20px">
+          <div style="font-size:3rem;margin-bottom:10px">✅</div>
+          <div style="font-family:var(--serif);font-size:1.15rem;color:var(--ink);margin-bottom:8px;font-weight:500">Cash on Delivery</div>
+          <p style="font-size:.86rem;color:var(--muted);line-height:1.8;max-width:300px;margin:0 auto 24px">You'll pay <strong style="color:var(--ink)">Rs. ${total.toLocaleString()}</strong> when your order arrives. Tap below to confirm.</p>
+          <a href="https://wa.me/${wa}?text=${msg}" target="_blank" class="wa-confirm">💬 Confirm Order on WhatsApp</a>
+        </div>
+        <p class="trust-note" style="text-align:center;margin-top:12px">Tap above to send your order confirmation 🙏</p>
+      </div>`;
+
+  } else {
+    // ONLINE — show QR then require screenshot
+    const qrHtml=settings.qr_code_url
+      ?`<img src="${settings.qr_code_url}" class="qr-img" alt="Pay QR">`
+      :`<div class="qr-ph">QR not set yet.<br>Owner can add it in the dashboard.</div>`;
+    const msg=encodeURIComponent(`🛍️ *New Order — Online Payment*\n\n👤 ${name}\n📞 ${phone}\n📍 ${addr}\n\n📋 Items:\n${itemsText}${dcLine}\n\n💰 Total: Rs. ${total.toLocaleString()}\n${tLabel} · ${pLabel}${notesLine}\n\n📸 Payment screenshot sent separately`);
+    document.getElementById('modal').innerHTML=`
+      <div class="m-head">
+        <div class="m-title">Pay & Confirm 💳</div>
+        <div class="m-sub">Scan → Screenshot → WhatsApp</div>
+        <button class="m-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="m-body">
+        <div class="qr-wrap">${qrHtml}<p class="qr-label" style="margin-top:8px">Scan · Rs. ${total.toLocaleString()}</p></div>
+        <div class="ff" style="margin-top:18px">
+          <label>Upload Payment Screenshot <span style="color:#ef4444">*</span></label>
+          <div class="ss-zone" id="ssZone">
+            <input type="file" id="ssFile" accept="image/jpeg,image/png,image/jpg,image/webp,image/gif" capture="environment" onchange="handleSSUpload(event)">
+            <span class="ss-icon">📸</span>
+            <div class="ss-txt">Tap to upload your payment screenshot</div>
+            <div class="ss-sub">Images only (JPG · PNG · WEBP) · Max 10MB</div>
+          </div>
+          <div class="ss-preview" id="ssPrev">
+            <img src="" alt="screenshot">
+            <div class="ss-preview-name"></div>
+            <button class="ss-rm" onclick="clearSS(event)">Remove &amp; re-upload</button>
+          </div>
+          <div class="ss-err" id="ssErr"></div>
+        </div>
+        <div style="background:rgba(212,130,74,.08);border:1px solid rgba(212,130,74,.2);border-radius:var(--r-md);padding:12px 14px;margin-bottom:16px;font-size:.78rem;color:var(--ink3);line-height:1.7">
+          📌 <strong>After uploading</strong> your screenshot, tap Send below. Your screenshot preview will appear in the WhatsApp chat — save it and forward it in the same conversation.
+        </div>
+        <button class="m-submit" onclick="confirmOnlineOrder('${wa}','${msg}')">Send Order on WhatsApp →</button>
+        <p class="trust-note" style="text-align:center;margin-top:8px">Screenshot required to verify your payment 🔒</p>
+      </div>`;
+  }
+}
+
+function confirmOnlineOrder(wa, msg){
+  const errEl=document.getElementById('ssErr');
+  if(!payScreenshotFile){
+    errEl.textContent='Please upload your payment screenshot — it\'s required to confirm your order.';
+    errEl.style.display='block';
+    document.getElementById('ssZone').scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  errEl.style.display='none';
+  // Show the screenshot so customer can easily forward it in WhatsApp
+  const prevSrc=document.getElementById('ssPrev')?.querySelector('img')?.src||'';
   document.getElementById('modal').innerHTML=`
     <div class="m-head">
-      <div class="m-title">You're almost there! 🎉</div>
-      <div class="m-sub">Scan to pay <strong style="color:var(--amber)">Rs. ${total.toLocaleString()}</strong> then confirm on WhatsApp</div>
+      <div class="m-title">Almost done! ✅</div>
+      <div class="m-sub">Two quick steps below</div>
       <button class="m-close" onclick="closeModal()">✕</button>
     </div>
     <div class="m-body">
-      <div class="qr-wrap">${qrHtml}<p class="qr-label" style="margin-top:8px">Scan · Rs. ${total.toLocaleString()}</p></div>
-      <div style="text-align:center">
-        <a href="https://wa.me/${wa}?text=${msg}" target="_blank" class="wa-confirm">💬 Confirm Order on WhatsApp</a>
+      <div style="background:var(--amber-dim);border:1px solid rgba(212,130,74,.25);border-radius:var(--r-lg);padding:16px;margin-bottom:18px">
+        <p style="font-size:.84rem;font-weight:600;color:var(--ink);margin-bottom:8px">Two steps to complete:</p>
+        <p style="font-size:.82rem;color:var(--ink3);line-height:1.8">1️⃣ Tap <strong>"Send Order on WhatsApp"</strong><br>2️⃣ In the same WhatsApp chat, send this screenshot 👇</p>
       </div>
-      <p class="trust-note" style="margin-top:12px">After paying, tap above to send your order confirmation 🙏</p>
+      ${prevSrc?`<div style="text-align:center;margin-bottom:18px">
+        <p style="font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Your Payment Screenshot</p>
+        <img src="${prevSrc}" style="max-width:100%;max-height:200px;border-radius:var(--r-md);object-fit:contain;border:1px solid var(--border);display:block;margin:0 auto">
+        <p style="font-size:.7rem;color:var(--muted);margin-top:6px">Screenshot this or long-press to save, then forward it in WhatsApp</p>
+      </div>`:''}
+      <a href="https://wa.me/${wa}?text=${msg}" target="_blank" class="wa-confirm" style="display:flex;justify-content:center">💬 Send Order on WhatsApp</a>
+      <p class="trust-note" style="text-align:center;margin-top:12px">Forward the screenshot above in the same chat to confirm payment 🙏</p>
     </div>`;
-  cart=[];updateCartUI();renderMenu(currentCat);submitting=false;
 }
 
-function openModal(){document.getElementById('modalBg').classList.add('open');}
-function closeModal(){document.getElementById('modalBg').classList.remove('open');submitting=false;modalDesignFile=null;}
+function openModal(){document.getElementById('modalBg').classList.add('open');}{document.getElementById('modalBg').classList.add('open');}
+function closeModal(){document.getElementById('modalBg').classList.remove('open');submitting=false;payScreenshotFile=null;currentPayMethod='online';}
 function closeMBg(e){if(e.target.id==='modalBg')closeModal();}
 
 // ── REVEAL ──────────────────────────────────────────────────────────────
