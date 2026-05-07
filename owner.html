@@ -328,6 +328,7 @@ tr:hover td{background:var(--off)}
             <div class="fg full"><label>Store Address</label><input type="text" id="sAddr" placeholder="Kathmandu, Nepal"></div>
             <div class="fg"><label>Opening Hours</label><input type="text" id="sHrs" placeholder="Sun-Fri: 9am-8pm"></div>
             <div class="fg"><label>Accent Color</label><input type="color" id="sCol" value="#d4824a"></div>
+            <div class="fg"><label>Delivery Charge (Rs.)</label><input type="number" id="sDelivery" placeholder="0" min="0" step="1"><div style="font-size:.65rem;color:var(--muted);margin-top:3px">Set to 0 for free delivery. Pickup orders are always free regardless of this.</div></div>
           </div>
         </div>
         <div class="fs">
@@ -878,6 +879,7 @@ async function loadSettingsPage(){
   document.getElementById('sAddr').value=data.address||'';
   document.getElementById('sHrs').value=data.opening_hours||'';
   document.getElementById('sCol').value=data.accent_color||'#d4824a';
+  document.getElementById('sDelivery').value=data.delivery_charge||0;
   document.getElementById('sQr').value=data.qr_code_url||'';
   if(data.qr_code_url)document.getElementById('qrPrev').innerHTML=`<img src="${data.qr_code_url}" style="width:72px;height:72px;border-radius:var(--r-md);object-fit:contain;background:var(--off);padding:5px;border:1px solid var(--border)"><div class="uz-txt" style="font-size:.7rem;margin-top:5px">Current QR — click to replace</div>`;
 }
@@ -891,6 +893,7 @@ async function saveSettings(){
     opening_hours:document.getElementById('sHrs').value.trim(),
     accent_color:document.getElementById('sCol').value,
     qr_code_url:document.getElementById('sQr').value.trim(),
+    delivery_charge:parseFloat(document.getElementById('sDelivery').value)||0,
   }).eq('id',1);
   if(error){toast('Error: '+error.message,'er');return;}
   toast('Settings saved ✅','ok');
@@ -921,6 +924,23 @@ function toast(msg,type='ok'){
   clearTimeout(tT);const el=document.getElementById('toast');
   el.textContent=msg;el.className=`toast ${type} show`;
   tT=setTimeout(()=>el.classList.remove('show'),3200);
+}
+
+function startDashboardSync(){
+  try{
+    // Watch for new orders — flash nav and auto-refresh
+    db.channel('dash-orders')
+      .on('postgres_changes',{event:'INSERT',schema:'public',table:'orders'},()=>{
+        const ap=document.querySelector('.page.active');
+        if(ap){
+          if(ap.id==='page-orders')loadOrders();
+          if(ap.id==='page-overview')loadOverview();
+        }
+        const ob=document.querySelector('[onclick*=orders]');
+        if(ob){ob.style.background='rgba(212,130,74,.2)';ob.style.color='var(--amber)';
+          setTimeout(()=>{if(!ob.classList.contains('active')){ob.style.background='';ob.style.color='';}},3000);}
+      }).subscribe();
+  }catch(e){}
 }
 
 checkAuth();
