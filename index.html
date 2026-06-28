@@ -343,6 +343,28 @@ footer{background:var(--off);border-top:1px solid var(--border);padding:60px 5% 
 /* CLOSED BANNER */
 #storeBanner{display:none;background:#fef2f2;border-bottom:1px solid #fecaca;padding:10px 5%;text-align:center;font-size:.76rem;font-weight:600;color:#dc2626;margin-top:62px;box-sizing:border-box;max-width:100%}
 
+/* ── FIXED: Store Closed Overlay ── */
+#storeClosedOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(249, 247, 244, 0.96);
+  z-index: 999;
+  backdrop-filter: blur(4px);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px;
+}
+#storeClosedOverlay.show {
+  display: flex;
+}
+#storeClosedOverlay .icon { font-size: 2.5rem; margin-bottom: 16px; }
+#storeClosedOverlay .title { font-family: var(--serif); font-size: 1.8rem; font-weight: 500; color: var(--ink); margin-bottom: 10px; }
+#storeClosedOverlay .sub { font-size: .92rem; color: var(--muted); line-height: 1.8; max-width: 360px; margin-bottom: 28px; }
+#storeClosedOverlay .wa-btn { display: inline-flex; align-items: center; gap: 8px; background: #22c55e; color: white; padding: 13px 26px; border-radius: 999px; font-size: .84rem; font-weight: 600; text-decoration: none; }
+
 /* ANIMS */
 @keyframes up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -401,6 +423,14 @@ footer{background:var(--off);border-top:1px solid var(--border);padding:60px 5% 
 .ss-rm{margin:8px auto 0;display:block;background:none;border:1.5px solid #ef4444;border-radius:var(--r-pill);color:#ef4444;font-size:.72rem;font-weight:600;padding:5px 16px;cursor:pointer;font-family:var(--sans);transition:all .2s}
 .ss-rm:hover{background:#ef4444;color:#fff}
 .ss-err{font-size:.72rem;color:#ef4444;margin-top:5px;display:none;text-align:center}
+
+/* Store closed overlay - hidden initially, shown only when store is actually closed */
+#storeClosedOverlay {
+  display: none !important;
+}
+#storeClosedOverlay.show {
+  display: flex !important;
+}
 </style>
 </head>
 <body>
@@ -419,14 +449,15 @@ footer{background:var(--off);border-top:1px solid var(--border);padding:60px 5% 
   </button>
 </nav>
 
-<div id="storeBanner">We're currently closed — back soon! 🌿</div>
-<!-- Store closed overlay - blocks all ordering when store is closed -->
-<div id="storeClosedOverlay" style="display:none;position:fixed;inset:0;background:rgba(249,247,244,0.96);z-index:450;backdrop-filter:blur(4px);flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px">
-  <div style="font-size:2.5rem;margin-bottom:16px">🌿</div>
-  <div style="font-family:var(--serif);font-size:1.8rem;font-weight:500;color:var(--ink);margin-bottom:10px">We're closed right now</div>
-  <div style="font-size:.92rem;color:var(--muted);line-height:1.8;max-width:360px;margin-bottom:28px">We're not taking orders at the moment. Check back soon — we'd love to help you find something wonderful.</div>
-  <a href="#reviews" id="closedWaBtn" style="display:inline-flex;align-items:center;gap:8px;background:#22c55e;color:white;padding:13px 26px;border-radius:999px;font-size:.84rem;font-weight:600;text-decoration:none">💬 Message us on WhatsApp</a>
+<!-- Store Closed Overlay - FIXED: ONLY appears when store is actually closed -->
+<div id="storeClosedOverlay">
+  <div class="icon">🌿</div>
+  <div class="title">We're closed right now</div>
+  <div class="sub">We're not taking orders at the moment. Check back soon — we'd love to help you find something wonderful.</div>
+  <a id="closedWaBtn" href="#" target="_blank" class="wa-btn">💬 Message us on WhatsApp</a>
 </div>
+
+<div id="storeBanner">We're currently closed — back soon! 🌿</div>
 
 <!-- TICKER -->
 <div class="ticker"><div class="ticker-track" id="tickerTrack"></div></div>
@@ -663,7 +694,7 @@ footer{background:var(--off);border-top:1px solid var(--border);padding:60px 5% 
 const{createClient}=supabase;
 const db=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 let cart=[],settings={},allItems=[],currentCat='all',submitting=false,storeIsOpen=true;
-// applyStoreOpenState defined after init — safe because loadSettings is async
+let storeOpenLoaded=false; // FIX: Track if we've loaded store status
 let customDesignFile=null,customDesignPreviewUrl='';
 
 // ── LIVE VIEWERS ────────────────────────────────────────────────────────
@@ -681,80 +712,82 @@ function buildTicker(items){
   t.innerHTML=words.map((w,i)=>`<span class="t-item ${w==='·'?'gold':''}">${w}</span>`).join('');
 }
 
+// ── STORE CLOSED OVERLAY CONTROL ──────────────────────────────────────
+function applyStoreClosedOverlay(isOpen) {
+  const overlay = document.getElementById('storeClosedOverlay');
+  const banner = document.getElementById('storeBanner');
+  const cartBtn = document.getElementById('navCartBtn');
+  
+  if (isOpen) {
+    // Store is OPEN - hide overlay, show normal UI
+    if (overlay) overlay.classList.remove('show');
+    if (banner) banner.style.display = 'none';
+    if (cartBtn) { cartBtn.style.opacity = '1'; cartBtn.style.pointerEvents = 'auto'; cartBtn.title = ''; }
+  } else {
+    // Store is CLOSED - show overlay, block ordering
+    if (overlay) overlay.classList.add('show');
+    if (banner) banner.style.display = 'block';
+    if (cartBtn) { cartBtn.style.opacity = '0.4'; cartBtn.style.pointerEvents = 'none'; cartBtn.title = 'Store is currently closed'; }
+  }
+}
+
 // ── BOOT ────────────────────────────────────────────────────────────────
 async function init(){
   document.getElementById('fyear').textContent=new Date().getFullYear();
   animViewers();
-  await Promise.all([loadSettings(),loadCategories(),loadMenu()]);
+  // FIX: Load settings FIRST before showing anything else
+  await loadSettings();
+  // Then load the rest
+  await Promise.all([loadCategories(), loadMenu()]);
   initReveal();
   window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('stuck',scrollY>16));
+  // Store status is now applied via loadSettings -> applyStoreStatus
   startAutoSync();
 }
 
 // ── AUTO SYNC ─────────────────────────────────────────────────────────
-// Supabase realtime subscription — instant updates when owner changes settings
 function startAutoSync(){
-  // Method 1: Supabase Realtime channel (instant, pushed from server)
+  // Supabase Realtime
   try{
     db.channel('store-sync')
       .on('postgres_changes',{event:'UPDATE',schema:'public',table:'settings',filter:'id=eq.1'},payload=>{
         if(!payload.new) return;
-        const wasOpen = storeIsOpen;
         const isNowOpen = payload.new.store_open !== false;
         storeIsOpen = isNowOpen;
-        applyStoreOpenState(isNowOpen);
-        // If store just closed while customer is browsing, close their cart too
-        if(wasOpen && !isNowOpen){
-          closeCart();
-          closeModal();
-        }
+        applyStoreClosedOverlay(isNowOpen);
+        if(!isNowOpen){ closeCart(); closeModal(); }
       })
       .on('postgres_changes',{event:'*',schema:'public',table:'menu_items'},()=>{
-        // Silently refresh menu when owner adds/edits/toggles products
         loadMenu();
       })
       .subscribe();
-  }catch(e){ console.warn('Realtime unavailable, using polling'); }
+  }catch(e){ console.warn('Realtime unavailable'); }
 
-  // Method 2: Polling every 8 seconds as fallback (catches any missed events)
+  // Polling fallback
   setInterval(async()=>{
     try{
       const{data}=await db.from('settings').select('store_open').eq('id',1).single();
       if(!data) return;
-      const wasOpen = storeIsOpen;
       const isNowOpen = data.store_open !== false;
-      storeIsOpen = isNowOpen;
-      if(wasOpen !== isNowOpen){
-        applyStoreOpenState(isNowOpen);
-        if(wasOpen && !isNowOpen){ closeCart(); closeModal(); }
+      if(storeIsOpen !== isNowOpen){
+        storeIsOpen = isNowOpen;
+        applyStoreClosedOverlay(isNowOpen);
+        if(!isNowOpen){ closeCart(); closeModal(); }
       }
     }catch(e){}
   }, 8000);
-}
-
-// Apply store open/closed state to the UI without full page reload
-function applyStoreOpenState(isOpen){
-  const banner = document.getElementById('storeBanner');
-  const cartBtn = document.getElementById('navCartBtn');
-  const overlay = document.getElementById('storeClosedOverlay');
-  if(isOpen){
-    // Store just opened
-    if(banner) banner.style.display='none';
-    if(cartBtn){ cartBtn.style.opacity='1'; cartBtn.style.pointerEvents='auto'; cartBtn.title=''; }
-    if(overlay) overlay.style.display='none';
-  } else {
-    // Store just closed
-    if(banner) banner.style.display='block';
-    if(cartBtn){ cartBtn.style.opacity='0.4'; cartBtn.style.pointerEvents='none'; cartBtn.title='Store is currently closed'; }
-    if(overlay){ overlay.style.display='flex'; }
-  }
 }
 
 // ── SETTINGS ────────────────────────────────────────────────────────────
 async function loadSettings(){
   try{
     const{data}=await db.from('settings').select('*').eq('id',1).single();
-    if(!data)return; settings=data;
+    if(!data) { // No data yet, set default and create
+      storeIsOpen = true;
+      applyStoreClosedOverlay(true);
+      return;
+    }
+    settings=data;
     const name=data.store_name||'Store';
     const wa=data.whatsapp_number||data.phone_number||'9779800000000';
     sT('navName',name);sT('footerName',name);sT('footerCopy',name);
@@ -764,8 +797,9 @@ async function loadSettings(){
     const wl=`https://wa.me/${wa}`;
     document.getElementById('footerWa').href=wl;
     document.getElementById('ctaWa').href=wl;
+    // CRITICAL FIX: Apply store open state from DB
     storeIsOpen = data.store_open !== false;
-    applyStoreOpenState(storeIsOpen);
+    applyStoreClosedOverlay(storeIsOpen);
     if(data.delivery_charge!=null)settings.delivery_charge=Number(data.delivery_charge)||0;
     if(data.accent_color&&!['#f97316','#d4a853'].includes(data.accent_color))
       document.documentElement.style.setProperty('--amber',data.accent_color);
@@ -917,13 +951,10 @@ function renderCartItems(){
     </div>`).join('');
 }
 function openCart(){
-  if(!storeIsOpen){
-    showClosedToast();return;
-  }
+  if(!storeIsOpen){showClosedToast();return;}
   renderCartItems();document.getElementById('cartBg').classList.add('open');document.getElementById('cartDrawer').classList.add('open');
 }
 function showClosedPopup(){
-  // Remove any existing popup
   const existing=document.getElementById('storeClosedPopup');
   if(existing)existing.remove();
   const wa=settings.whatsapp_number||settings.phone_number||'9779800000000';
@@ -940,9 +971,7 @@ function showClosedPopup(){
       <button onclick="document.getElementById('storeClosedPopup').remove()" style="background:none;border:none;color:#8a8278;font-size:.8rem;cursor:pointer;margin-top:8px;padding:6px 12px;border-radius:999px;transition:color .2s" onmouseover="this.style.color='#1c1a17'" onmouseout="this.style.color='#8a8278'">Close</button>
     </div>`;
   document.body.appendChild(popup);
-  // Click outside to close
   popup.addEventListener('click',e=>{if(e.target===popup)popup.remove();});
-  // Animate in
   requestAnimationFrame(()=>{
     popup.style.opacity='1';
     popup.querySelector('div').style.transform='scale(1)';
@@ -1087,7 +1116,6 @@ function clearSS(e){
 
 async function submitOrder(){
   if(submitting)return;
-  // Live store check
   try{
     const{data:lv}=await db.from('settings').select('store_open').eq('id',1).single();
     if(lv&&lv.store_open===false){storeIsOpen=false;closeModal();showClosedPopup();return;}
@@ -1122,7 +1150,6 @@ async function submitOrder(){
   const notesLine=notes?`\n📝 Request: ${notes}`:'';
   const wa=settings.whatsapp_number||settings.phone_number||'9779800000000';
 
-  // Save order to Supabase
   try{
     await db.from('orders').insert([{
       customer_name:name,customer_phone:phone,address:addr,
@@ -1131,11 +1158,9 @@ async function submitOrder(){
     }]);
   }catch(e){}
 
-  // Clear cart now
   cart=[];updateCartUI();renderMenu(currentCat);submitting=false;
 
   if(payMethod==='cod'){
-    // COD — no QR, straight to WhatsApp
     const msg=encodeURIComponent(`🛍️ *New Order*\n\n👤 ${name}\n📞 ${phone}\n📍 ${addr}\n\n📋 Items:\n${itemsText}${dcLine}\n\n💰 Total: Rs. ${total.toLocaleString()}\n${tLabel} · ${pLabel}${notesLine}`);
     document.getElementById('modal').innerHTML=`
       <div class="m-head">
@@ -1152,9 +1177,7 @@ async function submitOrder(){
         </div>
         <p class="trust-note" style="text-align:center;margin-top:12px">Tap above to send your order confirmation 🙏</p>
       </div>`;
-
   } else {
-    // ONLINE — show QR then require screenshot
     const qrHtml=settings.qr_code_url
       ?`<img src="${settings.qr_code_url}" class="qr-img" alt="Pay QR">`
       :`<div class="qr-ph">QR not set yet.<br>Owner can add it in the dashboard.</div>`;
@@ -1200,7 +1223,6 @@ function confirmOnlineOrder(wa, msg){
     return;
   }
   errEl.style.display='none';
-  // Show the screenshot so customer can easily forward it in WhatsApp
   const prevSrc=document.getElementById('ssPrev')?.querySelector('img')?.src||'';
   document.getElementById('modal').innerHTML=`
     <div class="m-head">
@@ -1223,7 +1245,7 @@ function confirmOnlineOrder(wa, msg){
     </div>`;
 }
 
-function openModal(){document.getElementById('modalBg').classList.add('open');}{document.getElementById('modalBg').classList.add('open');}
+function openModal(){document.getElementById('modalBg').classList.add('open');}
 function closeModal(){document.getElementById('modalBg').classList.remove('open');submitting=false;payScreenshotFile=null;currentPayMethod='online';}
 function closeMBg(e){if(e.target.id==='modalBg')closeModal();}
 
