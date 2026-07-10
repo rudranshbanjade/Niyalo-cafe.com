@@ -5,18 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Blue Berry Cafe & Resto — Fine Dining Butwal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Inter:wght@300;400;500;600&family=Great+Vibes&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Great+Vibes&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL = 'https://wffgltseoqqegpqyfuat.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmZmdsdHNlb3FxZWdwcXlmdWF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1ODIxNzIsImV4cCI6MjA5MjE1ODE3Mn0.w0gb_MNKaQh4kLmUS_kcKp47E6GC2-he3-OEj1Zjtfo';
+const STORAGE = 'https://wffgltseoqqegpqyfuat.supabase.co/storage/v1/object/public';
 </script>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
   --ink:#0A0A0A;--ink2:#111;--card:#161616;--card2:#1c1c1c;
-  --gold:#C8A96E;--gold2:#e0c07a;--gold-dim:rgba(200,169,110,.1);--gold-glow:rgba(200,169,110,.22);
-  --cream:#EAE6DF;--cream2:#bab5ac;--muted:#6e6b65;--border:rgba(200,169,110,.14);
+  --gold:#C8A96E;--gold2:#ddb96a;--gold-dim:rgba(200,169,110,.1);--gold-glow:rgba(200,169,110,.22);
+  --cream:#EAE6DF;--cream2:#b5b0a8;--muted:#6a6760;--border:rgba(200,169,110,.13);
   --serif:'Playfair Display',Georgia,serif;
   --script:'Great Vibes',cursive;
   --sans:'Inter',sans-serif;
@@ -24,262 +25,272 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 }
 html{scroll-behavior:smooth}
 body{background:var(--ink);color:var(--cream);font-family:var(--sans);overflow-x:hidden;-webkit-font-smoothing:antialiased}
-::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:rgba(200,169,110,.2)}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:rgba(200,169,110,.25)}
 a{text-decoration:none;color:inherit}
 img{display:block;max-width:100%}
 
-/* ANIM BASE */
-.reveal{opacity:0;transform:translateY(40px);transition:opacity .85s cubic-bezier(.25,.46,.45,.94),transform .85s cubic-bezier(.25,.46,.45,.94)}
-.reveal.up{opacity:1;transform:translateY(0)}
-.reveal-left{opacity:0;transform:translateX(-50px);transition:opacity .9s cubic-bezier(.25,.46,.45,.94),transform .9s cubic-bezier(.25,.46,.45,.94)}
-.reveal-left.up{opacity:1;transform:translateX(0)}
-.reveal-right{opacity:0;transform:translateX(50px);transition:opacity .9s cubic-bezier(.25,.46,.45,.94),transform .9s cubic-bezier(.25,.46,.45,.94)}
-.reveal-right.up{opacity:1;transform:translateX(0)}
-.reveal-scale{opacity:0;transform:scale(.94);transition:opacity .8s cubic-bezier(.25,.46,.45,.94),transform .8s cubic-bezier(.25,.46,.45,.94)}
-.reveal-scale.up{opacity:1;transform:scale(1)}
-.delay-1{transition-delay:.1s}.delay-2{transition-delay:.2s}.delay-3{transition-delay:.3s}
-.delay-4{transition-delay:.4s}.delay-5{transition-delay:.5s}.delay-6{transition-delay:.6s}
+/* ── SMOOTH REVEAL ANIMATIONS ── */
+.rw{opacity:0;transform:translateY(48px);transition:opacity .9s cubic-bezier(.22,1,.36,1),transform .9s cubic-bezier(.22,1,.36,1)}
+.rw.in{opacity:1;transform:translateY(0)}
+.rw-l{opacity:0;transform:translateX(-56px);transition:opacity .95s cubic-bezier(.22,1,.36,1),transform .95s cubic-bezier(.22,1,.36,1)}
+.rw-l.in{opacity:1;transform:translateX(0)}
+.rw-r{opacity:0;transform:translateX(56px);transition:opacity .95s cubic-bezier(.22,1,.36,1),transform .95s cubic-bezier(.22,1,.36,1)}
+.rw-r.in{opacity:1;transform:translateX(0)}
+.rw-s{opacity:0;transform:scale(.93);transition:opacity .85s cubic-bezier(.22,1,.36,1),transform .85s cubic-bezier(.22,1,.36,1)}
+.rw-s.in{opacity:1;transform:scale(1)}
+.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}
+.d4{transition-delay:.32s}.d5{transition-delay:.40s}.d6{transition-delay:.48s}
 
 /* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:900;height:78px;padding:0 6%;display:flex;align-items:center;justify-content:space-between;gap:20px;transition:background .5s,border-color .5s;border-bottom:1px solid transparent}
-nav.scrolled{background:rgba(10,10,10,.97);backdrop-filter:blur(24px);border-color:var(--border)}
-.n-brand{font-family:var(--serif);font-size:1.15rem;font-style:italic;font-weight:500;color:var(--gold);letter-spacing:.03em;white-space:nowrap;flex-shrink:0}
-.n-links{display:flex;gap:36px;align-items:center}
-.n-links a{font-size:.67rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--cream2);transition:color .25s}
+nav{position:fixed;top:0;left:0;right:0;z-index:900;height:76px;padding:0 6%;display:flex;align-items:center;justify-content:space-between;gap:20px;transition:background .5s,border-color .5s;border-bottom:1px solid transparent}
+nav.scrolled{background:rgba(10,10,10,.96);backdrop-filter:blur(24px);border-color:var(--border)}
+.n-brand{font-family:var(--serif);font-size:1.1rem;font-style:italic;font-weight:500;color:var(--gold);white-space:nowrap;flex-shrink:0}
+.n-links{display:flex;gap:34px;align-items:center}
+.n-links a{font-size:.66rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--cream2);transition:color .25s}
 .n-links a:hover{color:var(--gold)}
-.n-cta{background:var(--gold);color:var(--ink);padding:11px 26px;font-size:.67rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;border:none;cursor:pointer;transition:all .25s;flex-shrink:0}
-.n-cta:hover{background:var(--gold2);box-shadow:0 4px 24px var(--gold-glow)}
+.n-cta{background:var(--gold);color:var(--ink);padding:11px 24px;font-size:.66rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;border:none;cursor:pointer;transition:all .25s;flex-shrink:0}
+.n-cta:hover{background:var(--gold2);box-shadow:0 4px 22px var(--gold-glow)}
 .n-ham{display:none;background:none;border:none;color:var(--cream);font-size:1.5rem;cursor:pointer}
+.mob-draw{position:fixed;inset:0;background:rgba(10,10,10,.98);z-index:950;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:34px;transform:translateX(100%);transition:transform .38s cubic-bezier(.22,1,.36,1)}
+.mob-draw.open{transform:translateX(0)}
+.mob-close{position:absolute;top:26px;right:26px;background:none;border:none;color:var(--cream);font-size:1.8rem;cursor:pointer}
+.mob-draw a{font-family:var(--serif);font-size:1.6rem;font-style:italic;color:var(--cream2);transition:color .2s}
+.mob-draw a:hover{color:var(--gold)}
 
-/* MOB NAV */
-.mob-drawer{position:fixed;inset:0;background:rgba(10,10,10,.98);z-index:950;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:36px;transform:translateX(100%);transition:transform .35s cubic-bezier(.25,.46,.45,.94)}
-.mob-drawer.open{transform:translateX(0)}
-.mob-close{position:absolute;top:28px;right:28px;background:none;border:none;color:var(--cream);font-size:1.8rem;cursor:pointer}
-.mob-drawer a{font-family:var(--serif);font-size:1.6rem;font-style:italic;color:var(--cream2);transition:color .2s}
-.mob-drawer a:hover{color:var(--gold)}
-
-/* ── HERO ── */
+/* HERO */
 #hero{position:relative;height:100vh;min-height:680px;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden}
-.hero-img{position:absolute;inset:0;background:url('bb-night.webp') center/cover no-repeat;filter:brightness(.28) saturate(.7);transform:scale(1.04);transition:transform 12s ease-out}
-.hero-img.loaded{transform:scale(1)}
-.hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,10,.3) 0%,rgba(10,10,10,.15) 40%,rgba(10,10,10,.75) 100%)}
-.hero-content{position:relative;z-index:2;max-width:820px;padding:0 24px}
-.hero-rule{display:flex;align-items:center;gap:16px;justify-content:center;margin-bottom:24px;opacity:0;animation:fadeUp .8s .3s forwards}
-.hero-rule::before,.hero-rule::after{content:'';flex:1;height:1px;max-width:80px;background:linear-gradient(to right,transparent,var(--gold),.5)}
-.hero-rule::after{background:linear-gradient(to left,transparent,var(--gold),.5)}
-.hero-kicker{font-size:.6rem;font-weight:500;letter-spacing:.26em;text-transform:uppercase;color:var(--gold)}
-.hero-title{font-family:var(--serif);font-size:clamp(3.4rem,7.5vw,7rem);font-weight:400;color:var(--cream);line-height:.95;letter-spacing:-.01em;margin-bottom:22px;opacity:0;animation:fadeUp .9s .5s forwards}
-.hero-title span{display:block}
-.hero-sub{font-family:var(--script);font-size:clamp(1.4rem,3vw,2.2rem);color:var(--gold);margin-bottom:48px;opacity:0;animation:fadeUp .9s .7s forwards;font-weight:400}
-.hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;opacity:0;animation:fadeUp .9s .9s forwards}
-.btn-solid{background:var(--gold);color:var(--ink);padding:15px 34px;font-size:.67rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;border:none;cursor:pointer;transition:all .25s;display:inline-flex;align-items:center;gap:8px}
-.btn-solid:hover{background:var(--gold2);transform:translateY(-2px);box-shadow:0 8px 30px var(--gold-glow)}
-.btn-border{background:transparent;color:var(--cream);padding:15px 34px;font-size:.67rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;border:1px solid rgba(234,230,223,.5);cursor:pointer;transition:all .25s;display:inline-flex;align-items:center;gap:8px}
+.hero-img{position:absolute;inset:0;background-size:cover;background-position:center;background-repeat:no-repeat;filter:brightness(.26) saturate(.7);transition:opacity 1.2s}
+.hero-grad{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,10,.25) 0%,rgba(10,10,10,.1) 45%,rgba(10,10,10,.82) 100%)}
+.hero-content{position:relative;z-index:2;max-width:840px;padding:0 24px}
+.hero-rule{display:flex;align-items:center;gap:16px;justify-content:center;margin-bottom:26px;opacity:0;animation:fu .8s .3s forwards}
+.hr-line{flex:1;max-width:80px;height:1px}
+.hr-line.l{background:linear-gradient(to right,transparent,rgba(200,169,110,.6))}
+.hr-line.r{background:linear-gradient(to left,transparent,rgba(200,169,110,.6))}
+.hero-badge{font-size:.6rem;font-weight:500;letter-spacing:.26em;text-transform:uppercase;color:var(--gold)}
+.hero-title{font-family:var(--serif);font-size:clamp(3.2rem,7vw,6.8rem);font-weight:400;color:var(--cream);line-height:.92;letter-spacing:-.01em;margin-bottom:22px;opacity:0;animation:fu .95s .5s forwards}
+.hero-sub{font-family:var(--script);font-size:clamp(1.4rem,3vw,2.3rem);color:var(--gold);margin-bottom:50px;opacity:0;animation:fu .9s .7s forwards}
+.hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;opacity:0;animation:fu .9s .9s forwards}
+.btn-solid{background:var(--gold);color:var(--ink);padding:14px 32px;font-size:.66rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;border:none;cursor:pointer;transition:all .28s;display:inline-flex;align-items:center;gap:8px}
+.btn-solid:hover{background:var(--gold2);transform:translateY(-2px);box-shadow:0 8px 28px var(--gold-glow)}
+.btn-border{background:transparent;color:var(--cream);padding:14px 32px;font-size:.66rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;border:1px solid rgba(234,230,223,.45);cursor:pointer;transition:all .28s;display:inline-flex;align-items:center;gap:8px}
 .btn-border:hover{border-color:var(--gold);color:var(--gold)}
-.btn-ig{background:linear-gradient(135deg,#f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);color:#fff;padding:15px 34px;font-size:.67rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;border:none;cursor:pointer;transition:all .25s;display:inline-flex;align-items:center;gap:8px}
-.btn-ig:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(220,39,67,.4)}
-.hero-scroll{position:absolute;bottom:38px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;opacity:.5;animation:scrollBounce 2.8s infinite}
-.scroll-line{width:1px;height:56px;background:linear-gradient(to bottom,var(--gold),transparent)}
-.scroll-txt{font-size:.55rem;letter-spacing:.24em;text-transform:uppercase;color:var(--gold)}
-@keyframes scrollBounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(10px)}}
+.btn-ig-hero{padding:14px 28px;font-size:.66rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;border:none;cursor:pointer;transition:all .28s;display:inline-flex;align-items:center;gap:9px;background:linear-gradient(135deg,#f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);color:#fff}
+.btn-ig-hero:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(220,39,67,.4)}
+.hero-scroll{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:9px;animation:scrollBob 2.6s infinite ease-in-out}
+.hs-line{width:1px;height:54px;background:linear-gradient(to bottom,rgba(200,169,110,.7),transparent)}
+.hs-txt{font-size:.54rem;letter-spacing:.24em;text-transform:uppercase;color:rgba(200,169,110,.6)}
+@keyframes scrollBob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(10px)}}
+@keyframes fu{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:translateY(0)}}
 
-/* DIVIDER */
-.gold-divider{display:flex;align-items:center;justify-content:center;gap:14px;padding:20px 0}
-.gd-line{width:60px;height:1px;background:var(--gold);opacity:.35}
-.gd-diamond{width:7px;height:7px;background:var(--gold);transform:rotate(45deg);opacity:.6}
-
-/* ── STORY ── */
-#story{padding:120px 6%;background:var(--ink2)}
-.story-wrap{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
-.story-imgs{position:relative;height:620px}
-.si-main{position:absolute;top:0;left:0;width:72%;height:78%;border-radius:2px;overflow:hidden}
-.si-main img{width:100%;height:100%;object-fit:cover;transition:transform .7s}
-.si-main:hover img{transform:scale(1.04)}
-.si-accent{position:absolute;bottom:0;right:0;width:52%;height:52%;border-radius:2px;overflow:hidden;border:4px solid var(--ink2)}
-.si-accent img{width:100%;height:100%;object-fit:cover;transition:transform .7s}
-.si-accent:hover img{transform:scale(1.04)}
-.si-badge{position:absolute;top:54%;left:62%;transform:translate(-50%,-50%);background:var(--ink);border:1px solid var(--border);padding:20px 24px;text-align:center;z-index:10}
-.si-badge-num{font-family:var(--serif);font-size:2rem;font-weight:400;color:var(--gold);line-height:1}
-.si-badge-label{font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-top:4px}
-.story-text{}
-.s-label{font-size:.6rem;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;display:flex;align-items:center;gap:10px}
-.s-label::after{content:'';flex:1;max-width:40px;height:1px;background:var(--gold);opacity:.4}
-.s-title{font-family:var(--serif);font-size:clamp(2.2rem,3.8vw,3.4rem);font-weight:400;color:var(--cream);line-height:1.1;letter-spacing:-.01em;margin-bottom:22px}
-.s-title em{font-style:italic;color:var(--gold)}
-.s-body{font-size:.9rem;color:var(--cream2);line-height:2;margin-bottom:28px}
-.s-lgbtq{display:inline-flex;align-items:center;gap:8px;background:var(--gold-dim);border:1px solid var(--border);padding:8px 16px;font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:28px}
-.s-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:38px}
-.s-pill{border:1px solid var(--border);padding:7px 16px;font-size:.68rem;font-weight:500;color:var(--cream2);transition:all .25s;cursor:default}
-.s-pill:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-dim)}
-.s-stats{display:flex;gap:40px;padding-top:32px;border-top:1px solid var(--border)}
-.ss-num{font-family:var(--serif);font-size:1.9rem;font-weight:400;color:var(--gold);line-height:1}
-.ss-label{font-size:.6rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:5px}
-
-/* ── SERVICES ── */
-#services{padding:110px 6%;background:var(--ink)}
-.sec-header{text-align:center;margin-bottom:64px}
-.sec-kicker{font-size:.6rem;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
-.sec-title{font-family:var(--serif);font-size:clamp(2rem,3.6vw,3rem);font-weight:400;color:var(--cream);line-height:1.15;letter-spacing:-.01em}
+/* SHARED */
+.sec{padding:110px 6%}
+.sec-kicker{font-size:.6rem;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.sec-kicker::after{content:'';flex:1;max-width:44px;height:1px;background:var(--gold);opacity:.4}
+.sec-title{font-family:var(--serif);font-size:clamp(2rem,3.6vw,3.2rem);font-weight:400;color:var(--cream);line-height:1.12;letter-spacing:-.01em}
 .sec-title em{font-style:italic;color:var(--gold)}
-.sec-sub{font-size:.88rem;color:var(--muted);margin-top:12px;line-height:1.9;max-width:560px;margin-left:auto;margin-right:auto}
-.svc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border)}
-.svc-card{background:var(--card);padding:44px 30px;text-align:center;transition:background .3s}
-.svc-card:hover{background:var(--card2)}
-.svc-icon-wrap{width:60px;height:60px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin:0 auto 22px;transition:all .3s}
-.svc-card:hover .svc-icon-wrap{border-color:var(--gold);box-shadow:0 0 28px var(--gold-glow)}
-.svc-name{font-family:var(--serif);font-size:1.1rem;font-weight:500;color:var(--cream);margin-bottom:10px}
-.svc-desc{font-size:.78rem;color:var(--muted);line-height:1.85}
+.sec-sub{font-size:.88rem;color:var(--muted);line-height:1.95;max-width:560px;margin:10px auto 0}
+.gold-div{display:flex;align-items:center;justify-content:center;gap:12px;padding:10px 0}
+.gd-l{width:54px;height:1px;background:var(--gold);opacity:.3}
+.gd-d{width:7px;height:7px;background:var(--gold);transform:rotate(45deg);opacity:.55}
 
-/* ── MENU ── */
-#menu{padding:110px 6%;background:var(--ink2)}
-.menu-tabs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:48px}
-.m-tab{background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px 22px;font-size:.65rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:all .25s}
+/* STORY */
+#story{background:var(--ink2)}
+.story-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+.story-imgs{position:relative;height:600px}
+.si-a{position:absolute;top:0;left:0;width:73%;height:79%;overflow:hidden;border-radius:2px}
+.si-a img{width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.22,1,.36,1)}
+.si-a:hover img{transform:scale(1.05)}
+.si-b{position:absolute;bottom:0;right:0;width:52%;height:52%;overflow:hidden;border-radius:2px;border:4px solid var(--ink2)}
+.si-b img{width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.22,1,.36,1)}
+.si-b:hover img{transform:scale(1.05)}
+.si-badge{position:absolute;top:50%;left:58%;transform:translate(-50%,-50%);background:var(--ink);border:1px solid var(--border);padding:20px 24px;text-align:center;z-index:10;backdrop-filter:blur(8px)}
+.sib-num{font-family:var(--serif);font-size:2.1rem;font-weight:400;color:var(--gold);line-height:1}
+.sib-lbl{font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.story-right .sec-kicker::after{max-width:36px}
+.s-title{font-family:var(--serif);font-size:clamp(2rem,3.4vw,3rem);font-weight:400;color:var(--cream);line-height:1.1;letter-spacing:-.01em;margin-bottom:20px}
+.s-title em{font-style:italic;color:var(--gold)}
+.s-body{font-size:.9rem;color:var(--cream2);line-height:2;margin-bottom:24px}
+.s-lgbtq{display:inline-flex;align-items:center;gap:8px;background:var(--gold-dim);border:1px solid var(--border);padding:8px 16px;font-size:.66rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:26px}
+.s-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:36px}
+.s-pill{border:1px solid var(--border);padding:7px 16px;font-size:.67rem;font-weight:500;color:var(--cream2);transition:all .28s;cursor:default}
+.s-pill:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-dim)}
+.s-stats{display:flex;gap:38px;padding-top:30px;border-top:1px solid var(--border)}
+.ss{}.ss-n{font-family:var(--serif);font-size:2rem;font-weight:400;color:var(--gold);line-height:1}
+.ss-l{font-size:.58rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:5px}
+
+/* SERVICES */
+#services{background:var(--ink)}
+.svc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);margin-top:64px}
+.svc-card{background:var(--card);padding:42px 26px;text-align:center;transition:background .35s}
+.svc-card:hover{background:var(--card2)}
+.svc-icon{width:58px;height:58px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin:0 auto 20px;transition:all .35s}
+.svc-card:hover .svc-icon{border-color:var(--gold);box-shadow:0 0 26px var(--gold-glow)}
+.svc-name{font-family:var(--serif);font-size:1.05rem;font-weight:500;color:var(--cream);margin-bottom:10px}
+.svc-desc{font-size:.78rem;color:var(--muted);line-height:1.9}
+
+/* MENU */
+#menu{background:var(--ink2)}
+.menu-tabs{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin:44px 0 48px}
+.m-tab{background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px 20px;font-size:.64rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:all .25s}
 .m-tab:hover,.m-tab.active{background:var(--gold);border-color:var(--gold);color:var(--ink)}
 .menu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-.m-card{background:var(--card);border:1px solid var(--border);overflow:hidden;transition:all .35s;display:flex;flex-direction:column}
-.m-card:hover{border-color:rgba(200,169,110,.3);transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,.5)}
-.m-img{height:190px;overflow:hidden;position:relative;background:var(--card2)}
-.m-img img{width:100%;height:100%;object-fit:cover;transition:transform .55s}
+.m-card{background:var(--card);border:1px solid var(--border);overflow:hidden;transition:all .38s cubic-bezier(.22,1,.36,1);display:flex;flex-direction:column}
+.m-card:hover{border-color:rgba(200,169,110,.28);transform:translateY(-5px);box-shadow:0 18px 48px rgba(0,0,0,.5)}
+.m-img{height:195px;position:relative;overflow:hidden;background:var(--card2);flex-shrink:0}
+.m-img img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.22,1,.36,1)}
 .m-card:hover .m-img img{transform:scale(1.07)}
-.m-img-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2.5rem;background:linear-gradient(135deg,var(--card2),var(--ink))}
-.m-badge{position:absolute;top:0;left:0;background:var(--gold);color:var(--ink);font-size:.55rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;padding:5px 12px}
-.m-badge.sig{background:transparent;border:1px solid var(--gold);color:var(--gold)}
-.m-badge.pop{background:rgba(200,169,110,.12);color:var(--gold);border:1px solid rgba(200,169,110,.3)}
-.m-body{padding:20px;flex:1;display:flex;flex-direction:column}
-.m-stars{color:var(--gold);font-size:.65rem;letter-spacing:2px;margin-bottom:8px}
-.m-name{font-family:var(--serif);font-size:1.05rem;font-weight:500;color:var(--cream);line-height:1.25;margin-bottom:7px}
-.m-desc{font-size:.76rem;color:var(--muted);line-height:1.75;flex:1;margin-bottom:14px}
+.m-img-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2.8rem;background:linear-gradient(135deg,var(--card2),var(--ink))}
+/* FIXED BADGE — always visible with solid gold background */
+.m-badge{position:absolute;top:0;left:0;font-size:.54rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;padding:5px 11px;line-height:1}
+.m-badge.pop{background:#C8A96E;color:#0A0A0A}
+.m-badge.sig{background:transparent;border:1px solid #C8A96E;color:#C8A96E}
+.m-badge.chef{background:#C8A96E;color:#0A0A0A}
+.m-badge.fresh{background:#52c97b;color:#0A0A0A}
+.m-badge.new{background:#C8A96E;color:#0A0A0A}
+.m-body{padding:18px 18px 20px;flex:1;display:flex;flex-direction:column}
+.m-stars{color:var(--gold);font-size:.62rem;letter-spacing:2px;margin-bottom:7px}
+.m-name{font-family:var(--serif);font-size:1rem;font-weight:500;color:var(--cream);line-height:1.25;margin-bottom:7px}
+.m-desc{font-size:.75rem;color:var(--muted);line-height:1.78;flex:1;margin-bottom:14px}
 .m-foot{display:flex;justify-content:space-between;align-items:flex-end;border-top:1px solid var(--border);padding-top:12px}
-.m-price{font-family:var(--serif);font-size:1rem;color:var(--gold)}
+.m-price{font-family:var(--serif);font-size:.98rem;color:var(--gold)}
 .m-cat{font-size:.58rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.menu-hidden{display:none}
 .see-more-wrap{text-align:center;margin-top:48px}
-.see-more-btn{background:transparent;border:1px solid var(--border);color:var(--cream2);padding:14px 40px;font-size:.68rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;transition:all .3s;display:inline-flex;align-items:center;gap:10px}
+.see-more-btn{background:transparent;border:1px solid var(--border);color:var(--cream2);padding:14px 40px;font-size:.66rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;transition:all .3s;display:inline-flex;align-items:center;gap:10px}
 .see-more-btn:hover{border-color:var(--gold);color:var(--gold)}
-.see-more-btn .arrow{transition:transform .3s}
-.see-more-btn.open .arrow{transform:rotate(180deg)}
+.see-arr{transition:transform .3s;display:inline-block}
+.see-more-btn.open .see-arr{transform:rotate(180deg)}
+#fullMenu{display:none;margin-top:52px}
+.cat-block{margin-bottom:48px}
+.cat-heading{display:flex;align-items:center;gap:14px;margin-bottom:22px}
+.cat-heading h3{font-family:var(--serif);font-size:1.2rem;font-weight:500;color:var(--gold)}
+.cat-heading-line{flex:1;height:1px;background:var(--border)}
+.full-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border)}
+.full-item{background:var(--card);padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;transition:background .25s}
+.full-item:hover{background:var(--card2)}
+.fi-name{font-family:var(--serif);font-size:.9rem;color:var(--cream);margin-bottom:3px}
+.fi-desc{font-size:.72rem;color:var(--muted);line-height:1.6}
+.fi-price{font-family:var(--serif);font-size:.88rem;color:var(--gold);white-space:nowrap;flex-shrink:0}
 
-/* ── GALLERY ── */
-#gallery{padding:110px 6%;background:var(--ink)}
-.gallery-mosaic{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:220px;gap:10px}
+/* GALLERY */
+#gallery{background:var(--ink)}
+.gallery-mosaic{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:230px;gap:10px;margin-top:56px}
 .g-item{overflow:hidden;position:relative;cursor:pointer;background:var(--card)}
 .g-item.tall{grid-row:span 2}
 .g-item.wide{grid-column:span 2}
-.g-item img{width:100%;height:100%;object-fit:cover;transition:transform .55s,filter .55s}
-.g-item:hover img{transform:scale(1.07);filter:brightness(.7)}
+.g-item img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.22,1,.36,1),filter .5s}
+.g-item:hover img{transform:scale(1.07);filter:brightness(.72)}
 .g-item-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--border)}
-.g-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,10,10,.7),transparent);opacity:0;transition:opacity .35s}
-.g-item:hover .g-overlay{opacity:1}
-.g-caption{position:absolute;bottom:16px;left:16px;right:16px;font-size:.72rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--cream);opacity:0;transform:translateY(8px);transition:all .35s}
-.g-item:hover .g-caption{opacity:1;transform:translateY(0)}
+.g-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,10,10,.75),transparent);opacity:0;transition:opacity .4s}
+.g-item:hover .g-ov{opacity:1}
+.g-cap{position:absolute;bottom:14px;left:16px;right:16px;font-size:.7rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--cream);opacity:0;transform:translateY(8px);transition:all .38s}
+.g-item:hover .g-cap{opacity:1;transform:translateY(0)}
 .gallery-empty{text-align:center;padding:80px 20px;color:var(--muted);grid-column:1/-1}
-.gallery-empty h3{font-family:var(--serif);font-size:1.2rem;font-weight:400;color:var(--cream2);margin-bottom:8px}
+.gallery-empty h3{font-family:var(--serif);font-size:1.1rem;color:var(--cream2);margin-bottom:8px;font-weight:400}
 /* LIGHTBOX */
-.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:1000;display:none;align-items:center;justify-content:center;padding:24px}
-.lightbox.open{display:flex}
-.lightbox img{max-width:90vw;max-height:90vh;object-fit:contain}
-.lb-close{position:absolute;top:20px;right:20px;background:var(--card);border:1px solid var(--border);color:var(--cream);width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.2rem;transition:all .2s}
-.lb-close:hover{border-color:var(--gold);color:var(--gold)}
+.lbox{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:1000;display:none;align-items:center;justify-content:center;padding:24px}
+.lbox.open{display:flex}
+.lbox img{max-width:90vw;max-height:90vh;object-fit:contain}
+.lb-x{position:absolute;top:18px;right:18px;background:var(--card);border:1px solid var(--border);color:var(--cream);width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem;transition:all .2s}
+.lb-x:hover{border-color:var(--gold);color:var(--gold)}
 
-/* ── REVIEWS ── */
-#reviews{padding:110px 6%;background:var(--ink2)}
-.reviews-top{display:flex;align-items:center;justify-content:center;gap:48px;margin-bottom:20px;flex-wrap:wrap}
+/* REVIEWS */
+#reviews{background:var(--ink2)}
+.rv-score-row{display:flex;align-items:center;justify-content:center;gap:40px;margin:36px 0 14px;flex-wrap:wrap}
 .rv-big{font-family:var(--serif);font-size:5.5rem;font-weight:300;color:var(--gold);line-height:1}
-.rv-right{}
-.rv-stars{font-size:1.1rem;color:var(--gold);letter-spacing:4px;margin-bottom:6px}
-.rv-word{font-size:.88rem;color:var(--cream2);font-style:italic}
-.rv-platforms{font-size:.72rem;color:var(--muted);text-align:center;letter-spacing:.05em;margin-bottom:56px}
-.reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-.rv-card{background:var(--card);border:1px solid var(--border);padding:28px;transition:all .3s}
+.rv-stars{font-size:1.1rem;color:var(--gold);letter-spacing:4px;margin-bottom:5px}
+.rv-word{font-size:.86rem;color:var(--cream2);font-style:italic}
+.rv-platforms{font-size:.72rem;color:var(--muted);text-align:center;letter-spacing:.05em;margin-bottom:54px}
+.rv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.rv-card{background:var(--card);border:1px solid var(--border);padding:26px;transition:all .35s cubic-bezier(.22,1,.36,1)}
 .rv-card:hover{border-color:rgba(200,169,110,.28);transform:translateY(-4px)}
-.rv-top{display:flex;align-items:center;gap:12px;margin-bottom:16px}
-.rv-av{width:44px;height:44px;border-radius:50%;background:var(--gold-dim);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:.95rem;color:var(--gold);flex-shrink:0}
-.rv-name{font-weight:600;font-size:.86rem;color:var(--cream)}
+.rv-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.rv-av{width:42px;height:42px;border-radius:50%;background:var(--gold-dim);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:.9rem;color:var(--gold);flex-shrink:0}
+.rv-name{font-weight:600;font-size:.85rem;color:var(--cream)}
 .rv-meta{display:flex;align-items:center;gap:7px;font-size:.66rem;color:var(--muted);margin-top:3px}
-.rv-platform{background:var(--gold-dim);border:1px solid var(--border);color:var(--gold);padding:2px 8px;font-size:.56rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
-.rv-stars2{color:var(--gold);font-size:.72rem;letter-spacing:2px;margin-bottom:10px}
+.rv-plat{background:var(--gold-dim);border:1px solid var(--border);color:var(--gold);padding:2px 8px;font-size:.56rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.rv-stars2{color:var(--gold);font-size:.7rem;letter-spacing:2px;margin-bottom:10px}
 .rv-text{font-size:.82rem;color:var(--cream2);line-height:1.85;font-style:italic}
-.rv-text::before{content:'"'}
-.rv-text::after{content:'"'}
+.rv-text::before{content:'"'}.rv-text::after{content:'"'}
 
-/* ── POPULAR TIMES ── */
-#times{padding:100px 6%;background:var(--ink)}
-.times-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:12px;margin-top:52px}
+/* POPULAR TIMES */
+#times{background:var(--ink)}
+.t-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:12px;margin-top:52px}
 .d-col{background:var(--card);border:1px solid var(--border);padding:18px 10px}
-.d-name{font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);text-align:center;margin-bottom:14px}
-.t-bars{display:flex;flex-direction:column;gap:6px}
+.d-name{font-size:.58rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);text-align:center;margin-bottom:14px}
+.t-bars{display:flex;flex-direction:column;gap:7px}
 .t-row{display:flex;align-items:center;gap:6px}
-.t-lbl{font-size:.52rem;color:var(--muted);width:26px;text-align:right;flex-shrink:0}
+.t-lbl{font-size:.5rem;color:var(--muted);width:26px;text-align:right;flex-shrink:0}
 .t-track{flex:1;height:12px;background:rgba(255,255,255,.04);border-radius:2px;overflow:hidden}
-.t-fill{height:100%;border-radius:2px}
+.t-fill{height:100%;border-radius:2px;transition:width 1.2s cubic-bezier(.22,1,.36,1)}
 .t-fill.busy{background:linear-gradient(90deg,var(--gold),var(--gold2));width:88%}
 .t-fill.moderate{background:rgba(200,169,110,.35);width:50%}
 .t-fill.quiet{background:rgba(200,169,110,.1);width:14%}
-.times-legend{display:flex;gap:28px;justify-content:center;margin-top:28px}
-.tl-item{display:flex;align-items:center;gap:8px;font-size:.7rem;color:var(--muted)}
-.tl-dot{width:14px;height:8px;border-radius:2px}
-.tl-dot.busy{background:var(--gold)}.tl-dot.moderate{background:rgba(200,169,110,.35)}.tl-dot.quiet{background:rgba(200,169,110,.1)}
+.t-legend{display:flex;gap:26px;justify-content:center;margin-top:26px}
+.tl{display:flex;align-items:center;gap:7px;font-size:.68rem;color:var(--muted)}
+.tl-d{width:14px;height:8px;border-radius:2px}
+.tl-d.busy{background:var(--gold)}.tl-d.moderate{background:rgba(200,169,110,.35)}.tl-d.quiet{background:rgba(200,169,110,.1)}
 
-/* ── FOOTER ── */
-footer{background:#080808;border-top:1px solid var(--border);padding:80px 6% 36px}
-.footer-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1.4fr;gap:56px;margin-bottom:60px}
-.f-brand{font-family:var(--serif);font-size:1.4rem;font-style:italic;color:var(--gold);margin-bottom:14px}
-.f-tagline{font-size:.8rem;color:var(--muted);line-height:1.9;max-width:240px}
-.f-col-title{font-size:.58rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:20px}
-.f-links{list-style:none;display:flex;flex-direction:column;gap:11px}
-.f-links a{font-size:.82rem;color:var(--muted);transition:color .2s}
+/* SOCIAL STRIP */
+#social-strip{background:var(--ink2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:60px 6%}
+.social-inner{display:flex;justify-content:center;gap:24px;align-items:center;flex-wrap:wrap}
+.soc-btn{display:inline-flex;align-items:center;gap:10px;padding:14px 28px;border:1px solid var(--border);font-size:.72rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--cream2);transition:all .3s;cursor:pointer}
+.soc-btn:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-dim)}
+.soc-btn.ig{background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);border:none;color:#fff;letter-spacing:.1em}
+.soc-btn.ig:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(220,39,67,.4)}
+.soc-btn.fb{background:transparent;border-color:#1877f2;color:#1877f2}
+.soc-btn.fb:hover{background:rgba(24,119,242,.1);border-color:#1877f2}
+.soc-sep{width:1px;height:40px;background:var(--border)}
+.soc-call{font-family:var(--serif);font-size:1.1rem;font-style:italic;color:var(--cream2);text-align:center}
+.soc-call strong{color:var(--gold);font-style:normal}
+
+/* FOOTER */
+footer{background:#080808;border-top:1px solid var(--border);padding:78px 6% 36px}
+.footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1.4fr;gap:52px;margin-bottom:56px}
+.f-brand{font-family:var(--serif);font-size:1.3rem;font-style:italic;color:var(--gold);margin-bottom:13px}
+.f-tag{font-size:.8rem;color:var(--muted);line-height:1.9;max-width:240px}
+.f-col-t{font-size:.57rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:18px}
+.f-links{list-style:none;display:flex;flex-direction:column;gap:10px}
+.f-links a{font-size:.8rem;color:var(--muted);transition:color .22s}
 .f-links a:hover{color:var(--gold)}
-.f-contact-row{display:flex;gap:11px;font-size:.8rem;color:var(--muted);margin-bottom:11px;align-items:flex-start;line-height:1.6}
-.f-icon{color:var(--gold);flex-shrink:0;margin-top:2px;font-style:normal}
-.map-frame{border-radius:2px;overflow:hidden;border:1px solid var(--border);height:170px;background:var(--card)}
-.map-frame iframe{width:100%;height:100%;border:none;filter:grayscale(70%) contrast(1.1) brightness(.55)}
-.f-bottom{border-top:1px solid var(--border);padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.f-row{display:flex;gap:10px;font-size:.78rem;color:var(--muted);margin-bottom:10px;align-items:flex-start;line-height:1.6}
+.f-icon{color:var(--gold);flex-shrink:0;margin-top:1px}
+.f-socs{display:flex;gap:8px;margin-top:14px}
+.f-soc{width:36px;height:36px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;transition:all .25s;cursor:pointer;flex-shrink:0}
+.f-soc:hover{border-color:var(--gold);background:var(--gold-dim)}
+.f-soc svg{width:16px;height:16px}
+.map-frame{overflow:hidden;border:1px solid var(--border);height:168px;background:var(--card)}
+.map-frame iframe{width:100%;height:100%;border:none;filter:grayscale(65%) contrast(1.1) brightness(.6)}
+.f-bottom{border-top:1px solid var(--border);padding-top:22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
 .f-copy{font-size:.68rem;color:var(--muted)}
-.f-powered{font-size:.65rem;color:var(--muted)}
+.f-powered{font-size:.66rem;color:var(--muted)}
 .f-powered a{color:var(--gold);transition:opacity .2s}
 .f-powered a:hover{opacity:.7}
-.f-socials{display:flex;gap:10px}
-.f-soc{width:34px;height:34px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:all .22s;cursor:pointer}
-.f-soc:hover{border-color:var(--gold);background:var(--gold-dim)}
 
 /* TOAST */
-.toast{position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--border);padding:13px 20px;font-size:.8rem;color:var(--cream);z-index:999;transform:translateY(80px);opacity:0;transition:all .3s;max-width:320px}
+.toast{position:fixed;bottom:22px;right:22px;background:var(--card);border:1px solid var(--border);padding:12px 18px;font-size:.8rem;color:var(--cream);z-index:999;transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.22,1,.36,1);max-width:320px}
 .toast.show{transform:translateY(0);opacity:1}
 .toast.gold{border-color:rgba(200,169,110,.4);background:var(--gold-dim);color:var(--gold)}
 
-@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
-
 /* RESPONSIVE */
-@media(max-width:1100px){.story-wrap{grid-template-columns:1fr}.story-imgs{height:380px}.svc-grid{grid-template-columns:1fr 1fr}.menu-grid{grid-template-columns:1fr 1fr}.footer-grid{grid-template-columns:1fr 1fr}.gallery-mosaic{grid-template-columns:1fr 1fr 1fr}}
-@media(max-width:768px){
-  .n-links,.n-cta{display:none}.n-ham{display:block}
-  nav{padding:0 5%;height:66px}
-  .story-imgs{height:280px}.si-main{width:78%;height:76%}.si-badge{display:none}
-  .reviews-grid{grid-template-columns:1fr}.times-grid{grid-template-columns:repeat(4,1fr)}
-  .footer-grid{grid-template-columns:1fr}.gallery-mosaic{grid-template-columns:1fr 1fr;grid-auto-rows:180px}
-  .g-item.wide{grid-column:span 1}.menu-grid{grid-template-columns:1fr}
-  .hero-btns{flex-direction:column;align-items:center}
-  .svc-grid{grid-template-columns:1fr}
-}
-@media(max-width:480px){.times-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:1100px){.story-grid{grid-template-columns:1fr}.story-imgs{height:360px}.svc-grid{grid-template-columns:1fr 1fr}.menu-grid{grid-template-columns:1fr 1fr}.footer-grid{grid-template-columns:1fr 1fr}.gallery-mosaic{grid-template-columns:repeat(3,1fr)}.full-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:768px){.n-links,.n-cta{display:none}.n-ham{display:block}nav{padding:0 5%;height:64px}.story-imgs{height:260px}.si-a{width:80%;height:78%}.si-badge{display:none}.rv-grid{grid-template-columns:1fr}.t-grid{grid-template-columns:repeat(4,1fr)}.footer-grid{grid-template-columns:1fr}.gallery-mosaic{grid-template-columns:1fr 1fr;grid-auto-rows:180px}.g-item.wide{grid-column:span 1}.menu-grid{grid-template-columns:1fr}.full-grid{grid-template-columns:1fr}.hero-btns{flex-direction:column;align-items:center}.svc-grid{grid-template-columns:1fr}.sec{padding:80px 5%}}
+@media(max-width:480px){.t-grid{grid-template-columns:repeat(2,1fr)}.gallery-mosaic{grid-template-columns:1fr}.g-item.tall,.g-item.wide{grid-row:span 1;grid-column:span 1}}
 </style>
 </head>
 <body>
 
+<!-- NAV -->
 <nav id="nav">
   <a href="#" class="n-brand">Blue Berry Cafe & Resto</a>
   <div class="n-links">
-    <a href="#story">About</a>
-    <a href="#menu">Menu</a>
-    <a href="#gallery">Gallery</a>
-    <a href="#reviews">Reviews</a>
+    <a href="#story">About</a><a href="#menu">Menu</a>
+    <a href="#gallery">Gallery</a><a href="#reviews">Reviews</a>
     <a href="#contact">Contact</a>
   </div>
   <button class="n-cta" onclick="onReserve()">Reserve</button>
   <button class="n-ham" onclick="openMob()">☰</button>
 </nav>
-
-<div class="mob-drawer" id="mobDraw">
+<div class="mob-draw" id="mobDraw">
   <button class="mob-close" onclick="closeMob()">✕</button>
   <a href="#story" onclick="closeMob()">About</a>
   <a href="#menu" onclick="closeMob()">Menu</a>
@@ -291,158 +302,142 @@ footer{background:#080808;border-top:1px solid var(--border);padding:80px 6% 36p
 
 <!-- HERO -->
 <section id="hero">
-  <div class="hero-img" id="heroBg"></div>
-  <div class="hero-overlay"></div>
+  <div class="hero-img" id="heroBg" style="background-image:url('https://images.unsplash.com/photo-1559339352-11d035aa65de?w=1800&q=85')"></div>
+  <div class="hero-grad"></div>
   <div class="hero-content">
-    <div class="hero-rule">
-      <span class="hero-kicker" id="heroBadge">FINE DINING · BAR · CAFÉ · BUTWAL</span>
-    </div>
-    <h1 class="hero-title">
-      <span>Blue Berry</span>
-      <span>Cafe & Resto</span>
-    </h1>
+    <div class="hero-rule"><div class="hr-line l"></div><span class="hero-badge" id="heroBadge">FINE DINING · BAR · CAFÉ · BUTWAL</span><div class="hr-line r"></div></div>
+    <h1 class="hero-title"><span>Blue Berry</span><span>Cafe & Resto</span></h1>
     <p class="hero-sub" id="heroTagline">Where Every Moment Tastes Like Home</p>
     <div class="hero-btns">
       <a href="#menu" class="btn-solid">View Menu</a>
       <button class="btn-border" onclick="onReserve()">Reserve A Table</button>
-      <a href="#" id="heroIg" target="_blank" class="btn-ig">📸 Follow Us</a>
+      <a href="#" id="heroIg" target="_blank" class="btn-ig-hero">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        Follow Us
+      </a>
     </div>
   </div>
-  <div class="hero-scroll">
-    <span class="scroll-txt">Scroll</span>
-    <div class="scroll-line"></div>
-  </div>
+  <div class="hero-scroll"><span class="hs-txt">Scroll</span><div class="hs-line"></div></div>
 </section>
 
 <!-- STORY -->
-<section id="story" style="padding:120px 6%;background:var(--ink2)">
-  <div class="story-wrap">
-    <div class="story-imgs reveal-left">
-      <div class="si-main">
-        <img src="bb-exterior.webp" alt="Blueberry Exterior" loading="lazy">
-      </div>
-      <div class="si-accent">
-        <img src="bb-outdoor.webp" alt="Outdoor Seating" loading="lazy">
-      </div>
-      <div class="si-badge">
-        <div class="si-badge-num" id="statGuests">1.1K+</div>
-        <div class="si-badge-label">Happy Guests</div>
-      </div>
+<section id="story" class="sec">
+  <div class="story-grid">
+    <div class="story-imgs rw-l">
+      <div class="si-a"><img id="storyImg1" src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=85" alt="Blueberry Exterior" loading="lazy"></div>
+      <div class="si-b"><img id="storyImg2" src="https://images.unsplash.com/photo-1559339352-11d035aa65de?w=600&q=85" alt="Outdoor Seating" loading="lazy"></div>
+      <div class="si-badge"><div class="sib-num" id="statGuests">1.1K+</div><div class="sib-lbl">Happy Guests</div></div>
     </div>
-    <div class="story-text reveal-right">
-      <div class="s-label">Our Story</div>
-      <h2 class="s-title" id="storyTitle">Where Elegance<br>Meets <em>the Taste</em></h2>
+    <div class="story-right rw-r">
+      <div class="sec-kicker">Our Story</div>
+      <h2 class="s-title">Where Elegance<br>Meets <em>the Taste</em></h2>
       <p class="s-body" id="storyBody">Nestled in the heart of Butwal, Blueberry Cafe & Resto is a multi-cuisine sanctuary where elite ingredients meet innovative flavours. From our open courtyard dining under fairy lights to our intimate indoor lounge — every corner is crafted for an extraordinary experience.</p>
       <div class="s-lgbtq">🏳️‍🌈 &nbsp;<span style="color:var(--gold)">LGBTQ+ Friendly Space</span></div>
       <div class="s-pills">
-        <span class="s-pill">Multi-Cuisine</span>
-        <span class="s-pill">Full Bar</span>
-        <span class="s-pill">Café & Lounge</span>
-        <span class="s-pill">🏳️‍🌈 Inclusive</span>
-        <span class="s-pill">Hookah Lounge</span>
-        <span class="s-pill">Late Night Dining</span>
-        <span class="s-pill">Outdoor Courtyard</span>
-        <span class="s-pill">Private Events</span>
+        <span class="s-pill">Multi-Cuisine</span><span class="s-pill">Full Bar</span>
+        <span class="s-pill">Café & Lounge</span><span class="s-pill">🏳️‍🌈 Inclusive</span>
+        <span class="s-pill">Hookah Lounge</span><span class="s-pill">Late Night Dining</span>
+        <span class="s-pill">Outdoor Courtyard</span><span class="s-pill">Private Events</span>
       </div>
       <div class="s-stats">
-        <div><div class="ss-num" id="statRating">4.5★</div><div class="ss-label">Avg Rating</div></div>
-        <div><div class="ss-num" id="statGuests2">1.1K+</div><div class="ss-label">Happy Guests</div></div>
-        <div><div class="ss-num" id="statRank">#1</div><div class="ss-label">In Butwal</div></div>
+        <div class="ss"><div class="ss-n" id="statRating">4.5★</div><div class="ss-l">Avg Rating</div></div>
+        <div class="ss"><div class="ss-n" id="statGuests2">1.1K+</div><div class="ss-l">Happy Guests</div></div>
+        <div class="ss"><div class="ss-n" id="statRank">#1</div><div class="ss-l">In Butwal</div></div>
       </div>
     </div>
   </div>
 </section>
 
 <!-- SERVICES -->
-<section id="services">
-  <div style="padding:110px 6%;background:var(--ink)">
-    <div class="sec-header reveal">
-      <div class="sec-kicker">What We Offer</div>
-      <h2 class="sec-title">Our <em>Services</em></h2>
-      <p class="sec-sub">From lavish sit-down dinners to an electrifying hookah lounge — we curate every experience with the same uncompromising standard of excellence.</p>
-    </div>
-    <div class="svc-grid">
-      <div class="svc-card reveal delay-1"><div class="svc-icon-wrap">🍽️</div><div class="svc-name">Fine Dine-In</div><p class="svc-desc">Multi-course sit-down dining with full table service and an intimate ambiance designed for every celebration.</p></div>
-      <div class="svc-card reveal delay-2"><div class="svc-icon-wrap">🌿</div><div class="svc-name">Hookah Lounge</div><p class="svc-desc">Premium hookah experience in our outdoor courtyard under fairy lights — the signature Blueberry vibe.</p></div>
-      <div class="svc-card reveal delay-3"><div class="svc-icon-wrap">🛵</div><div class="svc-name">Home Delivery</div><p class="svc-desc">Blueberry's finest cuisine delivered to your doorstep — hot, fresh, and impeccably packaged.</p></div>
-      <div class="svc-card reveal delay-4"><div class="svc-icon-wrap">🎊</div><div class="svc-name">Private Events</div><p class="svc-desc">Exclusive bookings for birthdays, anniversaries, corporate events — our courtyard transforms for every occasion.</p></div>
-    </div>
+<section id="services" class="sec">
+  <div style="text-align:center;margin-bottom:0" class="rw">
+    <div class="sec-kicker" style="justify-content:center">What We Offer</div>
+    <h2 class="sec-title">Our <em>Services</em></h2>
+    <p class="sec-sub">From lavish sit-down dinners to an electrifying hookah lounge under the stars — we curate every experience with the same uncompromising standard of excellence.</p>
+  </div>
+  <div class="svc-grid">
+    <div class="svc-card rw d1"><div class="svc-icon">🍽️</div><div class="svc-name">Fine Dine-In</div><p class="svc-desc">Multi-course sit-down dining with full table service and an intimate ambiance designed for every celebration.</p></div>
+    <div class="svc-card rw d2"><div class="svc-icon">🌿</div><div class="svc-name">Hookah Lounge</div><p class="svc-desc">Premium hookah experience in our outdoor courtyard under fairy lights — the signature Blueberry vibe.</p></div>
+    <div class="svc-card rw d3"><div class="svc-icon">🛵</div><div class="svc-name">Home Delivery</div><p class="svc-desc">Blueberry's finest cuisine delivered to your doorstep — hot, fresh, and impeccably packaged.</p></div>
+    <div class="svc-card rw d4"><div class="svc-icon">🎊</div><div class="svc-name">Private Events</div><p class="svc-desc">Exclusive bookings for birthdays, anniversaries, corporate events — our courtyard transforms for every occasion.</p></div>
   </div>
 </section>
 
-<!-- MENU HIGHLIGHTS -->
-<section id="menu">
-  <div style="padding:110px 6%;background:var(--ink2)">
-    <div class="sec-header reveal">
-      <div class="sec-kicker">Crafted With Care</div>
-      <h2 class="sec-title">Menu <em>Highlights</em></h2>
-      <p class="sec-sub">Dishes that have made Blueberry the most talked-about dining destination in Butwal. Tap a category to explore.</p>
-    </div>
-    <div class="menu-tabs reveal" id="menuTabs"></div>
-    <div class="menu-grid" id="menuGrid"></div>
-    <div class="see-more-wrap reveal">
-      <button class="see-more-btn" id="seeMoreBtn" onclick="toggleFullMenu()">
-        <span id="seeMoreTxt">See Full Menu</span>
-        <span class="arrow" id="seeMoreArrow">▼</span>
-      </button>
-    </div>
-    <div id="fullMenuSection" style="display:none;margin-top:48px">
-      <div id="fullMenuContent"></div>
-    </div>
+<!-- MENU -->
+<section id="menu" class="sec">
+  <div style="text-align:center" class="rw">
+    <div class="sec-kicker" style="justify-content:center">Crafted With Care</div>
+    <h2 class="sec-title">Menu <em>Highlights</em></h2>
+    <p class="sec-sub">Dishes that have made Blueberry the most talked-about dining destination in Butwal.</p>
   </div>
+  <div class="menu-tabs rw" id="menuTabs"></div>
+  <div class="menu-grid" id="menuGrid"></div>
+  <div class="see-more-wrap rw">
+    <button class="see-more-btn" id="seeMoreBtn" onclick="toggleFullMenu()">
+      <span id="seeMoreTxt">See Full Menu</span><span class="see-arr" id="seeArr">▼</span>
+    </button>
+  </div>
+  <div id="fullMenu"></div>
 </section>
 
 <!-- GALLERY -->
-<section id="gallery">
-  <div style="padding:110px 6%;background:var(--ink)">
-    <div class="sec-header reveal">
-      <div class="sec-kicker">Visual Journey</div>
-      <h2 class="sec-title">Gallery &amp; <em>Ambiance</em></h2>
-      <p class="sec-sub">Step inside Blueberry — the outdoor courtyard, fairy-lit evenings, signature dishes and more.</p>
-    </div>
-    <div class="gallery-mosaic" id="galleryGrid"></div>
+<section id="gallery" class="sec">
+  <div style="text-align:center" class="rw">
+    <div class="sec-kicker" style="justify-content:center">Visual Journey</div>
+    <h2 class="sec-title">Gallery &amp; <em>Ambiance</em></h2>
+    <p class="sec-sub">Step inside Blueberry — our outdoor courtyard, fairy-lit evenings, signature dishes and more.</p>
   </div>
+  <div class="gallery-mosaic" id="galleryGrid"></div>
 </section>
-
-<!-- LIGHTBOX -->
-<div class="lightbox" id="lightbox" onclick="closeLightbox()">
-  <div class="lb-close" onclick="closeLightbox()">✕</div>
-  <img id="lbImg" src="" alt="">
-</div>
+<div class="lbox" id="lbox" onclick="closeLb()"><div class="lb-x" onclick="closeLb()">✕</div><img id="lbImg" src="" alt=""></div>
 
 <!-- REVIEWS -->
-<section id="reviews">
-  <div style="padding:110px 6%;background:var(--ink2)">
-    <div class="sec-header reveal">
-      <div class="sec-kicker">Guest Voices</div>
-      <h2 class="sec-title">What Our <em>Guests Say</em></h2>
-    </div>
-    <div class="gold-divider reveal"><div class="gd-line"></div><div class="gd-diamond"></div><div class="gd-line"></div></div>
-    <div class="reviews-top reveal" style="margin-top:36px">
-      <div class="rv-big" id="rvScore">4.5</div>
-      <div class="rv-right">
-        <div class="rv-stars">★★★★½</div>
-        <div class="rv-word">Exceptional</div>
-      </div>
-    </div>
-    <p class="rv-platforms reveal" id="rvCount">Based on 1,100+ reviews on Tripadvisor · Google · Facebook</p>
-    <div class="reviews-grid" id="reviewsGrid"></div>
+<section id="reviews" class="sec">
+  <div style="text-align:center" class="rw">
+    <div class="sec-kicker" style="justify-content:center">Guest Voices</div>
+    <h2 class="sec-title">What Our <em>Guests Say</em></h2>
   </div>
+  <div class="gold-div rw"><div class="gd-l"></div><div class="gd-d"></div><div class="gd-l"></div></div>
+  <div class="rv-score-row rw">
+    <div class="rv-big" id="rvScore">4.5</div>
+    <div><div class="rv-stars">★★★★½</div><div class="rv-word">Exceptional</div></div>
+  </div>
+  <p class="rv-platforms rw" id="rvCount">Based on 1,100+ reviews on Tripadvisor · Google · Facebook</p>
+  <div class="rv-grid" id="rvGrid"></div>
 </section>
 
 <!-- POPULAR TIMES -->
-<section id="times">
-  <div style="padding:100px 6%;background:var(--ink)">
-    <div class="sec-header reveal">
-      <div class="sec-kicker">Plan Your Visit</div>
-      <h2 class="sec-title">Popular <em>Times</em></h2>
-    </div>
-    <div class="times-grid" id="timesGrid"></div>
-    <div class="times-legend">
-      <div class="tl-item"><div class="tl-dot busy"></div>Busy</div>
-      <div class="tl-item"><div class="tl-dot moderate"></div>Moderate</div>
-      <div class="tl-item"><div class="tl-dot quiet"></div>Quiet</div>
-    </div>
+<section id="times" class="sec">
+  <div style="text-align:center" class="rw">
+    <div class="sec-kicker" style="justify-content:center">Plan Your Visit</div>
+    <h2 class="sec-title">Popular <em>Times</em></h2>
+  </div>
+  <div class="t-grid" id="tGrid"></div>
+  <div class="t-legend">
+    <div class="tl"><div class="tl-d busy"></div>Busy</div>
+    <div class="tl"><div class="tl-d moderate"></div>Moderate</div>
+    <div class="tl"><div class="tl-d quiet"></div>Quiet</div>
+  </div>
+</section>
+
+<!-- SOCIAL STRIP -->
+<section id="social-strip">
+  <div class="rw" style="text-align:center;margin-bottom:28px">
+    <div class="sec-kicker" style="justify-content:center">Stay Connected</div>
+    <h2 class="sec-title" style="font-size:clamp(1.6rem,2.8vw,2.4rem)">Follow Us on <em>Social Media</em></h2>
+  </div>
+  <div class="social-inner rw">
+    <a href="#" id="igLink" target="_blank" class="soc-btn ig">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+      Follow on Instagram
+    </a>
+    <div class="soc-sep"></div>
+    <a href="#" id="fbLink" target="_blank" class="soc-btn fb">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="#1877f2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+      Follow on Facebook
+    </a>
+    <div class="soc-sep"></div>
+    <div class="soc-call">Call us: <strong id="socPhone">+977 981-7497187</strong></div>
   </div>
 </section>
 
@@ -451,43 +446,44 @@ footer{background:#080808;border-top:1px solid var(--border);padding:80px 6% 36p
   <div class="footer-grid">
     <div>
       <div class="f-brand">Blue Berry Cafe & Resto</div>
-      <p class="f-tagline">A premium fine dining experience in the heart of Butwal — where every moment is crafted to be unforgettable.</p>
+      <p class="f-tag">A premium fine dining experience in the heart of Butwal — where every moment is crafted to be unforgettable.</p>
+      <div class="f-socs" style="margin-top:20px">
+        <a href="#" id="fIg" target="_blank" class="f-soc" title="Instagram">
+          <svg viewBox="0 0 24 24" fill="var(--gold)"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        </a>
+        <a href="#" id="fFb" target="_blank" class="f-soc" title="Facebook">
+          <svg viewBox="0 0 24 24" fill="var(--gold)"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        </a>
+        <a href="tel:+9779817497187" class="f-soc" title="Call">
+          <svg viewBox="0 0 24 24" fill="var(--gold)"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+        </a>
+      </div>
     </div>
     <div>
-      <div class="f-col-title">Navigate</div>
+      <div class="f-col-t">Navigate</div>
       <ul class="f-links">
-        <li><a href="#story">About Us</a></li>
-        <li><a href="#menu">Menu</a></li>
-        <li><a href="#gallery">Gallery</a></li>
-        <li><a href="#reviews">Reviews</a></li>
+        <li><a href="#story">About Us</a></li><li><a href="#menu">Menu</a></li>
+        <li><a href="#gallery">Gallery</a></li><li><a href="#reviews">Reviews</a></li>
         <li><a href="#times">Popular Times</a></li>
       </ul>
     </div>
     <div>
-      <div class="f-col-title">Contact</div>
-      <div class="f-contact-row"><i class="f-icon">📍</i><span id="fAddr">Sukkanagar-8, Butwal 32907, Nepal</span></div>
-      <div class="f-contact-row"><i class="f-icon">📞</i><a href="tel:+9779817497187" id="fPhone">+977 981-7497187</a></div>
-      <div class="f-contact-row"><i class="f-icon">🕐</i><span id="fHours">Daily 8:00 AM – 10:00 PM</span></div>
-      <div class="f-contact-row"><i class="f-icon">📧</i><span>blueberrycafe@butwal.np</span></div>
+      <div class="f-col-t">Contact</div>
+      <div class="f-row"><i class="f-icon">📍</i><span id="fAddr">Sukkanagar-8, Butwal 32907, Nepal</span></div>
+      <div class="f-row"><i class="f-icon">📞</i><a href="tel:+9779817497187" id="fPhone">+977 981-7497187</a></div>
+      <div class="f-row"><i class="f-icon">🕐</i><span id="fHours">Daily 8:00 AM – 10:00 PM</span></div>
+      <div class="f-row"><i class="f-icon">📧</i><span>blueberrycafe@butwal.np</span></div>
     </div>
     <div>
-      <div class="f-col-title">Find Us</div>
+      <div class="f-col-t">Find Us</div>
       <div class="map-frame">
-        <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3532.012!2d83.44641!3d27.70012!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x399687f75ca5ae03%3A0xf4d32245a2a730f3!2sBlue%20Berry%20Cafe%20%26%20Resto!5e0!3m2!1sen!2snp!4v1720000000000!5m2!1sen!2snp"
-          allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade">
-        </iframe>
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3532.012!2d83.44641!3d27.70012!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x399687f75ca5ae03%3A0xf4d32245a2a730f3!2sBlue%20Berry%20Cafe%20%26%20Resto!5e0!3m2!1sen!2snp!4v1720000000000!5m2!1sen!2snp" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
       </div>
     </div>
   </div>
   <div class="f-bottom">
     <p class="f-copy">© 2025 Blue Berry Cafe & Resto. All rights reserved. | Sukkanagar-8, Butwal</p>
     <p class="f-powered">Powered by <a href="#" target="_blank">The Boring Edit</a></p>
-    <div class="f-socials">
-      <a href="#" class="f-soc" id="igLink" target="_blank" title="Instagram">📸</a>
-      <a href="#" class="f-soc" target="_blank" title="Facebook">👥</a>
-      <a href="tel:+9779817497187" class="f-soc" title="Call">📞</a>
-    </div>
   </div>
 </footer>
 
@@ -495,126 +491,111 @@ footer{background:#080808;border-top:1px solid var(--border);padding:80px 6% 36p
 
 <script>
 const {createClient} = supabase;
-let db = null;
-try { if(SUPABASE_URL !== 'YOUR_SUPABASE_URL') db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch(e) {}
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// DEFAULT DATA
-const DEF_MENU = [
-  {name:'Steam Momo',description:'Handcrafted dumplings — Veg or Non-Veg — served with house chilli sauce',price_min:170,price_max:200,category:'Mo:Mo',badge:'POPULAR',image_url:'bb-food1.webp'},
-  {name:'Timure Chicken',description:'Chicken slow-cooked with Szechuan pepper — aromatic, bold and deeply satisfying',price_min:390,price_max:null,category:'Appetizer',badge:"CHEF'S PICK",image_url:'bb-food2.webp'},
-  {name:'Grilled Chicken',description:'Herb-marinated whole grilled chicken served with seasonal garden vegetables',price_min:690,price_max:null,category:'Main Course',badge:'SIGNATURE',image_url:'bb-food3.webp'},
-  {name:'Chicken Choila',description:'Traditional Newari charcoal-spiced chicken — a Blueberry heritage classic',price_min:300,price_max:null,category:'Appetizer',badge:'SIGNATURE',image_url:null},
-  {name:'Honey Mustard Leg',description:'Slow-roasted chicken leg glazed with honey mustard and fresh herbs',price_min:720,price_max:null,category:'Main Course',badge:"CHEF'S PICK",image_url:null},
-  {name:'Chicken Pizza',description:'Tender chicken, mozzarella and house tomato base on a crisp artisan crust',price_min:590,price_max:null,category:'Pizza',badge:'POPULAR',image_url:null},
-];
-const DEF_GALLERY = [
-  {url:'bb-night.webp',caption:'Evening Ambiance',tall:true},
-  {url:'bb-outdoor.webp',caption:'Outdoor Courtyard',tall:false},
-  {url:'bb-sign.webp',caption:'Blue Berry Cafe',tall:false},
-  {url:'bb-interior.webp',caption:'Interior Lounge',tall:true},
-  {url:'bb-exterior.webp',caption:'Garden Exterior',tall:false,wide:true},
-  {url:'bb-food1.webp',caption:'Signature Dish',tall:false},
-  {url:'bb-food2.webp',caption:'Grilled Delicacy',tall:false},
-  {url:'bb-food3.webp',caption:'Chef\'s Special',tall:false},
+// Default fallback gallery — uses placeholder restaurant images until admin uploads real ones
+const DEF_GAL = [
+  {image_url:'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=85',caption:'Fine Dining',tall:true},
+  {image_url:'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=700&q=85',caption:'Outdoor Ambiance'},
+  {image_url:'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=700&q=85',caption:'Bar & Lounge'},
+  {image_url:'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=900&q=85',caption:'Signature Dishes',tall:true},
+  {image_url:'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=700&q=85',caption:'Chef Specials',wide:true},
+  {image_url:'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=700&q=85',caption:'Fresh Ingredients'},
+  {image_url:'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=700&q=85',caption:'Culinary Art'},
+  {image_url:'https://images.unsplash.com/photo-1544025162-d76694265947?w=700&q=85',caption:'Evening Service'},
 ];
 const DEF_REVIEWS = [
   {author_name:'Aakash Thapa',author_initial:'A',platform:'Google',rating:5,review_text:'The Grilled Chicken here is absolutely unreal. Cooked to perfection, beautifully presented. The outdoor fairy light ambiance at night makes it even more special. Blueberry is easily the best dining experience in Butwal.',review_date:'Nov 2024'},
-  {author_name:'Priya Shrestha',author_initial:'P',platform:'Tripadvisor',rating:5,review_text:'Came for my anniversary and the staff went above and beyond. The food, the lighting, the music — every detail was perfect. The Chicken Choila is a must-order. Blueberry has real soul.',review_date:'Oct 2024'},
-  {author_name:'Rohan Gurung',author_initial:'R',platform:'Google',rating:5,review_text:'Steam Momo is the best I have had anywhere in Butwal. The outdoor courtyard with trees and mood lighting is stunning. Very welcoming and inclusive space. Coming back every weekend.',review_date:'Dec 2024'},
-  {author_name:'Sneha KC',author_initial:'S',platform:'Facebook',rating:5,review_text:'The Buddha interior artwork is breathtaking. We had our birthday here and they made it incredibly special. Honey Mustard Leg is a showstopper — tender, rich, perfectly glazed.',review_date:'Jan 2025'},
-  {author_name:'Dipesh Adhikari',author_initial:'D',platform:'Google',rating:4,review_text:'The hookah, the ambiance, the food — all premium quality. Timure Chicken has this incredible Szechuan kick. Best late-night spot in Butwal by far.',review_date:'Feb 2025'},
-  {author_name:'Manisha Rai',author_initial:'M',platform:'Tripadvisor',rating:5,review_text:'The open brick-wall courtyard feels like you have stepped into a boutique resort. Pad Thai and the Ramen Bowl were both outstanding. Worth every rupee.',review_date:'Mar 2025'},
+  {author_name:'Priya Shrestha',author_initial:'P',platform:'Tripadvisor',rating:5,review_text:'Came for my anniversary and the staff went above and beyond. Every detail was perfect. The Chicken Choila is a must-order. Blueberry has real soul.',review_date:'Oct 2024'},
+  {author_name:'Rohan Gurung',author_initial:'R',platform:'Google',rating:5,review_text:'Steam Momo is the best I have had anywhere in Butwal. The outdoor courtyard with fairy lighting is stunning. Coming back every weekend.',review_date:'Dec 2024'},
+  {author_name:'Sneha KC',author_initial:'S',platform:'Facebook',rating:5,review_text:'The Buddha interior artwork is breathtaking. We had our birthday here and they made it incredibly special. Honey Mustard Leg is a showstopper.',review_date:'Jan 2025'},
+  {author_name:'Dipesh Adhikari',author_initial:'D',platform:'Google',rating:4,review_text:'The hookah, the ambiance, the food — all premium quality. Timure Chicken has this incredible Szechuan kick. Best late-night spot in Butwal.',review_date:'Feb 2025'},
+  {author_name:'Manisha Rai',author_initial:'M',platform:'Tripadvisor',rating:5,review_text:'The open brick-wall courtyard feels like you have stepped into a boutique resort. Pad Thai and Ramen Bowl were both outstanding.',review_date:'Mar 2025'},
 ];
-const DEF_TIMES = {MON:{8:'quiet',10:'quiet',12:'moderate',14:'moderate',16:'quiet',18:'moderate',20:'quiet'},TUE:{8:'quiet',10:'quiet',12:'moderate',14:'quiet',16:'quiet',18:'moderate',20:'quiet'},WED:{8:'quiet',10:'quiet',12:'moderate',14:'moderate',16:'quiet',18:'moderate',20:'moderate'},THU:{8:'quiet',10:'quiet',12:'moderate',14:'quiet',16:'quiet',18:'moderate',20:'moderate'},FRI:{8:'quiet',10:'quiet',12:'moderate',14:'moderate',16:'quiet',18:'busy',20:'busy'},SAT:{8:'quiet',10:'moderate',12:'busy',14:'busy',16:'moderate',18:'busy',20:'busy'},SUN:{8:'quiet',10:'moderate',12:'busy',14:'busy',16:'moderate',18:'busy',20:'moderate'}};
-const HLABELS = {8:'8AM',10:'10AM',12:'12PM',14:'2PM',16:'4PM',18:'6PM',20:'8PM'};
+const DEF_TIMES={MON:{8:'quiet',10:'quiet',12:'moderate',14:'moderate',16:'quiet',18:'moderate',20:'quiet'},TUE:{8:'quiet',10:'quiet',12:'moderate',14:'quiet',16:'quiet',18:'moderate',20:'quiet'},WED:{8:'quiet',10:'quiet',12:'moderate',14:'moderate',16:'quiet',18:'moderate',20:'moderate'},THU:{8:'quiet',10:'quiet',12:'moderate',14:'quiet',16:'quiet',18:'moderate',20:'moderate'},FRI:{8:'quiet',10:'quiet',12:'moderate',14:'moderate',16:'quiet',18:'busy',20:'busy'},SAT:{8:'quiet',10:'moderate',12:'busy',14:'busy',16:'moderate',18:'busy',20:'busy'},SUN:{8:'quiet',10:'moderate',12:'busy',14:'busy',16:'moderate',18:'busy',20:'moderate'}};
+const HL={8:'8AM',10:'10AM',12:'12PM',14:'2PM',16:'4PM',18:'6PM',20:'8PM'};
 
-// ── INIT ──────────────────────────────────────────────────────
-async function init() {
-  document.getElementById('heroBg').classList.add('loaded');
-  renderMenu(DEF_MENU);
-  renderGallery(DEF_GALLERY.map(g => ({image_url:g.url,caption:g.caption,tall:g.tall,wide:g.wide})));
+let allMenu=[], menuOpen=false, activeCat='all';
+
+async function init(){
+  renderGallery(DEF_GAL);
   renderReviews(DEF_REVIEWS);
   renderTimes(DEF_TIMES);
-  initReveal();
-  initNav();
-  if(db) await Promise.all([loadSettings(),loadMenu(),loadGallery(),loadReviews(),loadTimes()]);
+  initNav(); initReveal();
+  // Load live data from Supabase
+  await Promise.all([loadSettings(), loadMenu(), loadGallery(), loadReviews(), loadTimes()]);
 }
 
-// ── SETTINGS ─────────────────────────────────────────────────
-async function loadSettings() {
-  try {
-    const {data} = await db.from('content_settings').select('key,value');
-    if(!data) return;
-    const s = {}; data.forEach(r => s[r.key] = r.value);
-    const el = id => document.getElementById(id);
-    if(s.hero_badge) el('heroBadge').textContent = s.hero_badge;
-    if(s.hero_tagline) el('heroTagline').textContent = s.hero_tagline;
-    if(s.story_body) el('storyBody').textContent = s.story_body;
-    if(s.stat_rating) el('statRating').textContent = s.stat_rating;
-    if(s.stat_guests) { el('statGuests').textContent = s.stat_guests; el('statGuests2').textContent = s.stat_guests; }
-    if(s.stat_rank) el('statRank').textContent = s.stat_rank;
-    if(s.phone) el('fPhone').textContent = s.phone;
-    if(s.address) el('fAddr').textContent = s.address;
-    if(s.hours) el('fHours').textContent = s.hours;
-    if(s.review_score) el('rvScore').textContent = s.review_score;
-    if(s.review_count) el('rvCount').textContent = `Based on ${s.review_count} reviews on Tripadvisor · Google · Facebook`;
-    if(s.instagram_url) { el('igLink').href = s.instagram_url; el('heroIg').href = s.instagram_url; }
-    if(s.reserve_url && s.reserve_url !== '#') {
-      document.querySelectorAll('[onclick="onReserve()"]').forEach(b => { b.onclick = null; b.href = s.reserve_url; });
+// SETTINGS
+async function loadSettings(){
+  try{
+    const{data}=await db.from('content_settings').select('key,value');
+    if(!data)return;
+    const s={}; data.forEach(r=>s[r.key]=r.value);
+    if(s.hero_badge)document.getElementById('heroBadge').textContent=s.hero_badge;
+    if(s.hero_tagline)document.getElementById('heroTagline').textContent=s.hero_tagline;
+    if(s.story_body)document.getElementById('storyBody').textContent=s.story_body;
+    if(s.stat_rating)document.getElementById('statRating').textContent=s.stat_rating;
+    if(s.stat_guests){document.getElementById('statGuests').textContent=s.stat_guests;document.getElementById('statGuests2').textContent=s.stat_guests;}
+    if(s.stat_rank)document.getElementById('statRank').textContent=s.stat_rank;
+    if(s.phone){document.getElementById('fPhone').textContent=s.phone;document.getElementById('socPhone').textContent=s.phone;}
+    if(s.address)document.getElementById('fAddr').textContent=s.address;
+    if(s.hours)document.getElementById('fHours').textContent=s.hours;
+    if(s.review_score)document.getElementById('rvScore').textContent=s.review_score;
+    if(s.review_count)document.getElementById('rvCount').textContent=`Based on ${s.review_count} reviews on Tripadvisor · Google · Facebook`;
+    if(s.instagram_url&&s.instagram_url!=='https://instagram.com'){
+      ['igLink','heroIg','fIg'].forEach(id=>{const el=document.getElementById(id);if(el)el.href=s.instagram_url;});
+      document.querySelector('.soc-btn.ig').href=s.instagram_url;
     }
-  } catch(e) { console.warn('Settings err', e); }
+    if(s.facebook_url){
+      ['fbLink','fFb'].forEach(id=>{const el=document.getElementById(id);if(el)el.href=s.facebook_url;});
+      const fbBtn=document.querySelector('.soc-btn.fb');if(fbBtn)fbBtn.href=s.facebook_url;
+    }
+    if(s.hero_bg_url)document.getElementById('heroBg').style.backgroundImage=`url('${s.hero_bg_url}')`;
+    if(s.story_img1)document.getElementById('storyImg1').src=s.story_img1;
+    if(s.story_img2)document.getElementById('storyImg2').src=s.story_img2;
+    if(s.reserve_url&&s.reserve_url!=='#'){
+      document.querySelectorAll('[onclick="onReserve()"]').forEach(b=>{b.onclick=()=>window.open(s.reserve_url,'_blank');});
+    }
+  }catch(e){}
 }
 
-// ── MENU ─────────────────────────────────────────────────────
-let allMenuItems = DEF_MENU;
-let menuOpen = false;
-let activeMenuCat = 'all';
-
-async function loadMenu() {
-  try {
-    const {data} = await db.from('menu_items').select('*').eq('available',true).order('sort_order');
-    if(data && data.length) { allMenuItems = data; renderMenu(data); }
-  } catch(e) {}
+// MENU
+async function loadMenu(){
+  try{
+    const{data}=await db.from('menu_items').select('*').eq('available',true).order('sort_order');
+    if(data&&data.length){allMenu=data;renderMenu(data);}
+  }catch(e){}
 }
-
-function renderMenu(items) {
-  // Build category tabs
-  const cats = ['all', ...new Set(items.map(i => i.category).filter(Boolean))];
-  document.getElementById('menuTabs').innerHTML = cats.map(c =>
+function renderMenu(items){
+  const cats=['all',...new Set(items.map(i=>i.category).filter(Boolean))];
+  document.getElementById('menuTabs').innerHTML=cats.map(c=>
     `<button class="m-tab${c==='all'?' active':''}" onclick="filterMenu('${c}',this)">${c==='all'?'All':c}</button>`
   ).join('');
-  // Render featured (first 6)
-  const featured = items.slice(0,6);
-  renderMenuCards(featured, 'menuGrid');
-  // Build full menu by category for expanded view
-  buildFullMenu(items);
+  showMenuCards(items.slice(0,6));
 }
-
-function filterMenu(cat, el) {
-  activeMenuCat = cat;
-  document.querySelectorAll('.m-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  const filtered = cat === 'all' ? allMenuItems : allMenuItems.filter(i => i.category === cat);
-  const featured = filtered.slice(0, 6);
-  renderMenuCards(featured, 'menuGrid');
-  if(menuOpen) buildFullMenu(cat === 'all' ? allMenuItems : filtered);
+function filterMenu(cat,el){
+  activeCat=cat;
+  document.querySelectorAll('.m-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');
+  const f=cat==='all'?allMenu:allMenu.filter(i=>i.category===cat);
+  showMenuCards(f.slice(0,6));
+  if(menuOpen)buildFullMenu(cat==='all'?allMenu:f);
   initReveal();
 }
-
-function renderMenuCards(items, gridId) {
-  const g = document.getElementById(gridId);
-  if(!items.length) { g.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--muted)">No items in this category yet</div>`; return; }
-  g.innerHTML = items.map((item,i) => {
-    const bc = item.badge==='SIGNATURE'||item.badge==="CHEF'S PICK" ? 'sig' : item.badge==='POPULAR' ? 'pop' : '';
-    return `<div class="m-card reveal" style="transition-delay:${i*0.07}s">
+function showMenuCards(items){
+  const g=document.getElementById('menuGrid');
+  if(!items.length){g.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--muted)">No items in this category</div>`;return;}
+  g.innerHTML=items.map((item,i)=>{
+    const badgeCls=item.badge==='POPULAR'?'pop':item.badge==='SIGNATURE'?'sig':(item.badge==="CHEF'S PICK"||item.badge==='CHEF\'S PICK')?'chef':item.badge==='FRESH'?'fresh':'new';
+    return`<div class="m-card rw" style="transition-delay:${i*.07}s">
       <div class="m-img">
-        ${item.image_url ? `<img src="${item.image_url}" alt="${item.name}" loading="lazy">` : `<div class="m-img-ph">🍽️</div>`}
-        ${item.badge ? `<div class="m-badge ${bc}">${item.badge}</div>` : ''}
+        ${item.image_url?`<img src="${item.image_url}" alt="${item.name}" loading="lazy">`:`<div class="m-img-ph">🍽️</div>`}
+        ${item.badge?`<div class="m-badge ${badgeCls}">${item.badge}</div>`:''}
       </div>
       <div class="m-body">
         <div class="m-stars">★★★★★</div>
         <div class="m-name">${item.name}</div>
-        <p class="m-desc">${item.description || ''}</p>
+        <p class="m-desc">${item.description||''}</p>
         <div class="m-foot">
           <div class="m-price">Rs. ${item.price_min}${item.price_max&&item.price_max!==item.price_min?' – Rs.'+item.price_max:''}</div>
           <div class="m-cat">${item.category||''}</div>
@@ -624,97 +605,87 @@ function renderMenuCards(items, gridId) {
   }).join('');
   initReveal();
 }
-
-function buildFullMenu(items) {
-  const cats = [...new Set(items.map(i => i.category).filter(Boolean))];
-  document.getElementById('fullMenuContent').innerHTML = cats.map(cat => {
-    const catItems = items.filter(i => i.category === cat);
-    return `<div style="margin-bottom:48px">
-      <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px">
-        <h3 style="font-family:var(--serif);font-size:1.3rem;font-weight:500;color:var(--gold);letter-spacing:.02em">${cat}</h3>
-        <div style="flex:1;height:1px;background:var(--border)"></div>
+function buildFullMenu(items){
+  const cats=[...new Set(items.map(i=>i.category).filter(Boolean))];
+  document.getElementById('fullMenu').innerHTML=cats.map(cat=>{
+    const ci=items.filter(i=>i.category===cat);
+    return`<div class="cat-block rw">
+      <div class="cat-heading"><h3>${cat}</h3><div class="cat-heading-line"></div></div>
+      <div class="full-grid">${ci.map(item=>`
+        <div class="full-item">
+          <div><div class="fi-name">${item.name}</div><div class="fi-desc">${item.description||''}</div></div>
+          <div class="fi-price">Rs. ${item.price_min}${item.price_max&&item.price_max!==item.price_min?' – '+item.price_max:''}</div>
+        </div>`).join('')}
       </div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
-        ${catItems.map(item => `
-          <div style="background:var(--card);border:1px solid var(--border);padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;transition:border-color .2s" onmouseenter="this.style.borderColor='rgba(200,169,110,.3)'" onmouseleave="this.style.borderColor='var(--border)'">
-            <div>
-              <div style="font-family:var(--serif);font-size:.92rem;color:var(--cream);margin-bottom:3px">${item.name}</div>
-              <div style="font-size:.72rem;color:var(--muted);line-height:1.6">${item.description||''}</div>
-            </div>
-            <div style="font-family:var(--serif);font-size:.9rem;color:var(--gold);white-space:nowrap;flex-shrink:0">Rs. ${item.price_min}${item.price_max&&item.price_max!==item.price_min?' – '+item.price_max:''}</div>
-          </div>`).join('')}
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function toggleFullMenu() {
-  menuOpen = !menuOpen;
-  const sec = document.getElementById('fullMenuSection');
-  const btn = document.getElementById('seeMoreBtn');
-  const txt = document.getElementById('seeMoreTxt');
-  const arr = document.getElementById('seeMoreArrow');
-  if(menuOpen) {
-    buildFullMenu(allMenuItems);
-    sec.style.display = 'block';
-    txt.textContent = 'See Less';
-    arr.textContent = '▲';
-    btn.classList.add('open');
-    setTimeout(() => sec.scrollIntoView({behavior:'smooth',block:'start'}), 100);
-  } else {
-    sec.style.display = 'none';
-    txt.textContent = 'See Full Menu';
-    arr.textContent = '▼';
-    btn.classList.remove('open');
-  }
-}
-
-// ── GALLERY ──────────────────────────────────────────────────
-async function loadGallery() {
-  try {
-    const {data} = await db.from('gallery_images').select('*').order('sort_order');
-    if(data && data.length) renderGallery(data);
-  } catch(e) {}
-}
-
-function renderGallery(imgs) {
-  const grid = document.getElementById('galleryGrid');
-  if(!imgs.length) {
-    grid.innerHTML = `<div class="gallery-empty"><h3>Gallery Coming Soon</h3><p>Upload your photos via the admin panel</p></div>`;
-    return;
-  }
-  grid.innerHTML = imgs.map((img, i) => {
-    const cls = (img.tall ? 'g-item tall' : img.wide ? 'g-item wide' : 'g-item') + ' reveal';
-    return `<div class="${cls}" style="transition-delay:${i*0.06}s" onclick="openLightbox('${img.image_url}')">
-      ${img.image_url ? `<img src="${img.image_url}" alt="${img.caption||'Gallery'}" loading="lazy">` : `<div class="g-item-ph">🖼️</div>`}
-      <div class="g-overlay"></div>
-      ${img.caption ? `<div class="g-caption">${img.caption}</div>` : ''}
     </div>`;
   }).join('');
   initReveal();
 }
-
-function openLightbox(src) { document.getElementById('lbImg').src=src; document.getElementById('lightbox').classList.add('open'); document.body.style.overflow='hidden'; }
-function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); document.body.style.overflow=''; }
-
-// ── REVIEWS ──────────────────────────────────────────────────
-async function loadReviews() {
-  try {
-    const {data} = await db.from('testimonials').select('*').order('sort_order');
-    if(data && data.length) renderReviews(data);
-  } catch(e) {}
+function toggleFullMenu(){
+  menuOpen=!menuOpen;
+  const sec=document.getElementById('fullMenu');
+  const btn=document.getElementById('seeMoreBtn');
+  if(menuOpen){
+    buildFullMenu(activeCat==='all'?allMenu:allMenu.filter(i=>i.category===activeCat));
+    sec.style.display='block';
+    document.getElementById('seeMoreTxt').textContent='See Less';
+    document.getElementById('seeArr').textContent='▲';
+    btn.classList.add('open');
+    setTimeout(()=>sec.scrollIntoView({behavior:'smooth',block:'start'}),100);
+  }else{
+    sec.style.display='none';
+    document.getElementById('seeMoreTxt').textContent='See Full Menu';
+    document.getElementById('seeArr').textContent='▼';
+    btn.classList.remove('open');
+  }
 }
 
-function renderReviews(reviews) {
-  const stars = n => '★'.repeat(n)+'☆'.repeat(5-n);
-  document.getElementById('reviewsGrid').innerHTML = reviews.map((r,i) => `
-    <div class="rv-card reveal" style="transition-delay:${i*0.1}s">
+// GALLERY — loads from Supabase, falls back to defaults
+async function loadGallery(){
+  try{
+    const{data}=await db.from('gallery_images').select('*').order('sort_order');
+    if(data&&data.length>0)renderGallery(data);
+  }catch(e){}
+}
+function renderGallery(imgs){
+  const g=document.getElementById('galleryGrid');
+  if(!imgs.length){
+    g.innerHTML=`<div class="gallery-empty"><h3>Gallery Coming Soon</h3><p>Upload your photos via the admin panel</p></div>`;return;
+  }
+  // Assign tall/wide to first few for a nice mosaic layout
+  const layout=[{tall:true},{},{},{tall:true},{wide:true},{},{},{}];
+  g.innerHTML=imgs.map((img,i)=>{
+    const l=layout[i]||{};
+    const tall=img.tall!=null?img.tall:l.tall;
+    const wide=img.wide!=null?img.wide:l.wide;
+    const cls='g-item'+(tall?' tall':wide?' wide':'');
+    const url=img.image_url;
+    return`<div class="${cls} rw-s" style="transition-delay:${i*.06}s" onclick="openLb('${url}')">
+      ${url?`<img src="${url}" alt="${img.caption||img.title||'Gallery'}" loading="lazy">`:`<div class="g-item-ph">🖼️</div>`}
+      <div class="g-ov"></div>
+      ${(img.caption||img.title)?`<div class="g-cap">${img.caption||img.title}</div>`:''}
+    </div>`;
+  }).join('');
+  initReveal();
+}
+function openLb(src){document.getElementById('lbImg').src=src;document.getElementById('lbox').classList.add('open');document.body.style.overflow='hidden';}
+function closeLb(){document.getElementById('lbox').classList.remove('open');document.body.style.overflow='';}
+
+// REVIEWS
+async function loadReviews(){
+  try{
+    const{data}=await db.from('testimonials').select('*').order('sort_order');
+    if(data&&data.length)renderReviews(data);
+  }catch(e){}
+}
+function renderReviews(reviews){
+  const stars=n=>'★'.repeat(n)+'☆'.repeat(5-n);
+  document.getElementById('rvGrid').innerHTML=reviews.map((r,i)=>`
+    <div class="rv-card rw" style="transition-delay:${i*.09}s">
       <div class="rv-top">
-        <div class="rv-av">${r.author_initial||r.author_name[0]}</div>
-        <div>
-          <div class="rv-name">${r.author_name}</div>
-          <div class="rv-meta">${r.review_date||''}<span class="rv-platform">${r.platform||'Google'}</span></div>
-        </div>
+        <div class="rv-av">${r.author_initial||(r.author_name||r.name||'?')[0]}</div>
+        <div><div class="rv-name">${r.author_name||r.name}</div>
+          <div class="rv-meta">${r.review_date||''}<span class="rv-plat">${r.platform||'Google'}</span></div></div>
       </div>
       <div class="rv-stars2">${stars(r.rating||5)}</div>
       <p class="rv-text">${r.review_text}</p>
@@ -722,55 +693,54 @@ function renderReviews(reviews) {
   initReveal();
 }
 
-// ── POPULAR TIMES ─────────────────────────────────────────────
-async function loadTimes() {
-  try {
-    const {data} = await db.from('popular_times').select('*').order('day_order').order('hour_order');
-    if(!data?.length) return;
-    const grouped = {};
-    data.forEach(r => { if(!grouped[r.day_name]) grouped[r.day_name] = {}; grouped[r.day_name][r.hour_label] = r.level; });
-    renderTimesDB(grouped);
-  } catch(e) {}
+// POPULAR TIMES
+async function loadTimes(){
+  try{
+    const{data}=await db.from('popular_times').select('*').order('day_order').order('hour_order');
+    if(!data?.length)return;
+    const g={};data.forEach(r=>{if(!g[r.day_name])g[r.day_name]={};g[r.day_name][r.hour_label]=r.level;});
+    const hours=['8AM','10AM','12PM','2PM','4PM','6PM','8PM'];
+    document.getElementById('tGrid').innerHTML=Object.entries(g).map(([day,times])=>
+      `<div class="d-col"><div class="d-name">${day}</div><div class="t-bars">${hours.map(h=>
+        `<div class="t-row"><span class="t-lbl">${h}</span><div class="t-track"><div class="t-fill ${times[h]||'quiet'}"></div></div></div>`
+      ).join('')}</div></div>`
+    ).join('');
+  }catch(e){}
 }
-
-function renderTimes(data) {
-  const hours = [8,10,12,14,16,18,20];
-  document.getElementById('timesGrid').innerHTML = Object.entries(data).map(([day,times]) =>
-    `<div class="d-col"><div class="d-name">${day}</div><div class="t-bars">${hours.map(h => `
-      <div class="t-row"><span class="t-lbl">${HLABELS[h]}</span><div class="t-track"><div class="t-fill ${times[h]||'quiet'}"></div></div></div>`).join('')}</div></div>`
+function renderTimes(data){
+  const hours=[8,10,12,14,16,18,20];
+  document.getElementById('tGrid').innerHTML=Object.entries(data).map(([day,times])=>
+    `<div class="d-col"><div class="d-name">${day}</div><div class="t-bars">${hours.map(h=>
+      `<div class="t-row"><span class="t-lbl">${HL[h]}</span><div class="t-track"><div class="t-fill ${times[h]||'quiet'}"></div></div></div>`
+    ).join('')}</div></div>`
   ).join('');
 }
 
-function renderTimesDB(data) {
-  const hours = ['8AM','10AM','12PM','2PM','4PM','6PM','8PM'];
-  document.getElementById('timesGrid').innerHTML = Object.entries(data).map(([day,times]) =>
-    `<div class="d-col"><div class="d-name">${day}</div><div class="t-bars">${hours.map(h => `
-      <div class="t-row"><span class="t-lbl">${h}</span><div class="t-track"><div class="t-fill ${times[h]||'quiet'}"></div></div></div>`).join('')}</div></div>`
-  ).join('');
+// NAV
+function initNav(){
+  window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('scrolled',scrollY>60));
+}
+function onReserve(){showToast('📞 Call us to reserve: +977 981-7497187 or visit us at Sukkanagar-8, Butwal 🌿','gold');}
+function openMob(){document.getElementById('mobDraw').classList.add('open');document.body.style.overflow='hidden';}
+function closeMob(){document.getElementById('mobDraw').classList.remove('open');document.body.style.overflow='';}
+
+// BUTTERY SMOOTH REVEAL
+function initReveal(){
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}
+    });
+  },{threshold:0.06,rootMargin:'0px 0px -30px 0px'});
+  document.querySelectorAll('.rw,.rw-l,.rw-r,.rw-s').forEach(el=>{
+    if(!el.classList.contains('in'))io.observe(el);
+  });
 }
 
-// ── NAV & UTILS ───────────────────────────────────────────────
-function initNav() {
-  window.addEventListener('scroll', () => document.getElementById('nav').classList.toggle('scrolled', scrollY > 60));
-}
-function onReserve() { showToast('To reserve: Call us at +977 981-7497187 or visit us in Sukkanagar-8, Butwal 🌿', 'gold'); }
-function openMob() { document.getElementById('mobDraw').classList.add('open'); document.body.style.overflow='hidden'; }
-function closeMob() { document.getElementById('mobDraw').classList.remove('open'); document.body.style.overflow=''; }
-
-// ── REVEAL ON SCROLL ──────────────────────────────────────────
-function initReveal() {
-  const io = new IntersectionObserver(entries => {
-    entries.forEach((e,i) => { if(e.isIntersecting) { setTimeout(() => e.target.classList.add('up'), 0); io.unobserve(e.target); } });
-  }, {threshold:0.07, rootMargin:'0px 0px -40px 0px'});
-  document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale').forEach(el => { if(!el.classList.contains('up')) io.observe(el); });
-}
-
-// ── TOAST ─────────────────────────────────────────────────────
 let tT;
-function showToast(msg, type='') {
-  clearTimeout(tT); const el = document.getElementById('toast');
-  el.textContent = msg; el.className = `toast ${type} show`;
-  tT = setTimeout(() => el.classList.remove('show'), 4500);
+function showToast(msg,type=''){
+  clearTimeout(tT);const el=document.getElementById('toast');
+  el.textContent=msg;el.className=`toast ${type} show`;
+  tT=setTimeout(()=>el.classList.remove('show'),4500);
 }
 
 init();
